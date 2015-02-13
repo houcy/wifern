@@ -321,7 +321,7 @@ class Victim:
                 partial_mac = bssid[:8]
                 if lookup_mac == partial_mac:
                     self.model = ' '.join(oui_db[2:])
-                    return model
+                    return model    # need to athached to client before record is displayed
         except IOError as a:
             print "I/O error({0}): {1}".format(a.errno, a.strerror)
 
