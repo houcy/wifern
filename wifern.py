@@ -301,6 +301,7 @@ class Victim:
         bssid = 'fc:bb:a1:35:f1:5g'
         partial_mac = ''
 
+
         try:
             oui_path = ''
             if os.path.exists(oui_path0):
