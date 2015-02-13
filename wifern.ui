@@ -1,0 +1,972 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>mainwindow</class>
+ <widget class="QMainWindow" name="mainwindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>1339</width>
+    <height>771</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <property name="toolButtonStyle">
+   <enum>Qt::ToolButtonIconOnly</enum>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <widget class="QTabWidget" name="tabWidget">
+    <property name="geometry">
+     <rect>
+      <x>0</x>
+      <y>0</y>
+      <width>1331</width>
+      <height>771</height>
+     </rect>
+    </property>
+    <property name="sizePolicy">
+     <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+      <horstretch>0</horstretch>
+      <verstretch>0</verstretch>
+     </sizepolicy>
+    </property>
+    <property name="autoFillBackground">
+     <bool>false</bool>
+    </property>
+    <property name="currentIndex">
+     <number>0</number>
+    </property>
+    <property name="iconSize">
+     <size>
+      <width>30</width>
+      <height>30</height>
+     </size>
+    </property>
+    <widget class="QWidget" name="home_tab">
+     <attribute name="icon">
+      <iconset>
+       <normaloff>Resources/Home-icon.png</normaloff>Resources/Home-icon.png</iconset>
+     </attribute>
+     <attribute name="title">
+      <string>Home</string>
+     </attribute>
+     <widget class="QWidget" name="verticalLayoutWidget">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>0</y>
+        <width>1301</width>
+        <height>721</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <widget class="QGroupBox" name="groupBox">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Program List</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
+         </property>
+         <widget class="QTreeWidget" name="treeWidget">
+          <property name="geometry">
+           <rect>
+            <x>0</x>
+            <y>80</y>
+            <width>281</width>
+            <height>411</height>
+           </rect>
+          </property>
+          <property name="frameShape">
+           <enum>QFrame::StyledPanel</enum>
+          </property>
+          <attribute name="headerDefaultSectionSize">
+           <number>120</number>
+          </attribute>
+          <attribute name="headerHighlightSections">
+           <bool>false</bool>
+          </attribute>
+          <column>
+           <property name="text">
+            <string>Program name</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Available</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Required</string>
+           </property>
+          </column>
+          <column>
+           <property name="text">
+            <string>Good if Available</string>
+           </property>
+          </column>
+         </widget>
+         <widget class="QGroupBox" name="groupBox_2">
+          <property name="geometry">
+           <rect>
+            <x>290</x>
+            <y>0</y>
+            <width>1001</width>
+            <height>691</height>
+           </rect>
+          </property>
+          <property name="title">
+           <string>Tools </string>
+          </property>
+          <widget class="QGroupBox" name="groupBox_3">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>20</y>
+             <width>361</width>
+             <height>161</height>
+            </rect>
+           </property>
+           <property name="title">
+            <string>Wordlist Tools</string>
+           </property>
+           <widget class="QPushButton" name="Get_Wordlist_Button">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>20</y>
+              <width>95</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Get Wordlist</string>
+            </property>
+           </widget>
+           <widget class="QLineEdit" name="sort_wordlist_lineEdit">
+            <property name="geometry">
+             <rect>
+              <x>100</x>
+              <y>20</y>
+              <width>261</width>
+              <height>31</height>
+             </rect>
+            </property>
+           </widget>
+           <widget class="QCheckBox" name="sort_checkBox">
+            <property name="geometry">
+             <rect>
+              <x>100</x>
+              <y>60</y>
+              <width>61</width>
+              <height>26</height>
+             </rect>
+            </property>
+            <property name="toolTip">
+             <string>Sort the wordlist</string>
+            </property>
+            <property name="text">
+             <string>Sort</string>
+            </property>
+           </widget>
+           <widget class="QCheckBox" name="unique_checkBox">
+            <property name="geometry">
+             <rect>
+              <x>170</x>
+              <y>60</y>
+              <width>81</width>
+              <height>26</height>
+             </rect>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Unique the wordlist.&lt;/p&gt;&lt;p&gt;Make sure only unique passwords are contained inside the list.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Unique</string>
+            </property>
+           </widget>
+           <widget class="QCheckBox" name="pwinspector_checkBox">
+            <property name="geometry">
+             <rect>
+              <x>250</x>
+              <y>60</y>
+              <width>111</width>
+              <height>26</height>
+             </rect>
+            </property>
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save some extra time when attacking WPA systems(handshakes) by making sure that ONLY words of length 8 and greater are included.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string>Pw Inspector</string>
+            </property>
+           </widget>
+           <widget class="Line" name="line">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>80</y>
+              <width>361</width>
+              <height>20</height>
+             </rect>
+            </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="Process_wordlist_Button">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>50</y>
+              <width>95</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Execute</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_2">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>90</y>
+              <width>361</width>
+              <height>61</height>
+             </rect>
+            </property>
+            <property name="toolTip">
+             <string/>
+            </property>
+            <property name="text">
+             <string>Please note that depending on the size of the wordlist these operations will take a long time to complete especially if they are combined </string>
+            </property>
+            <property name="wordWrap">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </widget>
+          <widget class="QGroupBox" name="groupBox_4">
+           <property name="geometry">
+            <rect>
+             <x>370</x>
+             <y>20</y>
+             <width>621</width>
+             <height>221</height>
+            </rect>
+           </property>
+           <property name="title">
+            <string>Reaver</string>
+           </property>
+           <widget class="QComboBox" name="Monitor_select_comboBox">
+            <property name="geometry">
+             <rect>
+              <x>100</x>
+              <y>20</y>
+              <width>71</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <item>
+             <property name="text">
+              <string>None</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>mon0</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>mon1</string>
+             </property>
+            </item>
+           </widget>
+           <widget class="QLabel" name="label_3">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>20</y>
+              <width>91</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Monitor Interface</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="label_4">
+            <property name="geometry">
+             <rect>
+              <x>200</x>
+              <y>20</y>
+              <width>61</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="font">
+             <font>
+              <weight>75</weight>
+              <bold>true</bold>
+             </font>
+            </property>
+            <property name="text">
+             <string>Wash</string>
+            </property>
+           </widget>
+           <widget class="QTreeWidget" name="treeWidget_2">
+            <property name="geometry">
+             <rect>
+              <x>180</x>
+              <y>50</y>
+              <width>431</width>
+              <height>141</height>
+             </rect>
+            </property>
+            <column>
+             <property name="text">
+              <string>BSSID</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>ESSID</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Power</string>
+             </property>
+            </column>
+            <column>
+             <property name="text">
+              <string>Locked</string>
+             </property>
+            </column>
+           </widget>
+           <widget class="QPushButton" name="start_wash_Button">
+            <property name="geometry">
+             <rect>
+              <x>280</x>
+              <y>10</y>
+              <width>95</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Start</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="stop_wash_Button">
+            <property name="geometry">
+             <rect>
+              <x>380</x>
+              <y>10</y>
+              <width>95</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>&amp;Stop</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="reaver_command_label">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>190</y>
+              <width>621</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Reaver command:</string>
+            </property>
+           </widget>
+           <widget class="QCheckBox" name="checkBox">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>50</y>
+              <width>131</width>
+              <height>26</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>--no-associate</string>
+            </property>
+           </widget>
+           <widget class="QCheckBox" name="checkBox_2">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>70</y>
+              <width>121</width>
+              <height>26</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>--ignore-locks</string>
+            </property>
+           </widget>
+           <widget class="QCheckBox" name="checkBox_3">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>90</y>
+              <width>93</width>
+              <height>26</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>--dh-small</string>
+            </property>
+           </widget>
+           <widget class="QCheckBox" name="checkBox_4">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>110</y>
+              <width>93</width>
+              <height>26</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>--auto</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="pushButton_6">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>140</y>
+              <width>91</width>
+              <height>23</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>Start Reaver</string>
+            </property>
+           </widget>
+          </widget>
+          <widget class="QGroupBox" name="Interface_groupBox">
+           <property name="geometry">
+            <rect>
+             <x>10</x>
+             <y>190</y>
+             <width>301</width>
+             <height>171</height>
+            </rect>
+           </property>
+           <property name="title">
+            <string>Available Interfaces</string>
+           </property>
+           <widget class="QLabel" name="Int_Label1">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>80</y>
+              <width>71</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>lan</string>
+            </property>
+           </widget>
+           <widget class="QLabel" name="Int_label2">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>120</y>
+              <width>81</width>
+              <height>21</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>lan2</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="wlan0_monitor_Button">
+            <property name="geometry">
+             <rect>
+              <x>130</x>
+              <y>70</y>
+              <width>121</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>&lt;- Monitor Mode</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="wlan1_monitor_button">
+            <property name="geometry">
+             <rect>
+              <x>130</x>
+              <y>110</y>
+              <width>121</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>&lt;- Monitor Mode</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="list_interfaces_Button">
+            <property name="geometry">
+             <rect>
+              <x>10</x>
+              <y>20</y>
+              <width>241</width>
+              <height>31</height>
+             </rect>
+            </property>
+            <property name="text">
+             <string>List Wireless Interfaces</string>
+            </property>
+           </widget>
+          </widget>
+         </widget>
+         <widget class="QLabel" name="label_5">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>20</y>
+            <width>271</width>
+            <height>51</height>
+           </rect>
+          </property>
+          <property name="text">
+           <string>This is a list of programs that are required for the application to run smothly and some programs that help you with diferent aspects of your network testing.</string>
+          </property>
+          <property name="wordWrap">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="wifi_tab">
+     <attribute name="icon">
+      <iconset>
+       <normaloff>Resources/WiFi.png</normaloff>Resources/WiFi.png</iconset>
+     </attribute>
+     <attribute name="title">
+      <string>Wifi Attack</string>
+     </attribute>
+     <widget class="QPushButton" name="access_pointScan_Button">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>10</y>
+        <width>181</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="font">
+       <font>
+        <weight>75</weight>
+        <bold>true</bold>
+       </font>
+      </property>
+      <property name="text">
+       <string>Scan for Access Points</string>
+      </property>
+     </widget>
+     <widget class="QTableWidget" name="accessPointTable">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>50</y>
+        <width>1041</width>
+        <height>531</height>
+       </rect>
+      </property>
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="lineWidth">
+       <number>3</number>
+      </property>
+      <property name="alternatingRowColors">
+       <bool>true</bool>
+      </property>
+      <property name="wordWrap">
+       <bool>false</bool>
+      </property>
+      <column>
+       <property name="text">
+        <string>BSSID</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>ESSID</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Channel</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Encryption</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Cipher</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Authentication</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Power</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>WPS</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Key</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>Make / Model</string>
+       </property>
+       <property name="font">
+        <font>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+      </column>
+     </widget>
+     <widget class="QGroupBox" name="EncryptionGroupBox">
+      <property name="geometry">
+       <rect>
+        <x>1050</x>
+        <y>230</y>
+        <width>241</width>
+        <height>71</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Encryption</string>
+      </property>
+      <widget class="QRadioButton" name="wep_radioButton">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>30</y>
+         <width>61</width>
+         <height>26</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>WEP</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="wpa_radioButton">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>30</y>
+         <width>61</width>
+         <height>26</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>WPA</string>
+       </property>
+      </widget>
+      <widget class="QRadioButton" name="wps_radioButton">
+       <property name="geometry">
+        <rect>
+         <x>160</x>
+         <y>30</y>
+         <width>71</width>
+         <height>26</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>WPS</string>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="dictionary_groupBox">
+      <property name="geometry">
+       <rect>
+        <x>1050</x>
+        <y>300</y>
+        <width>241</width>
+        <height>81</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Dictionary</string>
+      </property>
+      <widget class="QPushButton" name="dictionary_select_Button">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>10</y>
+         <width>121</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Dictionary Select</string>
+       </property>
+      </widget>
+      <widget class="QLineEdit" name="dict_file_path">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>50</y>
+         <width>241</width>
+         <height>21</height>
+        </rect>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="Clients_Groupbox">
+      <property name="geometry">
+       <rect>
+        <x>1050</x>
+        <y>380</y>
+        <width>231</width>
+        <height>141</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Clients</string>
+      </property>
+      <widget class="QScrollArea" name="Clients_View">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>20</y>
+         <width>231</width>
+         <height>121</height>
+        </rect>
+       </property>
+       <property name="widgetResizable">
+        <bool>true</bool>
+       </property>
+       <widget class="QWidget" name="scrollAreaWidgetContents">
+        <property name="geometry">
+         <rect>
+          <x>0</x>
+          <y>0</y>
+          <width>229</width>
+          <height>119</height>
+         </rect>
+        </property>
+       </widget>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="toolbox_groupBox">
+      <property name="geometry">
+       <rect>
+        <x>1050</x>
+        <y>520</y>
+        <width>241</width>
+        <height>171</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>ToolBox</string>
+      </property>
+      <widget class="QPushButton" name="pushButton">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>95</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Aircrack-ng</string>
+       </property>
+      </widget>
+      <widget class="QLabel" name="label">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>20</y>
+         <width>241</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Select the tool you wood like to use to attack the access point(s)</string>
+       </property>
+       <property name="wordWrap">
+        <bool>true</bool>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_2">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>60</y>
+         <width>95</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Pyrit</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_3">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>90</y>
+         <width>95</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Reaver</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_4">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>120</y>
+         <width>95</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Mdk3</string>
+       </property>
+      </widget>
+      <widget class="QPushButton" name="pushButton_5">
+       <property name="geometry">
+        <rect>
+         <x>110</x>
+         <y>90</y>
+         <width>95</width>
+         <height>31</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Bully</string>
+       </property>
+      </widget>
+     </widget>
+    </widget>
+    <widget class="QWidget" name="session_tab">
+     <attribute name="title">
+      <string>Session Hijacking</string>
+     </attribute>
+    </widget>
+   </widget>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
