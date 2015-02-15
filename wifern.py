@@ -40,7 +40,12 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.wordlist = ''
         self.working_Dir = ''
         self.list_processes = []  # maybe list of proccesses to close on exit
-        # self.connect(self.access_pointScan_Button, QtCore.SIGNAL("clicked()"), Interface.wireless_interface)
+        self.int_iface = ''
+        before_intface = ('', '')
+        mon_iface = ''
+        self.adapters = []
+        self.monitors = []
+        # self.connect(self.access_pointScan_Button, QtCore.SIGNAL("clicked()"), self.wireless_interface)
         self.connect(self.dictionary_select_Button, QtCore.SIGNAL("clicked()"), self.opendict)
         self.connect(self.Get_Wordlist_Button, QtCore.SIGNAL("clicked()"), self.Sort_Wordlist)
         self.connect(self.Process_wordlist_Button, QtCore.SIGNAL("clicked()"), self.process_wordlist)
@@ -48,6 +53,71 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.wlan1_monitor_button.setVisible(False)
         # self.Process_wordlist_Button.setEnabled(False)
         self.showlcd()
+        self.connect(self.list_interfaces_Button, QtCore.SIGNAL("clicked()"), self.wireless_interface)
+
+    def wireless_interface(self):
+
+        self.int_iface = ''
+        cmd = str(commands.getoutput('iwconfig'))
+        if 'Mode:Managed' in cmd:
+            regex = re.compile('wlan\d', re.IGNORECASE)
+            self.adapters = regex.findall(cmd)
+        if 'Mode:Monitor' in cmd:
+            regex = re.compile('mon\d', re.IGNORECASE)
+            self.monitors = regex.findall(cmd)
+        if not (('Mode:Managed') or ('Mode:Monitor')) in cmd:
+            text = ['No Interface']
+            for i in text:
+                self.adapters_comboBox.addItem(i)
+        for adap in self.adapters:
+            self.adapters_comboBox.addItem(adap)
+            self.wlan0_monitor_Button.setVisible(True)
+        for monit in self.monitors:
+            self.monitors_comboBox.addItem(monit)
+            self.wlan1_monitor_button.setVisible(True)
+        print self.adapters, self.monitors
+
+
+
+    def monitor_mode_enable(self, interface):
+        comma = Popen(['airmon-ng', 'start', interface], stdout=PIPE, stderr=open(os.devnull, 'w'))
+        stdout.flush()
+        command = Popen(['iwconfig'], stdout=PIPE, stderr=open(os.devnull, 'w'))
+        for line in command.communicate()[0].split('\n'):
+            line = line.upper()
+            if line.strip() == '' or 'NO WIRELESS' in line:
+                continue
+            line = line.lower()
+            if len(line) == 0:
+                continue
+            if ord(line[0]) != 32:
+                if line.find('mode:monitor') != -1:
+                    self.mon_iface = line[:line.find(' ')]
+                    if self.monitors.count(self.mon_iface):
+                        return self.mon_iface
+                    else:
+                        self.monitors.append(self.mon_iface)
+
+                    if self.injection_working(self.mon_iface):
+                        print('Yes')
+                    else:
+                        print('Injection NOT working')
+
+
+
+    def injection_working(self, mon_iface_check):
+        stdout.flush()
+        cmd = Popen(['aireplay-ng', '-9', mon_iface_check], stdout=PIPE, stderr=open(os.devnull, 'w'))
+        cmd.wait()
+        for mon_line in cmd.communicate()[0].split('\n'):
+            print mon_line
+            if 'Injection is working!' in mon_line:
+                if mon_iface_check == 'mon0':
+                    self.Int_Label1.setText('<font color=green>mon0</font>')
+                return True
+            # else:
+                # return False
+
 
     def opendict(self):
         #################
@@ -63,11 +133,13 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
 
     def working_dir(self):
-
         from tempfile import mkdtemp
+
         self.working_Dir = mkdtemp(prefix='wifern')
         if not self.working_Dir.endswith(os.sep):
             self.working_Dir += os.sep
+        os.chdir(self.working_Dir)
+
 
 
     def initscan(self, channel=0):
@@ -145,12 +217,15 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             return not (txt[1].strip() == '' or txt[1].find('no %s in' % program) != -1)
 
     def recs(self):
+        ####################
+        #  Method works    #
+        ####################
         row = 0
         col = 0
         self.my_tableWidget.setColumnCount(3)
         self.my_tableWidget.setColumnWidth(1,70)
         self.my_tableWidget.setColumnWidth(2,70)
-        self.my_tableWidget.setRowCount(18)
+        self.my_tableWidget.setRowCount(17)
         rec_progs = ['aircrack-ng', 'aireplay-ng', 'airodump-ng', 'airmon-ng', 'packetforge-ng',
                 'iw', 'iwconfig', 'reaver', 'wash', 'mdk3', 'pyrit', 'ifconfig']
         for prog in rec_progs:
@@ -216,6 +291,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         text = time.toString('hh:mm')
         self.lcd_time_Number.display(text)
 
+
     def Sort_Wordlist(self):
 
         get_wordlist_for_sorting = QtGui.QFileDialog.getOpenFileName(self, 'Select Dictionary', '',
@@ -254,89 +330,7 @@ class Interface(QtGui.QDialog, interfaceGui.Ui_Dialog):
     def __init__(self, parent=None):
         super(Interface, self).__init__(parent)
         self.setupUi(self)
-        int_iface = ''
-        before_intface = ('', '')
-        mon_iface = ''
-        adapters = []
-        monitors = []
-        self.connect(self.list_interfaces_Button, QtCore.SIGNAL("clicked()"), self.wireless_interface)
-        self.connect(self.wlan0_monitor_Button, QtCore.SIGNAL("clicked()"), Interface.monitor_mode_enable(w))
 
-    def wireless_interface(self):
-
-        cmd = Popen(['iwconfig'], stdout=PIPE, stderr=open(os.devnull, "w"))
-        int_iface = ''
-        for line in cmd.communicate()[0].split('\n'):
-            line = line.upper()
-            if line.strip() == '' or 'NO WIRELESS' in line:
-                continue
-            line = line.lower()
-            if len(line) == 0:
-                continue
-            if ord(line[0]) != 32:
-                int_iface = line[:line.find(' ')]
-            if line.find('mode:monitor') != -1:
-                self.monitors.append(int_iface)
-            elif line.find('mode:managed') != -1:   # Need to make a better loop(more Modes)
-                self.adapters.append(int_iface)     # for now its OK
-            else:
-                self.Int_Label1.setText('No Interface')
-        if self.int_iface != '':
-            if self.monitors.count(self.int_iface):
-                return self.int_iface
-            else:
-                if self.int_iface in self.adapters:
-                    if len(self.adapters) == 1:
-                        self.Int_Label1.setText(self.adapters[0])
-                        self.wlan0_monitor_Button.setVisible(True)
-                        global w
-                        w = self.adapters[0]
-                        # break
-                    if len(self.adapters) == 2:
-                        self.Int_label2.setText(self.adapters[1])
-                        z = self.adapters[1]
-                        self.connect(self.wlan1_monitor_button, SIGNAL("clicked()"), self.monitor_mode_enable(z))
-
-
-        print self.adapters, self.monitors
-
-    def monitor_mode_enable(self, interface):
-        comma = Popen(['airmon-ng', 'start', interface], stdout=PIPE, stderr=open(os.devnull, 'w'))
-        stdout.flush()
-        command = Popen(['iwconfig'], stdout=PIPE, stderr=open(os.devnull, 'w'))
-        for line in command.communicate()[0].split('\n'):
-            line = line.upper()
-            if line.strip() == '' or 'NO WIRELESS' in line:
-                continue
-            line = line.lower()
-            if len(line) == 0:
-                continue
-            if ord(line[0]) != 32:
-                if line.find('mode:monitor') != -1:
-                    self.mon_iface = line[:line.find(' ')]
-                    if self.monitors.count(self.mon_iface):
-                        return self.mon_iface
-                    else:
-                        self.monitors.append(self.mon_iface)
-
-        if self.injection_working(self.mon_iface):
-            print('Yes')
-        else:
-            print('Injection NOT working')
-
-
-    def injection_working(self, mon_iface_check):
-        stdout.flush()
-        cmd = Popen(['aireplay-ng', '-9', mon_iface_check], stdout=PIPE, stderr=open(os.devnull, 'w'))
-        cmd.wait()
-        for mon_line in cmd.communicate()[0].split('\n'):
-            print mon_line
-            if 'Injection is working!' in mon_line:
-                print('Yes')
-                self.Int_Label1.setText("<font color=green>self.adapters[0]</font>")
-                return True
-            # else:
-                # return False
 
 class CapFile:
     'Holds data about an access points .cap file, including AP ESSID & BSSID'
