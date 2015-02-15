@@ -82,7 +82,7 @@
          <property name="alignment">
           <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignTop</set>
          </property>
-         <widget class="QTreeWidget" name="treeWidget">
+         <widget class="QTableWidget" name="my_tableWidget">
           <property name="geometry">
            <rect>
             <x>0</x>
@@ -94,15 +94,9 @@
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
           </property>
-          <attribute name="headerDefaultSectionSize">
-           <number>120</number>
-          </attribute>
-          <attribute name="headerHighlightSections">
-           <bool>false</bool>
-          </attribute>
           <column>
            <property name="text">
-            <string>Program name</string>
+            <string>Program</string>
            </property>
           </column>
           <column>
@@ -113,11 +107,6 @@
           <column>
            <property name="text">
             <string>Required</string>
-           </property>
-          </column>
-          <column>
-           <property name="text">
-            <string>Good if Available</string>
            </property>
           </column>
          </widget>
@@ -463,6 +452,16 @@
             </property>
             <property name="text">
              <string>Start Reaver</string>
+            </property>
+           </widget>
+           <widget class="QLCDNumber" name="lcd_time_Number">
+            <property name="geometry">
+             <rect>
+              <x>543</x>
+              <y>12</y>
+              <width>71</width>
+              <height>21</height>
+             </rect>
             </property>
            </widget>
           </widget>

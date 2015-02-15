@@ -30,6 +30,25 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
     # monitor_card = str(self.interface_combo.currentText())
 
+    def __init__(self, parent=None):
+        super(wifern, self).__init__(parent)
+        self.setupUi(self)
+        if os.getuid() != 0:
+            exit(1)
+        self.working_dir()
+        self.recs()
+        self.wordlist = ''
+        self.working_Dir = ''
+        self.list_processes = []  # maybe list of proccesses to close on exit
+        # self.connect(self.access_pointScan_Button, QtCore.SIGNAL("clicked()"), Interface.wireless_interface)
+        self.connect(self.dictionary_select_Button, QtCore.SIGNAL("clicked()"), self.opendict)
+        self.connect(self.Get_Wordlist_Button, QtCore.SIGNAL("clicked()"), self.Sort_Wordlist)
+        self.connect(self.Process_wordlist_Button, QtCore.SIGNAL("clicked()"), self.process_wordlist)
+        self.wlan0_monitor_Button.setVisible(False)
+        self.wlan1_monitor_button.setVisible(False)
+        # self.Process_wordlist_Button.setEnabled(False)
+        self.showlcd()
+
     def opendict(self):
         #################
         # Method works  #
@@ -126,45 +145,76 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             return not (txt[1].strip() == '' or txt[1].find('no %s in' % program) != -1)
 
     def recs(self):
+        row = 0
+        col = 0
+        self.my_tableWidget.setColumnCount(3)
+        self.my_tableWidget.setColumnWidth(1,70)
+        self.my_tableWidget.setColumnWidth(2,70)
+        self.my_tableWidget.setRowCount(18)
         rec_progs = ['aircrack-ng', 'aireplay-ng', 'airodump-ng', 'airmon-ng', 'packetforge-ng',
                 'iw', 'iwconfig', 'reaver', 'wash', 'mdk3', 'pyrit', 'ifconfig']
-        list_rec = []
         for prog in rec_progs:
             if self.program_list(prog):
-                print prog          # remove this line after testing
-                # item = QtGui.QTreeWidgetItem()
-                # item.setText(0, prog)
-                # item.setCheckState(1,Qt.Checked); #to create the column 1 checkbox
-                # list_rec.append(item)
+                x = QtGui.QTableWidgetItem()
+                x.setFlags(QtCore.Qt.ItemIsEnabled)
+                x.setCheckState(QtCore.Qt.Checked)
+                y = QtGui.QTableWidgetItem()
+                y.setFlags(QtCore.Qt.ItemIsEnabled)
+                y.setCheckState(QtCore.Qt.Checked)
+                row_item = QtGui.QTableWidgetItem(prog)
+                self.my_tableWidget.setItem(row, col, row_item)
+                self.my_tableWidget.setItem(row, 1, x)
+                self.my_tableWidget.setItem(row, 2, y)
+                row += 1
+            else:
+                x = QtGui.QTableWidgetItem()
+                x.setFlags(QtCore.Qt.ItemIsEnabled)
+                x.setCheckState(QtCore.Qt.Unchecked)
+                y = QtGui.QTableWidgetItem()
+                y.setFlags(QtCore.Qt.ItemIsEnabled)
+                y.setCheckState(QtCore.Qt.Checked)     # add column with link to install or apt command
+                row_item = QtGui.QTableWidgetItem(prog)
+                self.my_tableWidget.setItem(row, col, row_item)
+                self.my_tableWidget.setItem(row, 1, x)
+                self.my_tableWidget.setItem(row, 2, y)
+                row += 1
+
+
 
         not_rec_progs = ['bully', 'crunch', 'pw-inspector', 'oclhashcat', 'cudahashcat']
         not_rec_list = []
         for prog in not_rec_progs:
             if self.program_list(prog):
-                print prog          # remove this line after testing
-                # item = QtGui.QTreeWidgetItem()
-                # item.setText(0, prog)
-                #item.setCheckState(1,Qt.Checked); #to create the column 1 checkbox
-                #not_rec_list.append(item)
+                x = QtGui.QTableWidgetItem()
+                x.setFlags(QtCore.Qt.ItemIsEnabled)
+                x.setCheckState(QtCore.Qt.Checked)
+                y = QtGui.QTableWidgetItem()
+                y.setFlags(QtCore.Qt.ItemIsEnabled)
+                y.setCheckState(QtCore.Qt.Unchecked)
+                row_item = QtGui.QTableWidgetItem(prog)
+                self.my_tableWidget.setItem(row, col, row_item)
+                self.my_tableWidget.setItem(row, 1, x)
+                self.my_tableWidget.setItem(row, 2, y)
+                row += 1
+            else:
+                x = QtGui.QTableWidgetItem()
+                x.setFlags(QtCore.Qt.ItemIsEnabled)
+                x.setCheckState(QtCore.Qt.Unchecked)
+                y = QtGui.QTableWidgetItem()
+                y.setFlags(QtCore.Qt.ItemIsEnabled)
+                y.setCheckState(QtCore.Qt.Unchecked)
+                row_item = QtGui.QTableWidgetItem(prog)
+                self.my_tableWidget.setItem(row, col, row_item)
+                self.my_tableWidget.setItem(row, 1, x)
+                self.my_tableWidget.setItem(row, 2, y)
+                row += 1
 
-    def __init__(self, parent=None):
-        super(wifern, self).__init__(parent)
-        self.setupUi(self)
-        if os.getuid() != 0:
-            exit(1)
-        self.working_dir()
-        self.recs()
-        self.wordlist = ''
-        self.working_Dir = ''
-        self.list_processes = []  # maybe list of proccesses to close on exit
-        # self.connect(self.access_pointScan_Button, QtCore.SIGNAL("clicked()"), Interface.wireless_interface)
-        self.connect(self.dictionary_select_Button, QtCore.SIGNAL("clicked()"), self.opendict)
-        self.connect(self.Get_Wordlist_Button, QtCore.SIGNAL("clicked()"), self.Sort_Wordlist)
-        self.connect(self.Process_wordlist_Button, QtCore.SIGNAL("clicked()"), self.process_wordlist)
-        self.wlan0_monitor_Button.setVisible(False)
-        self.wlan1_monitor_button.setVisible(False)
-        # self.Process_wordlist_Button.setEnabled(False)
 
+
+    def showlcd(self):
+        time = QtCore.QTime.currentTime()
+        text = time.toString('hh:mm')
+        self.lcd_time_Number.display(text)
 
     def Sort_Wordlist(self):
 
