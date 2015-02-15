@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wifern.ui'
 #
-# Created: Sun Feb 15 11:03:34 2015
+# Created: Sun Feb 15 11:15:30 2015
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -362,7 +362,7 @@ class Ui_mainwindow(object):
         self.pushButton_6.setText(QtGui.QApplication.translate("mainwindow", "Start Reaver", None, QtGui.QApplication.UnicodeUTF8))
         self.Interface_groupBox.setTitle(QtGui.QApplication.translate("mainwindow", "Available Interfaces", None, QtGui.QApplication.UnicodeUTF8))
         self.wlan0_monitor_Button.setText(QtGui.QApplication.translate("mainwindow", "<- Monitor Mode", None, QtGui.QApplication.UnicodeUTF8))
-        self.wlan1_monitor_button.setText(QtGui.QApplication.translate("mainwindow", "<- Monitor Mode", None, QtGui.QApplication.UnicodeUTF8))
+        self.wlan1_monitor_button.setText(QtGui.QApplication.translate("mainwindow", "<- Use This", None, QtGui.QApplication.UnicodeUTF8))
         self.list_interfaces_Button.setText(QtGui.QApplication.translate("mainwindow", "List Wireless Interfaces", None, QtGui.QApplication.UnicodeUTF8))
         self.label_5.setText(QtGui.QApplication.translate("mainwindow", "This is a list of programs that are required for the application to run smothly and some programs that help you with diferent aspects of your network testing.", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.home_tab), QtGui.QApplication.translate("mainwindow", "Home", None, QtGui.QApplication.UnicodeUTF8))

@@ -497,7 +497,7 @@
              </rect>
             </property>
             <property name="text">
-             <string>&lt;- Monitor Mode</string>
+             <string>&lt;- Use This</string>
             </property>
            </widget>
            <widget class="QPushButton" name="list_interfaces_Button">

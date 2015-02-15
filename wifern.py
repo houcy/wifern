@@ -5,7 +5,8 @@ import sys
 from sys import stdout
 import csv  # Exporting and importing cracked aps
 import os  # File management
-# Executing, communicating with, killing processes
+from os import path
+import time
 import subprocess
 from subprocess import Popen, PIPE, call
 import re  # RegEx, Converting ESSID to filename
@@ -28,8 +29,6 @@ import interfaceGui
 class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     'Main application class derived from WIfite and FERN-wifi-cracker thus wifern'
 
-    # monitor_card = str(self.interface_combo.currentText())
-
     def __init__(self, parent=None):
         super(wifern, self).__init__(parent)
         self.setupUi(self)
@@ -41,8 +40,8 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.working_Dir = ''
         self.list_processes = []  # maybe list of proccesses to close on exit
         self.int_iface = ''
-        before_intface = ('', '')
-        mon_iface = ''
+        self.before_intface = ('', '')
+        self.mon_iface = ''
         self.adapters = []
         self.monitors = []
         # self.connect(self.access_pointScan_Button, QtCore.SIGNAL("clicked()"), self.wireless_interface)
@@ -54,6 +53,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         # self.Process_wordlist_Button.setEnabled(False)
         self.showlcd()
         self.connect(self.list_interfaces_Button, QtCore.SIGNAL("clicked()"), self.wireless_interface)
+        self.connect(self.wlan0_monitor_Button, QtCore.SIGNAL('clicked()'), self.monitor_mode_enable)
 
     def wireless_interface(self):
 
@@ -75,48 +75,44 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         for monit in self.monitors:
             self.monitors_comboBox.addItem(monit)
             self.wlan1_monitor_button.setVisible(True)
-        print self.adapters, self.monitors
+        print self.adapters, self.monitors          # remove after tests
 
 
 
-    def monitor_mode_enable(self, interface):
-        comma = Popen(['airmon-ng', 'start', interface], stdout=PIPE, stderr=open(os.devnull, 'w'))
-        stdout.flush()
-        command = Popen(['iwconfig'], stdout=PIPE, stderr=open(os.devnull, 'w'))
-        for line in command.communicate()[0].split('\n'):
-            line = line.upper()
-            if line.strip() == '' or 'NO WIRELESS' in line:
-                continue
-            line = line.lower()
-            if len(line) == 0:
-                continue
-            if ord(line[0]) != 32:
-                if line.find('mode:monitor') != -1:
-                    self.mon_iface = line[:line.find(' ')]
-                    if self.monitors.count(self.mon_iface):
-                        return self.mon_iface
-                    else:
-                        self.monitors.append(self.mon_iface)
-
-                    if self.injection_working(self.mon_iface):
-                        print('Yes')
-                    else:
-                        print('Injection NOT working')
+    def monitor_mode_enable(self,):
+        self.int_iface = str(self.adapters_comboBox.currentText())
+        comm = str(commands.getoutput("ifconfig -a | awk '/HWaddr/ {print $1 " " $NF}'"))
+        a = comm.splitlines()
+        print a
+        for word in a:
+            wor_essid = word[:-17]
+            wor_mac = word[-17:]
+            if wor_essid == self.int_iface:
+                self.before_intface = wor_essid, wor_mac
+                print self.before_intface
+        #= self.before_intface
+        # print self.before_intface
+        '''ifconfig wlan0 down hw ether 00:00:00:00:00:01 ifconfig wlan0 up'''
+        comma = str(commands.getoutput('airmon-ng start %s' %( self.int_iface)))
+        if 'monitor mode enabled' in comma:
+            reg = re.compile('mon\d', re.IGNORECASE)
+            x_int = reg.findall(comma)
+            self.mon_iface = x_int[0]
+            if self.injection_working(self.mon_iface):
+                print('Yes')
+            else:
+                print('Injection NOT working')
 
 
 
     def injection_working(self, mon_iface_check):
-        stdout.flush()
-        cmd = Popen(['aireplay-ng', '-9', mon_iface_check], stdout=PIPE, stderr=open(os.devnull, 'w'))
-        cmd.wait()
-        for mon_line in cmd.communicate()[0].split('\n'):
-            print mon_line
-            if 'Injection is working!' in mon_line:
-                if mon_iface_check == 'mon0':
-                    self.Int_Label1.setText('<font color=green>mon0</font>')
+        cmd = str(commands.getoutput('aireplay-ng -9 %s'%(mon_iface_check)))
+        time.sleep(2)
+        if 'Injection is working!' in cmd:
+                print('Hi')
                 return True
-            # else:
-                # return False
+        else:
+            return False
 
 
     def opendict(self):
@@ -128,11 +124,13 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         if dict_open:
             filename = dict_open
             self.dict_file_path.setText(filename)
-            self.wordlist = filename
+            self.wordlist = os.path.basename(dict_open)
+            print self.wordlist                         #Delete after test
             self.dict_file_path.setEnabled(False)
 
 
     def working_dir(self):
+
         from tempfile import mkdtemp
 
         self.working_Dir = mkdtemp(prefix='wifern')
@@ -148,7 +146,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                '--manufacturer',
                '--output-format',
                'csv',
-               '-w', self.int_iface]
+               '-w', self.mon_iface]
         command = subprocess.Popen(cmd, stdout=open(os.devnull, 'w'), stderr=open(os.devnull, 'w'))
 
 
@@ -324,12 +322,10 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         #  FIX ME              #
         ########################
 
-class Interface(QtGui.QDialog, interfaceGui.Ui_Dialog):
+class Interface:
     'Handles all the interface interactions'
     global wifern
-    def __init__(self, parent=None):
-        super(Interface, self).__init__(parent)
-        self.setupUi(self)
+
 
 
 class CapFile:
