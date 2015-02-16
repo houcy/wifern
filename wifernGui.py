@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wifern.ui'
 #
-# Created: Sun Feb 15 11:15:30 2015
+# Created: Sun Feb 15 19:21:30 2015
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -99,7 +99,7 @@ class Ui_mainwindow(object):
         self.label_2.setWordWrap(True)
         self.label_2.setObjectName(_fromUtf8("label_2"))
         self.groupBox_4 = QtGui.QGroupBox(self.groupBox_2)
-        self.groupBox_4.setGeometry(QtCore.QRect(370, 20, 621, 221))
+        self.groupBox_4.setGeometry(QtCore.QRect(380, 20, 611, 271))
         self.groupBox_4.setObjectName(_fromUtf8("groupBox_4"))
         self.Monitor_select_comboBox = QtGui.QComboBox(self.groupBox_4)
         self.Monitor_select_comboBox.setGeometry(QtCore.QRect(130, 10, 71, 31))
@@ -115,9 +115,9 @@ class Ui_mainwindow(object):
         font.setWeight(75)
         self.label_4.setFont(font)
         self.label_4.setObjectName(_fromUtf8("label_4"))
-        self.treeWidget_2 = QtGui.QTreeWidget(self.groupBox_4)
-        self.treeWidget_2.setGeometry(QtCore.QRect(170, 60, 431, 141))
-        self.treeWidget_2.setObjectName(_fromUtf8("treeWidget_2"))
+        self.wash_treeWidget = QtGui.QTreeWidget(self.groupBox_4)
+        self.wash_treeWidget.setGeometry(QtCore.QRect(150, 60, 451, 141))
+        self.wash_treeWidget.setObjectName(_fromUtf8("wash_treeWidget"))
         self.start_wash_Button = QtGui.QPushButton(self.groupBox_4)
         self.start_wash_Button.setGeometry(QtCore.QRect(280, 20, 95, 31))
         self.start_wash_Button.setObjectName(_fromUtf8("start_wash_Button"))
@@ -125,7 +125,7 @@ class Ui_mainwindow(object):
         self.stop_wash_Button.setGeometry(QtCore.QRect(390, 20, 95, 31))
         self.stop_wash_Button.setObjectName(_fromUtf8("stop_wash_Button"))
         self.reaver_command_label = QtGui.QLabel(self.groupBox_4)
-        self.reaver_command_label.setGeometry(QtCore.QRect(0, 190, 621, 21))
+        self.reaver_command_label.setGeometry(QtCore.QRect(0, 200, 611, 21))
         self.reaver_command_label.setObjectName(_fromUtf8("reaver_command_label"))
         self.checkBox = QtGui.QCheckBox(self.groupBox_4)
         self.checkBox.setGeometry(QtCore.QRect(10, 50, 131, 26))
@@ -348,10 +348,10 @@ class Ui_mainwindow(object):
         self.Monitor_select_comboBox.setItemText(0, QtGui.QApplication.translate("mainwindow", "None", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("mainwindow", "Monitor Interface", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("mainwindow", "Wash", None, QtGui.QApplication.UnicodeUTF8))
-        self.treeWidget_2.headerItem().setText(0, QtGui.QApplication.translate("mainwindow", "BSSID", None, QtGui.QApplication.UnicodeUTF8))
-        self.treeWidget_2.headerItem().setText(1, QtGui.QApplication.translate("mainwindow", "ESSID", None, QtGui.QApplication.UnicodeUTF8))
-        self.treeWidget_2.headerItem().setText(2, QtGui.QApplication.translate("mainwindow", "Power", None, QtGui.QApplication.UnicodeUTF8))
-        self.treeWidget_2.headerItem().setText(3, QtGui.QApplication.translate("mainwindow", "Locked", None, QtGui.QApplication.UnicodeUTF8))
+        self.wash_treeWidget.headerItem().setText(0, QtGui.QApplication.translate("mainwindow", "BSSID", None, QtGui.QApplication.UnicodeUTF8))
+        self.wash_treeWidget.headerItem().setText(1, QtGui.QApplication.translate("mainwindow", "ESSID", None, QtGui.QApplication.UnicodeUTF8))
+        self.wash_treeWidget.headerItem().setText(2, QtGui.QApplication.translate("mainwindow", "Power", None, QtGui.QApplication.UnicodeUTF8))
+        self.wash_treeWidget.headerItem().setText(3, QtGui.QApplication.translate("mainwindow", "Locked", None, QtGui.QApplication.UnicodeUTF8))
         self.start_wash_Button.setText(QtGui.QApplication.translate("mainwindow", "Start", None, QtGui.QApplication.UnicodeUTF8))
         self.stop_wash_Button.setText(QtGui.QApplication.translate("mainwindow", "&Stop", None, QtGui.QApplication.UnicodeUTF8))
         self.reaver_command_label.setText(QtGui.QApplication.translate("mainwindow", "Reaver command:", None, QtGui.QApplication.UnicodeUTF8))

@@ -254,10 +254,10 @@
           <widget class="QGroupBox" name="groupBox_4">
            <property name="geometry">
             <rect>
-             <x>370</x>
+             <x>380</x>
              <y>20</y>
-             <width>621</width>
-             <height>221</height>
+             <width>611</width>
+             <height>271</height>
             </rect>
            </property>
            <property name="title">
@@ -310,12 +310,12 @@
              <string>Wash</string>
             </property>
            </widget>
-           <widget class="QTreeWidget" name="treeWidget_2">
+           <widget class="QTreeWidget" name="wash_treeWidget">
             <property name="geometry">
              <rect>
-              <x>170</x>
+              <x>150</x>
               <y>60</y>
-              <width>431</width>
+              <width>451</width>
               <height>141</height>
              </rect>
             </property>
@@ -370,8 +370,8 @@
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>190</y>
-              <width>621</width>
+              <y>200</y>
+              <width>611</width>
               <height>21</height>
              </rect>
             </property>
