@@ -3,18 +3,20 @@
 
 import sys
 from sys import stdout
-import csv  # Exporting and importing cracked aps
-import os  # File management
+import csv
+import threading
+import os
 from os import path
 import time
 import subprocess
 from subprocess import Popen, PIPE, call
-import re  # RegEx, Converting ESSID to filename
+import re
 from PyQt4 import QtCore, QtGui
 from signal import SIGINT, SIGTERM
 import commands
 import wifernGui
 import interfaceGui
+
 
 """
     My first attempt at duplicating the fern-wifi-cracker and wifite programs
@@ -22,6 +24,21 @@ import interfaceGui
     A tall order and a long rood ahead but if you don't start you're never gone learn
 
 """
+
+wordlist_path = ''
+wordlist = ''
+working_Dir = ''
+list_processes = []  # maybe list of proccesses to close on exit
+int_iface = ''
+before_intface = ('', '')
+after_intface = ('', '')
+mon_iface = ''
+adapters = []
+monitors = []
+wash_bssid = ''
+wash_essid = ''
+wash_power = ''
+wash_locked = ''
 
 
 
@@ -36,15 +53,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             exit(1)
         self.working_dir()
         self.recs()
-        self.wordlist_path = ''
-        self.wordlist = ''
-        self.working_Dir = ''
-        self.list_processes = []  # maybe list of proccesses to close on exit
-        self.int_iface = ''
-        self.before_intface = ('', '')
-        self.mon_iface = ''
-        self.adapters = []
-        self.monitors = []
+        self.wash_thread = WashThread()
         self.connect(self.access_pointScan_Button, QtCore.SIGNAL("clicked()"), self.initscan)
         self.connect(self.dictionary_select_Button, QtCore.SIGNAL("clicked()"), self.opendict)
         self.connect(self.Get_Wordlist_Button, QtCore.SIGNAL("clicked()"), self.Sort_Wordlist)
@@ -52,67 +61,74 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.connect(self.Process_wordlist_Button, QtCore.SIGNAL("clicked()"), self.process_wordlist)
         self.connect(self.list_interfaces_Button, QtCore.SIGNAL("clicked()"), self.wireless_interface)
         self.connect(self.wlan0_monitor_Button, QtCore.SIGNAL('clicked()'), self.monitor_mode_enable)
-        self.connect(self.start_wash_Button, QtCore.SIGNAL('clicked'), self.wash)
+        self.connect(self.wlan1_monitor_button, QtCore.SIGNAL('clicked()'), self.UseThis)
         self.wlan0_monitor_Button.setVisible(False)
         self.wlan1_monitor_button.setVisible(False)
-        # self.Process_wordlist_Button.setEnabled(False)
+        self.start_wash_Button.setEnabled(False)
+        self.Monitor_select_comboBox.setEnabled(False)
         self.showlcd()
 
-
     def wireless_interface(self):
-
-        self.int_iface = ''    # need to check if iwconfig exists (it should )
+        global monitors, adapters
+        # need to check if iwconfig exists (it should )
         cmd = str(commands.getoutput('iwconfig'))
         if 'Mode:Managed' in cmd:
             regex = re.compile('wlan\d', re.IGNORECASE)
-            self.adapters = regex.findall(cmd)
+            adapters = regex.findall(cmd)
         if 'Mode:Monitor' in cmd:
             regex = re.compile('mon\d', re.IGNORECASE)
-            self.monitors = regex.findall(cmd)
+            monitors = regex.findall(cmd)
         if not (('Mode:Managed') or ('Mode:Monitor')) in cmd:
             text = ['No Interface']
             for i in text:
                 self.adapters_comboBox.addItem(i)
-        for adap in self.adapters:
-            self.adapters_comboBox.addItem(adap)
-            self.wlan0_monitor_Button.setVisible(True)
-        for monit in self.monitors:
-            self.monitors_comboBox.addItem(monit)
-            self.wlan1_monitor_button.setVisible(True)
-        print self.adapters, self.monitors          # remove after tests
+        if adapters:
+            for adap in adapters:
+                self.adapters_comboBox.addItem(adap)
+                self.wlan0_monitor_Button.setVisible(True)
+        else:
+            return
+
+        if monitors:
+            for monit in monitors:
+                self.monitors_comboBox.addItem(monit)
+                self.wlan1_monitor_button.setVisible(True)
+        else:
+            return
+        print adapters, monitors          # remove after tests
 
     def monitor_mode_enable(self,):    # need to make this method a thread
-        self.int_iface = str(self.adapters_comboBox.currentText())
+        int_iface = str(self.adapters_comboBox.currentText())
         comm = str(commands.getoutput("ifconfig -a | awk '/HWaddr/ {print $1 " " $NF}'"))
         a = comm.splitlines()
         for word in a:
             wor_essid = word[:-17]
             wor_mac = word[-17:]
-            if wor_essid == self.int_iface:                    ## TODO  Anonymize the original interface
-                self.before_intface = wor_essid, wor_mac       ##       to avoid accidents
-                print self.before_intface
+            if wor_essid == int_iface:                    ## TODO  Anonymize the original interface
+                before_intface = wor_essid, wor_mac       ##       to avoid accidents
+                print before_intface
         '''ifconfig wlan0 down
-         hw ether 01:10:10:00:01:10
+         ifconfig wlan0 hw ether 00:22:33:44:55:66
           ifconfig wlan0 up'''
-        comma = str(commands.getoutput('airmon-ng start %s' %( self.int_iface)))
+        comma = str(commands.getoutput('airmon-ng start %s' %( int_iface)))
         if 'monitor mode enabled' in comma:
             reg = re.compile('mon\d', re.IGNORECASE)
             x_int = reg.findall(comma)
             for a, monitor in enumerate(x_int):
-                self.mon_iface = monitor
-                if self.mon_iface in self.monitors:
-                    self.mon_iface = x_int[(a + 1) % len(x_int)]
+                mon_iface = monitor
+                if mon_iface in monitors:
+                    mon_iface = x_int[(a + 1) % len(x_int)]
                 else:
-                    self.monitors.append(self.mon_iface)
-            if self.injection_working(self.mon_iface):          ## Check if injection is working
-                if self.mon_iface in self.monitors:
-                    for monit in self.monitors:
+                    monitors.append(mon_iface)
+            if self.injection_working(mon_iface):          ## Check if injection is working
+                if mon_iface in monitors:
+                    for monit in monitors:
                         self.monitors_comboBox.addItem(monit)
                         self.Monitor_select_comboBox.addItem(monit)
                         self.wlan1_monitor_button.setVisible(True)
                 else:
-                    self.monitors.append(self.mon_iface)
-                    for monit in self.monitors:
+                    monitors.append(mon_iface)
+                    for monit in monitors:
                         self.monitors_comboBox.addItem(monit)
                         self.Monitor_select_comboBox.addItem(monit)
                         self.wlan1_monitor_button.setVisible(True)
@@ -121,8 +137,10 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                                                         ## Disable(!!!!!) buttons
 
     def injection_working(self, mon_iface_check):  ## Make this method a thread
-        cmd = str(commands.getoutput('aireplay-ng -9 %s'%(mon_iface_check))) ##Commands takes too long maybe use Popen!!
-        if 'Injection is working!' in cmd:
+        cmd = ['aireplay-ng', '-9', mon_iface_check]
+        cmd_inj = Popen(cmd, stdout=PIPE)
+        for line in iter(cmd_inj.stdout.readline, ''):
+            if 'Injection is working!' in line:
                 message = QtGui.QMessageBox.information(self, 'Injection', 'Injection on ' + mon_iface_check + ' is working!', QtGui.QMessageBox.Ok)
                 return True
         else:
@@ -142,6 +160,11 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             self.wordlist_path = str(filename)                        #Delete after test
             self.dict_file_path.setEnabled(False)
 
+    def UseThis(self):
+        if self.monitors_comboBox.currentText() != '':
+            self.mon_iface = self.monitors_comboBox.currentText()
+            self.Monitor_select_comboBox.setEnabled(True)
+            self.start_wash_Button.setEnabled(True)
 
     def washMonitorList(self):
         for i in self.monitors:
@@ -157,11 +180,11 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         os.chdir(self.working_Dir)
 
 
-
     def initscan(self,):
         cmd = str(commands.getoutput('airodump-ng --ignore-negative-one --manufacturer -a --output-format csv -w wifern-dump %s'%(self.mon_iface)))
         # wait aprox 3 sec
         targets, clients = self.get_victim_list(wifern-dump.csv)
+
 
     def get_victim_list(self, csv_filename):
             if not os.path.exists(csv_filename):
@@ -217,6 +240,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 return [], []
             return (targets, clients)
 
+
     def program_list(self, program):
             proc = Popen(['which', program], stdout=PIPE, stderr=PIPE)
             txt = proc.communicate()
@@ -229,42 +253,27 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     def reaver(self):
         print ('Hi')
 
-
-    def wash(self):   ## thread this method
-        device = self.mon_iface
+    def wash(self):
         row = 0
         col = 0
         self.wash_tableWidget.setColumnCount(4)
-        self.wash_tableWidget.setColumnWidth(4,70)
+        self.wash_tableWidget.setColumnWidth(1,150)
+        self.wash_tableWidget.setColumnWidth(4,30)
+        self.wash_tableWidget.setColumnWidth(3,70)
         self.wash_tableWidget.setRowCount(10)
 
         if self.start_wash_Button.text() == 'Start':
-            try:
-                cmd = ['wash', '-C', '-i', self.mon_iface]
-                wash_cmd = Popen(cmd, stdout=PIPE,)
-                # wash_cmd.wait()
-                for line in iter(wash_cmd.stdout.readline, ''):
-                    #communicate()[0].split('\n'): stderr=open(os.devnull, 'w') shell=True,
-                    if line.strip() == '' or line.startswith('---'): continue
-                    if line.startswith('Wash') or line.startswith('Copyright') or line.startswith('BSSID'): continue
-                    Split = line.split(' ')
-                    bssid = Split[0]
-                    essid = Split[58]
-                    power = Split[19]
-                    locked = Split[42]
-                    row_item = QtGui.QTableWidgetItem(bssid)
-                    x = QtGui.QTableWidgetItem(essid)
-                    y = QtGui.QTableWidgetItem(power)
-                    z = QtGui.QTableWidgetItem(locked)
-                    self.wash_tableWidget.setItem(row, col, row_item)
-                    self.wash_tableWidget.setItem(row, 1, x)
-                    self.wash_tableWidget.setItem(row, 2, y)
-                    self.wash_tableWidget.setItem(row, 3, z)
-                    row += 1
-
-                self.start_wash_Button.setText('Stop')
-            except OSError:
-                pass
+            self.start_wash_Button.setText('Stop')
+            self.wash_thread.start(mon_iface)
+            row_item = QtGui.QTableWidgetItem(wash_bssid)
+            x = QtGui.QTableWidgetItem(wash_essid)
+            y = QtGui.QTableWidgetItem(wash_power)
+            z = QtGui.QTableWidgetItem(wash_locked)
+            self.wash_tableWidget.setItem(row, col, row_item)
+            self.wash_tableWidget.setItem(row, 1, x)
+            self.wash_tableWidget.setItem(row, 2, y)
+            self.wash_tableWidget.setItem(row, 3, z)
+            row += 1
         else:
             try:
                 os.kill(cmd.pid, SIGTERM)
@@ -273,13 +282,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 pass
             except UnboundLocalError:
                 pass
-
-        #cmd = str(commands.getoutput('wash -i %s -C'%(self.mon_iface)))
-        #yolo = cmd.splitlines()
-        #print yolo
-        #time.sleep(3)
-
-
 
     def recs(self):
         ####################
@@ -389,7 +391,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         sort = Popen(cmd, stdout=PIPE, stderr=open(os.devnull, 'w'))
         sort.wait()
 
-
         ########################
         #  FIX ME              #
         ########################
@@ -451,15 +452,34 @@ class Victim:
         except IOError as a:
             print "I/O error({0}): {1}".format(a.errno, a.strerror)
 
-class Tools:
 
-    def __init__(self):
-
-        print('')
+class WashThread(QtCore.QThread):
 
 
+    def __init__(self, parent=None):
+        super(WashThread, self).__init__(parent)
 
-
+    def run(self):
+        global mon_iface
+        try:
+            if mon_iface != '':
+                device = mon_iface
+                cmd = ['wash', '-C', '-i', device]
+                wash_cmd = Popen(cmd, shell=True, stdout=PIPE,)
+                for line in iter(wash_cmd.stdout.readline, b''):
+                    if line.strip() == '' or line.startswith('---'): continue
+                    if line.startswith('Wash') or line.startswith('Copyright') or line.startswith('BSSID'): continue
+                    print line
+                    Split = line.split(' ')
+                    wash_bssid = Split[0]
+                    wash_essid = Split[58]
+                    wash_power = Split[19]
+                    wash_locked = Split[42]
+            else:
+                #message = QtGui.QMessageBox.information('Interface Select', 'Please select a monitor Interface', QtGui.QMessageBox.Ok)
+                print('No Good')
+        except OSError:
+            pass
 
 class Client:
     'Contains information about the connected clients to the AP'
@@ -473,9 +493,9 @@ class Client:
     def vicscan(self, intface, bssid):
         self.bssid = Victim.bssid
 
-
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
+    ATTACK = wifern()
     form = wifern()
     form.show()
     sys.exit(app.exec_())
