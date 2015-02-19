@@ -16,6 +16,7 @@ from signal import SIGINT, SIGTERM
 import commands
 import wifernGui
 import interfaceGui
+import Queue as queue
 
 
 """
@@ -27,7 +28,6 @@ import interfaceGui
 
 wordlist_path = ''
 wordlist = ''
-working_Dir = ''
 list_processes = []  # maybe list of proccesses to close on exit
 int_iface = ''
 before_intface = ('', '')
@@ -35,10 +35,8 @@ after_intface = ('', '')
 mon_iface = ''
 adapters = []
 monitors = []
-wash_bssid = ''
-wash_essid = ''
-wash_power = ''
-wash_locked = ''
+WVList = []
+
 
 
 
@@ -51,9 +49,9 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.setupUi(self)
         if os.getuid() != 0:
             exit(1)
+        self.working_Dir = ''
         self.working_dir()
         self.recs()
-        self.wash_thread = WashThread()
         self.connect(self.access_pointScan_Button, QtCore.SIGNAL("clicked()"), self.initscan)
         self.connect(self.dictionary_select_Button, QtCore.SIGNAL("clicked()"), self.opendict)
         self.connect(self.Get_Wordlist_Button, QtCore.SIGNAL("clicked()"), self.Sort_Wordlist)
@@ -62,11 +60,13 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.connect(self.list_interfaces_Button, QtCore.SIGNAL("clicked()"), self.wireless_interface)
         self.connect(self.wlan0_monitor_Button, QtCore.SIGNAL('clicked()'), self.monitor_mode_enable)
         self.connect(self.wlan1_monitor_button, QtCore.SIGNAL('clicked()'), self.UseThis)
+        self.connect(self.Monitor_select_comboBox, QtCore.SIGNAL('clicked()'), self.washMonitorList)
         self.wlan0_monitor_Button.setVisible(False)
         self.wlan1_monitor_button.setVisible(False)
         self.start_wash_Button.setEnabled(False)
         self.Monitor_select_comboBox.setEnabled(False)
         self.showlcd()
+
 
     def wireless_interface(self):
         global monitors, adapters
@@ -165,6 +165,8 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             self.mon_iface = self.monitors_comboBox.currentText()
             self.Monitor_select_comboBox.setEnabled(True)
             self.start_wash_Button.setEnabled(True)
+            with open('monitor.txt', 'w') as f:
+                f.write(self.mon_iface)
 
     def washMonitorList(self):
         for i in self.monitors:
@@ -250,38 +252,41 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 return True
             return not (txt[1].strip() == '' or txt[1].find('no %s in' % program) != -1)
 
-    def reaver(self):
-        print ('Hi')
+
 
     def wash(self):
+        self.queue = queue.Queue()
         row = 0
         col = 0
         self.wash_tableWidget.setColumnCount(4)
         self.wash_tableWidget.setColumnWidth(1,150)
         self.wash_tableWidget.setColumnWidth(4,30)
         self.wash_tableWidget.setColumnWidth(3,70)
-        self.wash_tableWidget.setRowCount(10)
-
+        # self.wash_tableWidget.setRowCount(10)
+        self.wash_thread = WashThread(self.queue)
+        self.wash_thread.start()
         if self.start_wash_Button.text() == 'Start':
             self.start_wash_Button.setText('Stop')
-            self.wash_thread.start(mon_iface)
-            row_item = QtGui.QTableWidgetItem(wash_bssid)
-            x = QtGui.QTableWidgetItem(wash_essid)
-            y = QtGui.QTableWidgetItem(wash_power)
-            z = QtGui.QTableWidgetItem(wash_locked)
+            row_item = QtGui.QTableWidgetItem(L.bssid)
+            x = QtGui.QTableWidgetItem(L.essid)
+            y = QtGui.QTableWidgetItem(L.power)
+            z = QtGui.QTableWidgetItem(L.locked)
             self.wash_tableWidget.setItem(row, col, row_item)
             self.wash_tableWidget.setItem(row, 1, x)
             self.wash_tableWidget.setItem(row, 2, y)
             self.wash_tableWidget.setItem(row, 3, z)
             row += 1
+            self.wash_tableWidget.setRowCount(row)
+
         else:
             try:
-                os.kill(cmd.pid, SIGTERM)
                 print('Done')
             except OSError:
                 pass
             except UnboundLocalError:
                 pass
+
+
 
     def recs(self):
         ####################
@@ -354,6 +359,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     def showlcd(self):
         time = QtCore.QTime.currentTime()
         text = time.toString('hh:mm')
+
         self.lcd_time_Number.display(text)
 
 
@@ -405,7 +411,7 @@ class CapFile:
         self.bssid = bssid
 
 
-class Victim:
+class Victim():
     'Contains information about the Access Poimt we are about to attack'
 
     def __init__(self, bssid, power, data, channel, encryption, essid, maker_model, wps):
@@ -452,32 +458,55 @@ class Victim:
         except IOError as a:
             print "I/O error({0}): {1}".format(a.errno, a.strerror)
 
+class WashVic():
+    def __init__(self, bssid, essid, power,  locked):
+        self.bssid = bssid
+        self.essid = essid
+        self.power = power
+        self.locked = locked
 
 class WashThread(QtCore.QThread):
+    processing = QtCore.pyqtSignal(object)
 
-
-    def __init__(self, parent=None):
-        super(WashThread, self).__init__(parent)
+    def __init__(self, queue, parent=None):
+        QtCore.QThread.__init__(self, parent)
+        self.queue = queue
 
     def run(self):
-        global mon_iface
+        while True:
+            arg = self.queue.get()
+            if arg is None:
+                return
+            self.function(arg)
+    def function(self, arg):
         try:
-            if mon_iface != '':
+            with open('monitor.txt', 'r') as f:
+                mon_iface = f.readline()
+            if mon_iface:
                 device = mon_iface
                 cmd = ['wash', '-C', '-i', device]
-                wash_cmd = Popen(cmd, shell=True, stdout=PIPE,)
+                wash_cmd = Popen(cmd, stdout=PIPE,)
+                # file = open('wash.txt', 'w')
                 for line in iter(wash_cmd.stdout.readline, b''):
                     if line.strip() == '' or line.startswith('---'): continue
                     if line.startswith('Wash') or line.startswith('Copyright') or line.startswith('BSSID'): continue
-                    print line
-                    Split = line.split(' ')
-                    wash_bssid = Split[0]
-                    wash_essid = Split[58]
-                    wash_power = Split[19]
-                    wash_locked = Split[42]
+                    line = line.strip()
+                    Split = line.split()
+                    print Split
+                    b = Split[0]
+                    e = str(' '.join(Split[5:]))
+                    if len(e) == 0:
+                        e = 'Hidden'
+                    p = Split[2]
+                    l = Split[4]
+                    #lw = b, e, p, w
+                    # file.writelines(lw)
+                    WV = WashVic(b,e,p,l)
+                    self.processing.emit(WV)
+
             else:
-                #message = QtGui.QMessageBox.information('Interface Select', 'Please select a monitor Interface', QtGui.QMessageBox.Ok)
                 print('No Good')
+                return
         except OSError:
             pass
 
@@ -495,7 +524,6 @@ class Client:
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
-    ATTACK = wifern()
     form = wifern()
     form.show()
     sys.exit(app.exec_())
