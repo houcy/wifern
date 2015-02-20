@@ -41,6 +41,9 @@
     <property name="autoFillBackground">
      <bool>false</bool>
     </property>
+    <property name="styleSheet">
+     <string notr="true">QLCDNumber{color:rgb(255, 0, 0); font: 13 &quot;Times&quot;}</string>
+    </property>
     <property name="currentIndex">
      <number>0</number>
     </property>
@@ -478,13 +481,16 @@ rgb(0, 109, 0)
             </property>
             <property name="font">
              <font>
-              <pointsize>12</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
+              <weight>1</weight>
+              <italic>false</italic>
+              <bold>false</bold>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true"/>
+             <string notr="true">color: rgb(255, 0, 0);
+border-color: rgb(0, 0, 0);
+gridline-color: rgb(85, 255, 0);
+</string>
             </property>
            </widget>
           </widget>
