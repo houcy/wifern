@@ -10,8 +10,8 @@ import time
 import subprocess
 from subprocess import Popen, PIPE, call
 import re
-import threading
 from PyQt4 import QtCore, QtGui
+import multiprocessing
 from signal import SIGINT, SIGTERM
 import commands
 import wifernGui
@@ -102,7 +102,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                         q = """insert into adapters(name, bssid, status) values(?,?,?)"""
                         cursor.execute(q,(wor_essid, wor_mac, 'before'))
                         conn.commit()
-
         else:
             return
 
@@ -128,44 +127,61 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         conn.close()
         print adapters, monitors          # remove after tests
 
-    def monitor_mode_enable(self,):    # need to make this method a thread
+    def monitor_mode_enable(self,):
+        conn=sqlite3.connect('attack_session.db')
+        cursor = conn.cursor()
         int_iface = str(self.adapters_comboBox.currentText())
-        comm = str(commands.getoutput("ifconfig -a | awk '/HWaddr/ {print $1 " " $NF}'"))
-        a = comm.splitlines()
-        for word in a:
-            wor_essid = word[:-17]
-            wor_mac = word[-17:]
-            if wor_essid == int_iface:                    ## TODO  Anonymize the original interface
-                before_intface = wor_essid, wor_mac       ##       to avoid accidents
-                print before_intface                      ## Delete after test
-        '''ifconfig wlan0 down
-         ifconfig wlan0 hw ether 00:22:33:44:55:66
-          ifconfig wlan0 up'''
-        comma = str(commands.getoutput('airmon-ng start %s' %( int_iface)))
-        if 'monitor mode enabled' in comma:
-            reg = re.compile('mon\d', re.IGNORECASE)
-            x_int = reg.findall(comma)
-            for a, monitor in enumerate(x_int):
-                mon_iface = monitor
-                if mon_iface in monitors:
-                    mon_iface = x_int[(a + 1) % len(x_int)]
-                else:
-                    monitors.append(mon_iface)
-            if self.injection_working(mon_iface):          ## Check if injection is working
-                if mon_iface in monitors:
-                    for monit in monitors:
-                        self.monitors_comboBox.addItem(monit)
-                        self.Monitor_select_comboBox.addItem(monit)
-                        self.wlan1_monitor_button.setVisible(True)
-                else:
-                    monitors.append(mon_iface)
-                    for monit in monitors:
-                        self.monitors_comboBox.addItem(monit)
-                        self.Monitor_select_comboBox.addItem(monit)
-                        self.wlan1_monitor_button.setVisible(True)
-            else:
-                print('Injection NOT working')          ## Add instuctions to fix or buy other card
+        print int_iface
+        q = ("""select adapters.bssid from adapters where adapters.name = ?""")
+        u = ("""select monitors.name from monitors where monitors.bssid = ?""")
+        cursor.execute(q,(int_iface,));
+        for row in cursor.fetchone():
+            if row is not None:
+                Mon_bss = str(row)
+                cursor.execute(u, ((Mon_bss).upper(),));
+                for arow in cursor.fetchone():
+                    if arow is not None:
+                        message = QtGui.QMessageBox.information(self, 'Select diferent adapter',int_iface + ' has already been put in monitor mode', QtGui.QMessageBox.Ok)
+                    else:
+                        comm = str(commands.getoutput("ifconfig -a | awk '/HWaddr/ {print $1 " " $NF}'"))
+                        a = comm.splitlines()
+                        for word in a:
+                            wor_essid = word[:-17]
+                            wor_mac = word[-17:]
+                        if wor_essid == int_iface:                    ## TODO  Anonymize the original interface
+                            before_intface = wor_essid, wor_mac       ##       to avoid accidents
+                            print before_intface                      ## Delete after test
+                            '''ifconfig wlan0 down
+                                ifconfig wlan0 hw ether 00:22:33:44:55:66
+                            ifconfig wlan0 up'''
+                        comma = str(commands.getoutput('airmon-ng start %s' %( int_iface)))
+                        if 'monitor mode enabled' in comma:
+                            reg = re.compile('mon\d', re.IGNORECASE)
+                            x_int = reg.findall(comma)
+                            for a, monitor in enumerate(x_int):
+                                mon_iface = monitor
+                                if mon_iface in monitors:
+                                    mon_iface = x_int[(a + 1) % len(x_int)]
+                                else:
+                                    monitors.append(mon_iface)
+
+                            if self.injection_working(mon_iface):          ## Check if injection is working
+                                if mon_iface in monitors:
+                                    for monit in monitors:
+                                        self.monitors_comboBox.addItem(monit)
+                                        self.Monitor_select_comboBox.addItem(monit)
+                                        self.wlan1_monitor_button.setVisible(True)
+                                else:
+                                    monitors.append(mon_iface)
+                                    for monit in monitors:
+                                        self.monitors_comboBox.addItem(monit)
+                                        self.Monitor_select_comboBox.addItem(monit)
+                                        self.wlan1_monitor_button.setVisible(True)
+                            else:
+                                print('Injection NOT working')          ## Add instuctions to fix or buy other card
                                                         ## Disable(!!!!!) buttons
+
+
 
     def injection_working(self, mon_iface_check):  ## Make this method a thread
         cmd = ['aireplay-ng', '-9', mon_iface_check]
@@ -214,7 +230,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         conn=sqlite3.connect('attack_session.db')
         cursor = conn.cursor()
         cursor.execute("""create table reaver(bssid varchar PRIMARY KEY NOT NULL, \
-        essid varchar, power varchar, locked char)""")
+        essid varchar, channel varchar, power varchar, locked char)""")
         cursor.execute("""create table victim(bssid varchar PRIMARY KEY NOT NULL, essid varchar, \
         power varchar, data varchar, channel int, encryption varchar,  maker_model varchar, wps bool)""")
         cursor.execute("""create table adapters(name varchar, bssid varchar, status varchar)""")
@@ -297,47 +313,53 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             return not (txt[1].strip() == '' or txt[1].find('no %s in' % program) != -1)
 
     def wash_call(self):
-        startThread = WashThread()
-        if self.start_wash_Button.text() == 'Start':
-            self.start_wash_Button.setText('Stop')
-            startThread.start()
-            # self.wash_run()
-        else:
-            try:
-                startThread.stop()
-            except OSError:
-                pass
-            except UnboundLocalError:
-                pass
-
-    def wash_run(self):
-        conn=sqlite3.connect('attack_session.db')
-        cursor = conn.cursor()
-        row = 0
-        col = 0
-        self.wash_tableWidget.setColumnCount(4)
-        self.wash_tableWidget.setColumnWidth(1,150)
-        self.wash_tableWidget.setColumnWidth(4,30)
-        self.wash_tableWidget.setColumnWidth(3,70)
-        # self.wash_tableWidget.setRowCount(10)
-        cursor.execute("""select bssid, essid, power, locked from reaver""")
-        for row in cursor.fetchall():
-            if row != None:
-                row_item = QtGui.QTableWidgetItem(row[0])
-                x = QtGui.QTableWidgetItem(row[1])
-                y = QtGui.QTableWidgetItem(row[2])
-                z = QtGui.QTableWidgetItem(row[3])
-                self.wash_tableWidget.setItem(row, col, row_item)
-                self.wash_tableWidget.setItem(row, 1, x)
-                self.wash_tableWidget.setItem(row, 2, y)
-                self.wash_tableWidget.setItem(row, 3, z)
-                row += 1
-                self.wash_tableWidget.setRowCount(row)
-            else:
-                time.sleep(1)
+        try:
+            proc = multiprocessing.Process(target=self.WashThread, args=(mon_iface))
+            if self.start_wash_Button.text() == 'Start':
+                self.start_wash_Button.setText('Stop')
                 self.wash_run()
-        cursor.close()
-        conn.close()
+                proc.start()
+                print proc.pid
+            else:
+                raise KeyboardInterrupt
+
+        except KeyboardInterrupt, SystemExit:
+            os.kill(proc.pid, SIGTERM)
+        except OSError:
+            pass
+        except UnboundLocalError:
+            pass
+        finally:
+            pass
+    def wash_run(self):
+        try:
+            sqlite3.enable_shared_cache(True)
+            conn=sqlite3.connect('attack_session.db')
+            cursor = conn.cursor()
+            my_row = 0
+            col = 0
+            self.wash_tableWidget.setColumnCount(4)
+            self.wash_tableWidget.setColumnWidth(1,200)
+            self.wash_tableWidget.setColumnWidth(2, 200)
+            self.wash_tableWidget.setColumnWidth(4,30)
+            self.wash_tableWidget.setColumnWidth(3,70)
+            cursor.execute("""select bssid, essid, power, locked from reaver""")
+            for row in cursor.fetchall():
+                if row != None:
+                    row_item = QtGui.QTableWidgetItem(row[0])
+                    x = QtGui.QTableWidgetItem(row[1])
+                    y = QtGui.QTableWidgetItem(row[2])
+                    z = QtGui.QTableWidgetItem(row[3])
+                    self.wash_tableWidget.setItem(my_row, col, row_item)
+                    self.wash_tableWidget.setItem(my_row, 1, x)
+                    self.wash_tableWidget.setItem(my_row, 2, y)
+                    self.wash_tableWidget.setItem(my_row, 3, z)
+                    row += 1
+                    self.wash_tableWidget.setRowCount(row)
+            cursor.close()
+            conn.close()
+        except:
+            pass   # TODO errors here
 
     def recs(self):
         ####################
@@ -462,45 +484,43 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         #  FIX ME              #
         ########################
 
-class  WashThread(threading.Thread):
-    def __init__(self):
-        super(WashThread, self).__init__()
-        self._stop = threading.Event()
+    def WashThread(device):
+        sqlite3.enable_shared_cache(True)
+        try:
+            with open('monitor.txt', 'r') as f:
+                device = f.readline()
+            if device:
+                conn=sqlite3.connect('attack_session.db')
+                cmd = ['wash', '-C', '-i', device]
+                wash_cmd = Popen(cmd, stdout=PIPE)
+                for line in iter(wash_cmd.stdout.readline, b''):
+                    if line.strip() == '' or line.startswith('---'): continue
+                    if line.startswith('Wash') or line.startswith('Copyright') or line.startswith('BSSID'): continue
+                    line = line.strip()
+                    Split = line.split()
+                    b = Split[0]
+                    e = str(' '.join(Split[5:]))
+                    if len(e) == 0:
+                        e = 'Hidden'
+                    p = Split[2]
+                    c = Split[1]
+                    l = Split[4]
+                    print b, e, c, p, l
+                    q = """insert into reaver(bssid,essid,channel,power,locked) values(?,?,?.?,?)"""
+                    conn.execute(q,(b, e, c, p, l))
+                    conn.commit()
 
-    def run(self):
-        with open('monitor.txt', 'r') as f:
-            device = f.readline()
-        if device:
-            for i in xrange(30):
-                self.stopped()
-            conn=sqlite3.connect('attack_session.db')
-            cursor = conn.cursor()
-            cmd = ['wash', '-C', '-i', device]
-            wash_cmd = Popen(cmd, stdout=PIPE)
-            file = open('wash.txt', 'w')
-            for line in iter(wash_cmd.stdout.readline, b''):
-                if line.strip() == '' or line.startswith('---'): continue
-                if line.startswith('Wash') or line.startswith('Copyright') or line.startswith('BSSID'): continue
-                line = line.strip()
-                Split = line.split()
-                print Split
-                b = Split[0]
-                e = str(' '.join(Split[5:]))
-                if len(e) == 0:
-                    e = 'Hidden'
-                p = Split[2]
-                l = Split[4]
-                q = """insert into reaver(bssid,essid,power,locked) values(?,?,?,?)"""
-                conn.execute(q,(b, e, p, l))
-                conn.commit()
+            conn.close()
+        except:
+            pass
 
     def stopped(self):
         return self._stop.isSet()
 
     def stop(self):
-        cursor.close()
-        conn.close()
         self._stop.set()
+        for i in xrange(40):
+                self.stopped()
 
 
 
