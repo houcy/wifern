@@ -45,7 +45,7 @@
      <string notr="true">QLCDNumber{color:rgb(255, 0, 0); font: 13 &quot;Times&quot;}</string>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>1</number>
     </property>
     <property name="iconSize">
      <size>
@@ -974,6 +974,11 @@ gridline-color: rgb(85, 255, 0);
        </property>
       </widget>
      </widget>
+    </widget>
+    <widget class="QWidget" name="tab">
+     <attribute name="title">
+      <string>Page</string>
+     </attribute>
     </widget>
    </widget>
   </widget>

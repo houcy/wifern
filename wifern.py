@@ -39,9 +39,6 @@ WVList = []
 
 
 
-
-
-
 class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     'Main application class derived from WIfite and FERN-wifi-cracker thus wifern'
 
@@ -138,48 +135,49 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         for row in cursor.fetchone():
             if row is not None:
                 Mon_bss = str(row)
-                cursor.execute(u, ((Mon_bss).upper(),));
-                for arow in cursor.fetchone():
-                    if arow is not None:
-                        message = QtGui.QMessageBox.information(self, 'Select diferent adapter',int_iface + ' has already been put in monitor mode', QtGui.QMessageBox.Ok)
-                    else:
-                        comm = str(commands.getoutput("ifconfig -a | awk '/HWaddr/ {print $1 " " $NF}'"))
-                        a = comm.splitlines()
-                        for word in a:
-                            wor_essid = word[:-17]
-                            wor_mac = word[-17:]
-                        if wor_essid == int_iface:                    ## TODO  Anonymize the original interface
-                            before_intface = wor_essid, wor_mac       ##       to avoid accidents
-                            print before_intface                      ## Delete after test
-                            '''ifconfig wlan0 down
-                                ifconfig wlan0 hw ether 00:22:33:44:55:66
-                            ifconfig wlan0 up'''
-                        comma = str(commands.getoutput('airmon-ng start %s' %( int_iface)))
-                        if 'monitor mode enabled' in comma:
-                            reg = re.compile('mon\d', re.IGNORECASE)
-                            x_int = reg.findall(comma)
-                            for a, monitor in enumerate(x_int):
-                                mon_iface = monitor
-                                if mon_iface in monitors:
-                                    mon_iface = x_int[(a + 1) % len(x_int)]
-                                else:
-                                    monitors.append(mon_iface)
-
-                            if self.injection_working(mon_iface):          ## Check if injection is working
-                                if mon_iface in monitors:
-                                    for monit in monitors:
-                                        self.monitors_comboBox.addItem(monit)
-                                        self.Monitor_select_comboBox.addItem(monit)
-                                        self.wlan1_monitor_button.setVisible(True)
-                                else:
-                                    monitors.append(mon_iface)
-                                    for monit in monitors:
-                                        self.monitors_comboBox.addItem(monit)
-                                        self.Monitor_select_comboBox.addItem(monit)
-                                        self.wlan1_monitor_button.setVisible(True)
+                try:
+                    cursor.execute(u, ((Mon_bss).upper(),));
+                    for arow in cursor.fetchone():
+                        if arow is not None:
+                            message = QtGui.QMessageBox.information(self, 'Select diferent adapter',int_iface + ' has already been put in monitor mode', QtGui.QMessageBox.Ok)
+                except TypeError:
+                    comm = str(commands.getoutput("ifconfig -a | awk '/HWaddr/ {print $1 " " $NF}'"))
+                    a = comm.splitlines()
+                    for word in a:
+                        wor_essid = word[:-17]
+                        wor_mac = word[-17:]
+                    if wor_essid == int_iface:                    ## TODO  Anonymize the original interface
+                        before_intface = wor_essid, wor_mac       ##       to avoid accidents
+                        print before_intface                      ## Delete after test
+                        '''ifconfig wlan0 down
+                            ifconfig wlan0 hw ether 00:22:33:44:55:66
+                        ifconfig wlan0 up'''
+                    comma = str(commands.getoutput('airmon-ng start %s' %( int_iface)))
+                    if 'monitor mode enabled' in comma:
+                        reg = re.compile('mon\d', re.IGNORECASE)
+                        x_int = reg.findall(comma)
+                        for a, monitor in enumerate(x_int):
+                            mon_iface = monitor
+                            if mon_iface in monitors:
+                                mon_iface = x_int[(a + 1) % len(x_int)]
                             else:
-                                print('Injection NOT working')          ## Add instuctions to fix or buy other card
-                                                        ## Disable(!!!!!) buttons
+                                monitors.append(mon_iface)
+
+                        if self.injection_working(mon_iface):          ## Check if injection is working
+                            if mon_iface in monitors:
+                                for monit in monitors:
+                                    self.monitors_comboBox.addItem(monit)
+                                    self.Monitor_select_comboBox.addItem(monit)
+                                    self.wlan1_monitor_button.setVisible(True)
+                            else:
+                                monitors.append(mon_iface)
+                                for monit in monitors:
+                                    self.monitors_comboBox.addItem(monit)
+                                    self.Monitor_select_comboBox.addItem(monit)
+                                    self.wlan1_monitor_button.setVisible(True)
+                        else:
+                            print('Injection NOT working')          ## Add instuctions to fix or buy other card
+                                                                    ## Disable(!!!!!) buttons
 
 
 
@@ -212,12 +210,15 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             self.mon_iface = self.monitors_comboBox.currentText()
             self.Monitor_select_comboBox.setEnabled(True)
             self.start_wash_Button.setEnabled(True)
-            with open('monitor.txt', 'w') as f:
-                f.write(self.mon_iface)
+
 
     def washMonitorList(self):
-        for i in self.monitors:
-            self.Monitor_select_comboBox.addItem(i)
+        try:
+            for i in self.monitors:
+                self.Monitor_select_comboBox.addItem(i)
+        except TypeError:
+            print 'No Interface'
+
 
 
     def working_dir(self):
@@ -314,17 +315,21 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
     def wash_call(self):
         try:
-            proc = multiprocessing.Process(target=self.WashThread, args=(mon_iface))
+            mon = str(self.mon_iface)
+            proc = multiprocessing.Process(target=self.WashThread, args=(mon,))
             if self.start_wash_Button.text() == 'Start':
                 self.start_wash_Button.setText('Stop')
                 self.wash_run()
                 proc.start()
-                print proc.pid
+                X = proc.pid
+                xx = multiprocessing.active_children()
+                print xx
             else:
-                raise KeyboardInterrupt
-
+                self.start_wash_Button.setText('Start')
+                os.kill(int(X), SIGTERM)
+                os.kill(P_pid, SIGTERM)
         except KeyboardInterrupt, SystemExit:
-            os.kill(proc.pid, SIGTERM)
+            os.kill(P_pid, SIGTERM)
         except OSError:
             pass
         except UnboundLocalError:
@@ -340,7 +345,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             col = 0
             self.wash_tableWidget.setColumnCount(4)
             self.wash_tableWidget.setColumnWidth(1,200)
-            self.wash_tableWidget.setColumnWidth(2, 200)
+            self.wash_tableWidget.setColumnWidth(2, 120)
             self.wash_tableWidget.setColumnWidth(4,30)
             self.wash_tableWidget.setColumnWidth(3,70)
             cursor.execute("""select bssid, essid, power, locked from reaver""")
@@ -356,6 +361,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     self.wash_tableWidget.setItem(my_row, 3, z)
                     row += 1
                     self.wash_tableWidget.setRowCount(row)
+
             cursor.close()
             conn.close()
         except:
@@ -484,16 +490,14 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         #  FIX ME              #
         ########################
 
-    def WashThread(device):
+    def WashThread(self, device):
         sqlite3.enable_shared_cache(True)
         try:
-            with open('monitor.txt', 'r') as f:
-                device = f.readline()
             if device:
                 conn=sqlite3.connect('attack_session.db')
                 cmd = ['wash', '-C', '-i', device]
-                wash_cmd = Popen(cmd, stdout=PIPE)
-                for line in iter(wash_cmd.stdout.readline, b''):
+                wash_cmd = subprocess.Popen(cmd, stdout=PIPE)
+                for line in iter(wash_cmd.stdout.readline, ''):
                     if line.strip() == '' or line.startswith('---'): continue
                     if line.startswith('Wash') or line.startswith('Copyright') or line.startswith('BSSID'): continue
                     line = line.strip()
@@ -506,22 +510,15 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     c = Split[1]
                     l = Split[4]
                     print b, e, c, p, l
-                    q = """insert into reaver(bssid,essid,channel,power,locked) values(?,?,?.?,?)"""
-                    conn.execute(q,(b, e, c, p, l))
+                    q = """insert into reaver(bssid, essid, channel, power, locked) values(?,?,?.?,?)"""
+                    conn.execute(q,(b, e, c, p, l,));
                     conn.commit()
 
             conn.close()
+            P_pid = int(wash_cmd.pid)
+            print P_pid
         except:
             pass
-
-    def stopped(self):
-        return self._stop.isSet()
-
-    def stop(self):
-        self._stop.set()
-        for i in xrange(40):
-                self.stopped()
-
 
 
 class CapFile:
@@ -579,7 +576,6 @@ class Victim():
                     return model    # need to athached to client before record is displayed
         except IOError as a:
             print "I/O error({0}): {1}".format(a.errno, a.strerror)
-
 
 class Client:
     'Contains information about the connected clients to the AP'
