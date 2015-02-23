@@ -6,7 +6,6 @@ from sys import stdout
 import csv  # Exporting and importing cracked aps
 import os  # File management
 # Executing, communicating with, killing processes
-import subprocess
 from subprocess import Popen, PIPE, call
 import re  # RegEx, Converting ESSID to filename
 from PyQt4 import QtCore, QtGui
@@ -42,15 +41,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             self.wordlist = filename
             self.dict_file_path.setEnabled(False)
 
-
-    def working_dir(self):
-
-        from tempfile import mkdtemp
-        self.working_Dir = mkdtemp(prefix='wifern')
-        if not self.working_Dir.endswith(os.sep):
-            self.working_Dir += os.sep
-
-
     def initscan(self, channel=0):
         cmd = ['airodump-ng',
                '--ignore-negative-one',
@@ -58,7 +48,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                '--output-format',
                'csv',
                '-w', self.int_iface]
-        command = subprocess.Popen(cmd, stdout=open(os.devnull, 'w'), stderr=open(os.devnull, 'w'))
+        command = Popen(cmd, stdout=open(os.devnull, 'w'), stderr=open(os.devnull, 'w'))
 
 
         (victims, clients) = ([], [])
@@ -116,7 +106,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             return [], []
         return (targets, clients)
 
-    def program_list(self, program):
+    def program_list(program):
             proc = Popen(['which', program], stdout=PIPE, stderr=PIPE)
             txt = proc.communicate()
             if txt[0].strip() == '' and txt[1].strip() == '':
@@ -126,36 +116,25 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             return not (txt[1].strip() == '' or txt[1].find('no %s in' % program) != -1)
 
     def recs(self):
-        rec_progs = ['aircrack-ng', 'aireplay-ng', 'airodump-ng', 'airmon-ng', 'packetforge-ng',
-                'iw', 'iwconfig', 'reaver', 'wash', 'mdk3', 'pyrit', 'ifconfig']
-        list_rec = []
-        for prog in rec_progs:
-            if self.program_list(prog):
-                print prog          # remove this line after testing
-                # item = QtGui.QTreeWidgetItem()
-                # item.setText(0, prog)
-                # item.setCheckState(1,Qt.Checked); #to create the column 1 checkbox
-                # list_rec.append(item)
+        progs = ['aircrack-ng', 'aireplay-ng', 'airodump-ng', 'airmon-ng', 'packetforge-ng',
+                'iw', 'iwconfig', 'reaver', 'mdk3', 'pyrit', 'wash', 'ifconfig', 'bully', 'crunch', 'pwinspector',
+                'oclhashcat', 'cudahashcat']
+        lists = []
+        for prog in progs:
+            if program_list(prog):
+                item = QtGui.QTreeWidgetItem()
+                item.setText(0, prog)
+                item.setCheckState(1,Qt.Checked); #to create the column 1 checkbox
+                lists.append(item)
 
-        not_rec_progs = ['bully', 'crunch', 'pw-inspector', 'oclhashcat', 'cudahashcat']
-        not_rec_list = []
-        for prog in not_rec_progs:
-            if self.program_list(prog):
-                print prog          # remove this line after testing
-                # item = QtGui.QTreeWidgetItem()
-                # item.setText(0, prog)
-                #item.setCheckState(1,Qt.Checked); #to create the column 1 checkbox
-                #not_rec_list.append(item)
+
 
     def __init__(self, parent=None):
         super(wifern, self).__init__(parent)
         self.setupUi(self)
         if os.getuid() != 0:
             exit(1)
-        self.working_dir()
-        self.recs()
         self.wordlist = ''
-        self.working_Dir = ''
         self.list_processes = []  # maybe list of proccesses to close on exit
         # self.connect(self.access_pointScan_Button, QtCore.SIGNAL("clicked()"), Interface.wireless_interface)
         self.connect(self.dictionary_select_Button, QtCore.SIGNAL("clicked()"), self.opendict)
