@@ -45,7 +45,7 @@
      <string notr="true">QLCDNumber{color:rgb(255, 0, 0); font: 13 &quot;Times&quot;}</string>
     </property>
     <property name="currentIndex">
-     <number>1</number>
+     <number>0</number>
     </property>
     <property name="iconSize">
      <size>
@@ -79,6 +79,9 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="styleSheet">
+          <string notr="true"/>
+         </property>
          <property name="title">
           <string>Program List</string>
          </property>
@@ -98,6 +101,9 @@
            <font>
             <pointsize>10</pointsize>
            </font>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">color:rgb(0, 109, 0)</string>
           </property>
           <property name="frameShape">
            <enum>QFrame::StyledPanel</enum>
@@ -275,9 +281,7 @@
             </rect>
            </property>
            <property name="styleSheet">
-            <string notr="true">lcd_time_Number{
-rgb(0, 109, 0)
-}</string>
+            <string notr="true"/>
            </property>
            <property name="title">
             <string>Reaver</string>
@@ -291,11 +295,6 @@ rgb(0, 109, 0)
               <height>31</height>
              </rect>
             </property>
-            <item>
-             <property name="text">
-              <string>None</string>
-             </property>
-            </item>
            </widget>
            <widget class="QLabel" name="label_3">
             <property name="geometry">
@@ -342,6 +341,9 @@ rgb(0, 109, 0)
              <font>
               <pointsize>10</pointsize>
              </font>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color:rgb(0, 109, 0)</string>
             </property>
             <property name="editTriggers">
              <set>QAbstractItemView::AnyKeyPressed|QAbstractItemView::SelectedClicked</set>
@@ -414,6 +416,9 @@ rgb(0, 109, 0)
               <height>26</height>
              </rect>
             </property>
+            <property name="styleSheet">
+             <string notr="true">color:rgb(0, 109, 0)</string>
+            </property>
             <property name="text">
              <string>--no-associate</string>
             </property>
@@ -439,6 +444,9 @@ rgb(0, 109, 0)
               <width>93</width>
               <height>26</height>
              </rect>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">color:rgb(0, 109, 0)</string>
             </property>
             <property name="text">
              <string>--dh-small</string>
@@ -488,8 +496,6 @@ rgb(0, 109, 0)
             </property>
             <property name="styleSheet">
              <string notr="true">color: rgb(255, 0, 0);
-border-color: rgb(0, 0, 0);
-gridline-color: rgb(85, 255, 0);
 </string>
             </property>
            </widget>
@@ -629,6 +635,9 @@ gridline-color: rgb(85, 255, 0);
         <horstretch>0</horstretch>
         <verstretch>0</verstretch>
        </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">color:rgb(0, 109, 0)</string>
       </property>
       <property name="lineWidth">
        <number>3</number>

@@ -16,6 +16,7 @@ from signal import SIGINT, SIGTERM
 import commands
 import wifernGui
 import interfaceGui
+import wash
 import sqlite3
 
 
@@ -88,35 +89,35 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             for adap in adapters:
                 self.adapters_comboBox.addItem(adap)
                 self.wlan0_monitor_Button.setVisible(True)
-                int_iface = str(self.adapters_comboBox.currentText())
-                comm = str(commands.getoutput("ifconfig -a | awk '/HWaddr/ {print $1 " " $NF}'"))
+                # int_iface = str(self.adapters_comboBox.currentText())
+                comm = str(commands.getoutput("ifconfig " + adap + " | awk '/HWaddr/ {print $1 " " $NF}'"))
                 a = comm.splitlines()
                 for word in a:
                     wor_essid = word[:-17]
                     wor_mac = word[-17:]
-                    if wor_essid == int_iface:                    ## TODO  Anonymize the original interface
+                    q = """insert into adapters(name, bssid, status) values(?,?,?)"""
+                    cursor.execute(q,(wor_essid, wor_mac, 'before'))
+                    conn.commit()
+                    if wor_essid == int_iface:
                         before_intface = wor_essid, wor_mac
-                        q = """insert into adapters(name, bssid, status) values(?,?,?)"""
-                        cursor.execute(q,(wor_essid, wor_mac, 'before'))
-                        conn.commit()
         else:
             return
-
         if monitors:
             for monit in monitors:
                 self.monitors_comboBox.addItem(monit)
                 self.wlan1_monitor_button.setVisible(True)
-                comm = str(commands.getoutput("ifconfig -a | awk '/HWaddr/ {print $1 " " $NF}'"))
+                comm = str(commands.getoutput("ifconfig " + monit + " | awk '/HWaddr/ {print $1 " " $NF}'"))
                 a = comm.splitlines()
                 for word in a:
                     wor_essid = word[:-47]
                     wor_mac = word[-47:-30]
                     wor_mac = wor_mac.replace('-', ':')
+                    q = """insert into monitors(name, bssid) values(?,?)"""
+                    cursor.execute(q,(wor_essid, wor_mac))
+                    conn.commit()
                     if wor_essid == monit:
                         b_m_intface = wor_essid, wor_mac
-                        q = """insert into monitors(name, bssid) values(?,?)"""
-                        cursor.execute(q,(wor_essid, wor_mac))
-                        conn.commit()
+
         else:
             return
 
@@ -179,8 +180,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                             print('Injection NOT working')          ## Add instuctions to fix or buy other card
                                                                     ## Disable(!!!!!) buttons
 
-
-
     def injection_working(self, mon_iface_check):  ## Make this method a thread
         cmd = ['aireplay-ng', '-9', mon_iface_check]
         cmd_inj = Popen(cmd, stdout=PIPE)
@@ -190,7 +189,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 return True
         else:
             return False
-
 
     def opendict(self):
         #################
@@ -211,15 +209,12 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             self.Monitor_select_comboBox.setEnabled(True)
             self.start_wash_Button.setEnabled(True)
 
-
     def washMonitorList(self):
         try:
             for i in self.monitors:
                 self.Monitor_select_comboBox.addItem(i)
         except TypeError:
             print 'No Interface'
-
-
 
     def working_dir(self):
         from tempfile import mkdtemp
@@ -241,68 +236,65 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         cursor.close()
         conn.close()
 
-
-
     def initscan(self,):
         cmd = str(commands.getoutput('airodump-ng --ignore-negative-one --manufacturer -a --output-format csv -w wifern-dump %s'%(self.mon_iface)))
         # wait aprox 3 sec
         targets, clients = self.get_victim_list(wifern-dump.csv)
 
-
     def get_victim_list(self, csv_filename):
-            if not os.path.exists(csv_filename):
-                return [], []
-            targets = []
-            clients = []
-            try:
-                victim_clients = False
-                with open(csv_filename, 'rb') as csvfile:
-                    victimreader = csv.reader((line.replace('\0', '') for line in csvfile), delimiter=',')
-                    for row in victimreader:
-                        if len(row) < 2:
+        if not os.path.exists(csv_filename):
+            return [], []
+        targets = []
+        clients = []
+        try:
+            victim_clients = False
+            with open(csv_filename, 'rb') as csvfile:
+                victimreader = csv.reader((line.replace('\0', '') for line in csvfile), delimiter=',')
+                for row in victimreader:
+                    if len(row) < 2:
+                        continue
+                    if not victim_clients:
+                        if len(row) < 14:
                             continue
-                        if not victim_clients:
-                            if len(row) < 14:
-                                continue
-                            if row[0].strip() == 'Station MAC':
-                                victim_clients = True
-                            if row[0].strip() == 'BSSID' or row[0].strip() == 'Station Mac':
-                                continue
-                            enc = row[5].strip()
-                            wps = False
-                            if enc.find('WPA') == -1 and enc.find('WEP') == -1:
-                                continue
-                            if self.RUN_CONFIG.WEP_DISABLE and enc.find('WEP') != -1:
-                                continue
-                            if self.RUN_CONFIG.WPA_DISABLE and self.RUN_CONFIG.WPS_DISABLE and enc.find('WPA') != -1:
-                                continue
-                            if enc == "WPA2WPA":
-                                enc = "WPA2"
-                                wps = True
-                            power = int(row[8].strip())
+                        if row[0].strip() == 'Station MAC':
+                            victim_clients = True
+                        if row[0].strip() == 'BSSID' or row[0].strip() == 'Station Mac':
+                            continue
+                        enc = row[5].strip()
+                        wps = False
+                        if enc.find('WPA') == -1 and enc.find('WEP') == -1:
+                            continue
+                        if self.RUN_CONFIG.WEP_DISABLE and enc.find('WEP') != -1:
+                            continue
+                        if self.RUN_CONFIG.WPA_DISABLE and self.RUN_CONFIG.WPS_DISABLE and enc.find('WPA') != -1:
+                            continue
+                        if enc == "WPA2WPA":
+                            enc = "WPA2"
+                            wps = True
+                        power = int(row[8].strip())
 
-                            essid = row[13].strip()
-                            essidlen = int(row[12].strip())
-                            essid = essid[:essidlen]
-                            if power < 0: power += 100
-                            t = Victim(row[0].strip(), power, row[10].strip(), row[3].strip(), enc, essid)
-                            t.wps = wps
-                            targets.append(t)
-                        else:
-                            if len(row) < 6:
-                                continue
-                            bssid = re.sub(r'[^a-zA-Z0-9:]', '', row[0].strip())
-                            station = re.sub(r'[^a-zA-Z0-9:]', '', row[5].strip())
-                            power = row[3].strip()
-                            if station != 'notassociated':
-                                c = Client(bssid, station, power)
-                                clients.append(c)
-                            model = self.get_manufacturer(bssid)
-            except IOError as e:
-                print "I/O error({0}): {1}".format(e.errno, e.strerror)
-                return [], []
-            return (targets, clients)
+                        essid = row[13].strip()
+                        essidlen = int(row[12].strip())
+                        essid = essid[:essidlen]
+                        if power < 0: power += 100
+                        t = Victim(row[0].strip(), power, row[10].strip(), row[3].strip(), enc, essid)
+                        t.wps = wps
+                        model = self.get_manufacturer(bssid)
+                        targets.append(t)
+                    else:
+                        if len(row) < 6:
+                            continue
+                        bssid = re.sub(r'[^a-zA-Z0-9:]', '', row[0].strip())
+                        station = re.sub(r'[^a-zA-Z0-9:]', '', row[5].strip())
+                        power = row[3].strip()
+                        if station != 'notassociated':
+                            c = Client(bssid, station, power)
+                            clients.append(c)
 
+        except IOError as e:
+            print "I/O error({0}): {1}".format(e.errno, e.strerror)
+            return [], []
+        return (targets, clients)
 
     def program_list(self, program):
             proc = Popen(['which', program], stdout=PIPE, stderr=PIPE)
@@ -316,18 +308,14 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     def wash_call(self):
         try:
             mon = str(self.mon_iface)
-            proc = multiprocessing.Process(target=self.WashThread, args=(mon,))
             if self.start_wash_Button.text() == 'Start':
                 self.start_wash_Button.setText('Stop')
                 self.wash_run()
-                proc.start()
-                X = proc.pid
-                xx = multiprocessing.active_children()
-                print xx
+                self.update()
+
             else:
                 self.start_wash_Button.setText('Start')
-                os.kill(int(X), SIGTERM)
-                os.kill(P_pid, SIGTERM)
+
         except KeyboardInterrupt, SystemExit:
             os.kill(P_pid, SIGTERM)
         except OSError:
@@ -336,6 +324,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             pass
         finally:
             pass
+
     def wash_run(self):
         try:
             sqlite3.enable_shared_cache(True)
@@ -489,36 +478,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         ########################
         #  FIX ME              #
         ########################
-
-    def WashThread(self, device):
-        sqlite3.enable_shared_cache(True)
-        try:
-            if device:
-                conn=sqlite3.connect('attack_session.db')
-                cmd = ['wash', '-C', '-i', device]
-                wash_cmd = subprocess.Popen(cmd, stdout=PIPE)
-                for line in iter(wash_cmd.stdout.readline, ''):
-                    if line.strip() == '' or line.startswith('---'): continue
-                    if line.startswith('Wash') or line.startswith('Copyright') or line.startswith('BSSID'): continue
-                    line = line.strip()
-                    Split = line.split()
-                    b = Split[0]
-                    e = str(' '.join(Split[5:]))
-                    if len(e) == 0:
-                        e = 'Hidden'
-                    p = Split[2]
-                    c = Split[1]
-                    l = Split[4]
-                    print b, e, c, p, l
-                    q = """insert into reaver(bssid, essid, channel, power, locked) values(?,?,?.?,?)"""
-                    conn.execute(q,(b, e, c, p, l,));
-                    conn.commit()
-
-            conn.close()
-            P_pid = int(wash_cmd.pid)
-            print P_pid
-        except:
-            pass
 
 
 class CapFile:

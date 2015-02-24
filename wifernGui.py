@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wifern.ui'
 #
-# Created: Wed Feb 18 00:45:26 2015
+# Created: Mon Feb 23 18:00:29 2015
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -34,6 +34,7 @@ class Ui_mainwindow(object):
         sizePolicy.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
         self.tabWidget.setSizePolicy(sizePolicy)
         self.tabWidget.setAutoFillBackground(False)
+        self.tabWidget.setStyleSheet(_fromUtf8("QLCDNumber{color:rgb(255, 0, 0); font: 13 \"Times\"}"))
         self.tabWidget.setIconSize(QtCore.QSize(30, 30))
         self.tabWidget.setObjectName(_fromUtf8("tabWidget"))
         self.home_tab = QtGui.QWidget()
@@ -50,6 +51,7 @@ class Ui_mainwindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
         self.groupBox.setSizePolicy(sizePolicy)
+        self.groupBox.setStyleSheet(_fromUtf8(""))
         self.groupBox.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.groupBox.setObjectName(_fromUtf8("groupBox"))
         self.my_tableWidget = QtGui.QTableWidget(self.groupBox)
@@ -57,6 +59,7 @@ class Ui_mainwindow(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.my_tableWidget.setFont(font)
+        self.my_tableWidget.setStyleSheet(_fromUtf8("color:rgb(0, 109, 0)"))
         self.my_tableWidget.setFrameShape(QtGui.QFrame.StyledPanel)
         self.my_tableWidget.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.my_tableWidget.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
@@ -105,14 +108,11 @@ class Ui_mainwindow(object):
         self.label_2.setObjectName(_fromUtf8("label_2"))
         self.groupBox_4 = QtGui.QGroupBox(self.groupBox_2)
         self.groupBox_4.setGeometry(QtCore.QRect(380, 20, 631, 271))
-        self.groupBox_4.setStyleSheet(_fromUtf8("lcd_time_Number{\n"
-"rgb(0, 109, 0)\n"
-"}"))
+        self.groupBox_4.setStyleSheet(_fromUtf8(""))
         self.groupBox_4.setObjectName(_fromUtf8("groupBox_4"))
         self.Monitor_select_comboBox = QtGui.QComboBox(self.groupBox_4)
         self.Monitor_select_comboBox.setGeometry(QtCore.QRect(160, 20, 81, 31))
         self.Monitor_select_comboBox.setObjectName(_fromUtf8("Monitor_select_comboBox"))
-        self.Monitor_select_comboBox.addItem(_fromUtf8(""))
         self.label_3 = QtGui.QLabel(self.groupBox_4)
         self.label_3.setGeometry(QtCore.QRect(10, 20, 131, 21))
         self.label_3.setObjectName(_fromUtf8("label_3"))
@@ -128,6 +128,7 @@ class Ui_mainwindow(object):
         font = QtGui.QFont()
         font.setPointSize(10)
         self.wash_tableWidget.setFont(font)
+        self.wash_tableWidget.setStyleSheet(_fromUtf8("color:rgb(0, 109, 0)"))
         self.wash_tableWidget.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.SelectedClicked)
         self.wash_tableWidget.setDragDropOverwriteMode(False)
         self.wash_tableWidget.setAlternatingRowColors(True)
@@ -152,12 +153,14 @@ class Ui_mainwindow(object):
         self.reaver_command_label.setObjectName(_fromUtf8("reaver_command_label"))
         self.checkBox = QtGui.QCheckBox(self.groupBox_4)
         self.checkBox.setGeometry(QtCore.QRect(10, 50, 131, 26))
+        self.checkBox.setStyleSheet(_fromUtf8("color:rgb(0, 109, 0)"))
         self.checkBox.setObjectName(_fromUtf8("checkBox"))
         self.checkBox_2 = QtGui.QCheckBox(self.groupBox_4)
         self.checkBox_2.setGeometry(QtCore.QRect(10, 70, 121, 26))
         self.checkBox_2.setObjectName(_fromUtf8("checkBox_2"))
         self.checkBox_3 = QtGui.QCheckBox(self.groupBox_4)
         self.checkBox_3.setGeometry(QtCore.QRect(10, 90, 93, 26))
+        self.checkBox_3.setStyleSheet(_fromUtf8("color:rgb(0, 109, 0)"))
         self.checkBox_3.setObjectName(_fromUtf8("checkBox_3"))
         self.checkBox_4 = QtGui.QCheckBox(self.groupBox_4)
         self.checkBox_4.setGeometry(QtCore.QRect(10, 110, 93, 26))
@@ -168,11 +171,12 @@ class Ui_mainwindow(object):
         self.lcd_time_Number = QtGui.QLCDNumber(self.groupBox_4)
         self.lcd_time_Number.setGeometry(QtCore.QRect(540, 10, 71, 21))
         font = QtGui.QFont()
-        font.setPointSize(12)
-        font.setBold(True)
-        font.setWeight(75)
+        font.setBold(False)
+        font.setItalic(False)
+        font.setWeight(1)
         self.lcd_time_Number.setFont(font)
-        self.lcd_time_Number.setStyleSheet(_fromUtf8(""))
+        self.lcd_time_Number.setStyleSheet(_fromUtf8("color: rgb(255, 0, 0);\n"
+""))
         self.lcd_time_Number.setObjectName(_fromUtf8("lcd_time_Number"))
         self.Interface_groupBox = QtGui.QGroupBox(self.groupBox_2)
         self.Interface_groupBox.setGeometry(QtCore.QRect(10, 190, 331, 171))
@@ -216,6 +220,7 @@ class Ui_mainwindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.accessPointTable.sizePolicy().hasHeightForWidth())
         self.accessPointTable.setSizePolicy(sizePolicy)
+        self.accessPointTable.setStyleSheet(_fromUtf8("color:rgb(0, 109, 0)"))
         self.accessPointTable.setLineWidth(3)
         self.accessPointTable.setAlternatingRowColors(True)
         self.accessPointTable.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
@@ -341,6 +346,9 @@ class Ui_mainwindow(object):
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap(_fromUtf8(":/wifi_tab/WiFi.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         self.tabWidget.addTab(self.wifi_tab, icon1, _fromUtf8(""))
+        self.tab = QtGui.QWidget()
+        self.tab.setObjectName(_fromUtf8("tab"))
+        self.tabWidget.addTab(self.tab, _fromUtf8(""))
         mainwindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtGui.QStatusBar(mainwindow)
         self.statusbar.setObjectName(_fromUtf8("statusbar"))
@@ -371,7 +379,6 @@ class Ui_mainwindow(object):
         self.Process_wordlist_Button.setText(QtGui.QApplication.translate("mainwindow", "Execute", None, QtGui.QApplication.UnicodeUTF8))
         self.label_2.setText(QtGui.QApplication.translate("mainwindow", "Please note that depending on the size of the wordlist these operations will take a long time to complete especially if they are combined ", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_4.setTitle(QtGui.QApplication.translate("mainwindow", "Reaver", None, QtGui.QApplication.UnicodeUTF8))
-        self.Monitor_select_comboBox.setItemText(0, QtGui.QApplication.translate("mainwindow", "None", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("mainwindow", "Monitor Interface", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("mainwindow", "Wash", None, QtGui.QApplication.UnicodeUTF8))
         item = self.wash_tableWidget.horizontalHeaderItem(0)
@@ -431,5 +438,6 @@ class Ui_mainwindow(object):
         self.pushButton_4.setText(QtGui.QApplication.translate("mainwindow", "Mdk3", None, QtGui.QApplication.UnicodeUTF8))
         self.pushButton_5.setText(QtGui.QApplication.translate("mainwindow", "Bully", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.wifi_tab), QtGui.QApplication.translate("mainwindow", "Wifi Attack", None, QtGui.QApplication.UnicodeUTF8))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("mainwindow", "Page", None, QtGui.QApplication.UnicodeUTF8))
 
 import wifern_rc
