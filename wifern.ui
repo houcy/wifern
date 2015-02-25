@@ -41,9 +41,6 @@
     <property name="autoFillBackground">
      <bool>false</bool>
     </property>
-    <property name="styleSheet">
-     <string notr="true">QLCDNumber{color:rgb(255, 0, 0); font: 13 &quot;Times&quot;}</string>
-    </property>
     <property name="currentIndex">
      <number>0</number>
     </property>
@@ -481,22 +478,21 @@
            <widget class="QLCDNumber" name="lcd_time_Number">
             <property name="geometry">
              <rect>
-              <x>540</x>
-              <y>10</y>
-              <width>71</width>
-              <height>21</height>
+              <x>510</x>
+              <y>0</y>
+              <width>111</width>
+              <height>31</height>
              </rect>
             </property>
             <property name="font">
              <font>
-              <weight>1</weight>
+              <weight>50</weight>
               <italic>false</italic>
               <bold>false</bold>
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">color: rgb(255, 0, 0);
-</string>
+             <string notr="true">color:rgb(255, 0, 0)</string>
             </property>
            </widget>
           </widget>

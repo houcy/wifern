@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wifern.ui'
 #
-# Created: Mon Feb 23 18:00:29 2015
+# Created: Tue Feb 24 19:39:32 2015
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -34,7 +34,6 @@ class Ui_mainwindow(object):
         sizePolicy.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
         self.tabWidget.setSizePolicy(sizePolicy)
         self.tabWidget.setAutoFillBackground(False)
-        self.tabWidget.setStyleSheet(_fromUtf8("QLCDNumber{color:rgb(255, 0, 0); font: 13 \"Times\"}"))
         self.tabWidget.setIconSize(QtCore.QSize(30, 30))
         self.tabWidget.setObjectName(_fromUtf8("tabWidget"))
         self.home_tab = QtGui.QWidget()
@@ -169,14 +168,13 @@ class Ui_mainwindow(object):
         self.pushButton_6.setGeometry(QtCore.QRect(10, 170, 91, 23))
         self.pushButton_6.setObjectName(_fromUtf8("pushButton_6"))
         self.lcd_time_Number = QtGui.QLCDNumber(self.groupBox_4)
-        self.lcd_time_Number.setGeometry(QtCore.QRect(540, 10, 71, 21))
+        self.lcd_time_Number.setGeometry(QtCore.QRect(510, 0, 111, 31))
         font = QtGui.QFont()
         font.setBold(False)
         font.setItalic(False)
-        font.setWeight(1)
+        font.setWeight(50)
         self.lcd_time_Number.setFont(font)
-        self.lcd_time_Number.setStyleSheet(_fromUtf8("color: rgb(255, 0, 0);\n"
-""))
+        self.lcd_time_Number.setStyleSheet(_fromUtf8("color:rgb(255, 0, 0)"))
         self.lcd_time_Number.setObjectName(_fromUtf8("lcd_time_Number"))
         self.Interface_groupBox = QtGui.QGroupBox(self.groupBox_2)
         self.Interface_groupBox.setGeometry(QtCore.QRect(10, 190, 331, 171))

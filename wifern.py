@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-
 import sys
 from sys import stdout
 import csv
@@ -9,14 +8,14 @@ from os import path
 import time
 import subprocess
 from subprocess import Popen, PIPE, call
+import multiprocessing
 import re
 from PyQt4 import QtCore, QtGui
-import multiprocessing
+
 from signal import SIGINT, SIGTERM
 import commands
 import wifernGui
 import interfaceGui
-import wash
 import sqlite3
 
 
@@ -70,6 +69,9 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
 
     def wireless_interface(self):
+        #######################
+        ##   Method Works   ###
+        #######################
         conn=sqlite3.connect('attack_session.db')
         cursor = conn.cursor()
         global monitors, adapters
@@ -126,6 +128,9 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         print adapters, monitors          # remove after tests
 
     def monitor_mode_enable(self,):
+        #########################
+        ###  Method Works     ###
+        #########################
         conn=sqlite3.connect('attack_session.db')
         cursor = conn.cursor()
         int_iface = str(self.adapters_comboBox.currentText())
@@ -205,8 +210,8 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
     def UseThis(self):
         if self.monitors_comboBox.currentText() != '':
-            self.mon_iface = self.monitors_comboBox.currentText()
             self.Monitor_select_comboBox.setEnabled(True)
+            self.mon_iface = self.monitors_comboBox.currentText()
             self.start_wash_Button.setEnabled(True)
 
     def washMonitorList(self):
@@ -226,7 +231,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         conn=sqlite3.connect('attack_session.db')
         cursor = conn.cursor()
         cursor.execute("""create table reaver(bssid varchar PRIMARY KEY NOT NULL, \
-        essid varchar, channel varchar, power varchar, locked char)""")
+        essid varchar, channel varchar, power varchar, locked varchar)""")
         cursor.execute("""create table victim(bssid varchar PRIMARY KEY NOT NULL, essid varchar, \
         power varchar, data varchar, channel int, encryption varchar,  maker_model varchar, wps bool)""")
         cursor.execute("""create table adapters(name varchar, bssid varchar, status varchar)""")
@@ -310,19 +315,20 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             mon = str(self.mon_iface)
             if self.start_wash_Button.text() == 'Start':
                 self.start_wash_Button.setText('Stop')
+                t = multiprocessing.Process(target=self.WashThread, args=(mon,)).start()
+                time.sleep(0.5)
                 self.wash_run()
-                self.update()
 
             else:
                 self.start_wash_Button.setText('Start')
-
+                with open('extra.txt', 'r') as f:
+                    P_pid = int(f.readline().strip())
+                    os.kill(P_pid, SIGINT)
         except KeyboardInterrupt, SystemExit:
             os.kill(P_pid, SIGTERM)
         except OSError:
             pass
         except UnboundLocalError:
-            pass
-        finally:
             pass
 
     def wash_run(self):
@@ -337,7 +343,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             self.wash_tableWidget.setColumnWidth(2, 120)
             self.wash_tableWidget.setColumnWidth(4,30)
             self.wash_tableWidget.setColumnWidth(3,70)
-            cursor.execute("""select bssid, essid, power, locked from reaver""")
+            cursor.execute('select bssid, essid, power, locked from reaver')
             for row in cursor.fetchall():
                 if row != None:
                     row_item = QtGui.QTableWidgetItem(row[0])
@@ -348,13 +354,14 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     self.wash_tableWidget.setItem(my_row, 1, x)
                     self.wash_tableWidget.setItem(my_row, 2, y)
                     self.wash_tableWidget.setItem(my_row, 3, z)
-                    row += 1
-                    self.wash_tableWidget.setRowCount(row)
-
+                    my_row += 1
+                    self.wash_tableWidget.setRowCount(my_row)
+                else:
+                    time.sleep(0.3)
             cursor.close()
             conn.close()
-        except:
-            pass   # TODO errors here
+        except OSError as e:
+            print e.errno  # TODO errors here
 
     def recs(self):
         ####################
@@ -438,46 +445,88 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     def showlcd(self):
         time = QtCore.QTime.currentTime()
         text = time.toString('hh:mm')
-
         self.lcd_time_Number.display(text)
 
     def Sort_Wordlist(self):
-        get_wordlist_for_sorting = QtGui.QFileDialog.getOpenFileName(self, 'Select Dictionary', '',
-                                                'Text files (*.txt);; List files (*.lst)')
-        if get_wordlist_for_sorting:
-            filename = get_wordlist_for_sorting
-            self.sort_wordlist_lineEdit.setText(filename)
-            self.wordlist = os.path.basename(str(filename))
-            self.wordlist_path = str(filename)
-            self.sort_wordlist_lineEdit.setEnabled(False)
+        try:
+            get_wordlist_for_sorting = QtGui.QFileDialog.getOpenFileName(self, 'Select Dictionary', '',
+                                                    'Text files (*.txt);; List files (*.lst)')
+            if get_wordlist_for_sorting:
+                filename = get_wordlist_for_sorting
+                self.sort_wordlist_lineEdit.setText(filename)
+                self.wordlist = os.path.basename(str(filename))
+                self.wordlist_path = str(filename)
+                self.sort_wordlist_lineEdit.setEnabled(False)
+        except:
+            pass
 
     def process_wordlist(self):
-
-        cmd = ['cat '+ self.wordlist_path]
-
-        if self.sort_checkBox.isChecked():
-            cmd.append(' | sort')
-            self.Process_wordlist_Button.setEnabled(True)
-                                               ## Test
-        if self.unique_checkBox.setCheckState(True):
-            cmd.append(' | uniq')
-            self.Process_wordlist_Button.setEnabled(True)
-            ## cat words.txt | sort | uniq > dictionary.txt
-
-        if self.pwinspector_checkBox.isChecked():
-            cmd.append(' | pw-inspector -m 8 -M 63')
-            self.Process_wordlist_Button.setEnabled(True)
-        cmd.append(' > WPAwordlist.txt')
-        foo = open('WPAwordlist.txt', 'w')
-        print cmd
-            ## pw-inspector -m 8 -M 63 > WPAwordlist.txt
-        # comment for now
-        sort = Popen(cmd, stdout=PIPE, stderr=open(os.devnull, 'w'))
-        sort.wait()
-
         ########################
         #  FIX ME              #
         ########################
+
+        try:
+            cmd = ['cat '+ self.wordlist_path]
+
+            if self.sort_checkBox.isChecked():
+                cmd.append(' | sort')
+                self.Process_wordlist_Button.setEnabled(True)
+                                                   ## Test
+            if self.unique_checkBox.isChecked():
+                cmd.append(' | uniq')
+                self.Process_wordlist_Button.setEnabled(True)
+                ## cat words.txt | sort | uniq > dictionary.txt
+
+            if self.pwinspector_checkBox.isChecked():
+                cmd.append(' | pw-inspector -m 8 -M 63')
+                self.Process_wordlist_Button.setEnabled(True)
+            cmd.append(' > WPAwordlist.txt')
+            foo = open('WPAwordlist.txt', 'w')
+
+            print cmd
+            sort = Popen(cmd, stdout=PIPE, stderr=open(os.devnull, 'w'))
+            sort.wait()
+        except:
+            pass
+            # p1 = Popen(["dmesg"], stdout=PIPE)
+            # p2 = Popen(["grep", "hda"], stdin=p1.stdout, stdout=PIPE)
+            # p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
+            # output = p2.communicate()[0]
+
+    def WashThread(self, device):
+        try:
+            if device:
+                cmd = ['wash', '-C', '-i', device]
+                wash_cmd = Popen(cmd, stdout=PIPE, stderr=PIPE)     #open(os.devnull, 'w')
+                w = str(wash_cmd.pid)
+                print w
+                with open('extra.txt', 'w') as fw:
+                    fw.write(w)
+                    fw.close()
+                while wash_cmd.poll() == None:
+                    sqlite3.enable_shared_cache(True)
+                    conn=sqlite3.connect('attack_session.db')
+                    # cur = conn.cursor()
+                    for line in iter(wash_cmd.stdout.readline, b''): # wash_cmd.communicate()[0].strip(): #
+                        if line.strip() == '' or line.startswith('---'): continue
+                        if line.startswith('Wash') or line.startswith('Copyright') or line.startswith('BSSID'): continue
+                        line = line.strip()
+                        Split = line.split()
+                        b = str(Split[0])
+                        e = str(' '.join(Split[5:]))
+                        if len(e) == 0:
+                            e = 'Hidden'
+                        p = str(Split[2])
+                        c = str(Split[1])
+                        l = str(Split[4])
+                        print b, e, c, p, l
+                        conn.execute('''insert into reaver(bssid, essid, channel, power, locked) values(?,?,?,?,?)''', (b, e, c, p, l))
+                        print 'Record inserted'
+                        conn.commit()
+                    # cur.close()
+                    conn.close()
+        except Exception as e:
+            print e.message
 
 
 class CapFile:
@@ -550,6 +599,7 @@ class Client:
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
+    multiprocessing.freeze_support()
     form = wifern()
     form.show()
     sys.exit(app.exec_())
