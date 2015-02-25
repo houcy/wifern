@@ -316,9 +316,35 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             if self.start_wash_Button.text() == 'Start':
                 self.start_wash_Button.setText('Stop')
                 t = multiprocessing.Process(target=self.WashThread, args=(mon,)).start()
-                time.sleep(0.5)
-                self.wash_run()
-
+                time.sleep(0.6)
+                sqlite3.enable_shared_cache(True)
+                conn=sqlite3.connect('attack_session.db')
+                cursor = conn.cursor()
+                my_row = 0
+                col = 0
+                self.wash_tableWidget.setColumnCount(4)
+                self.wash_tableWidget.setColumnWidth(1,200)
+                self.wash_tableWidget.setColumnWidth(2, 120)
+                self.wash_tableWidget.setColumnWidth(4,30)
+                self.wash_tableWidget.setColumnWidth(3,70)
+                cursor.execute('select bssid, essid, power, locked from reaver')
+                for row in cursor.fetchall():
+                    if row != None:
+                        row_item = QtGui.QTableWidgetItem(row[0])
+                        x = QtGui.QTableWidgetItem(row[1])
+                        y = QtGui.QTableWidgetItem(row[2])
+                        z = QtGui.QTableWidgetItem(row[3])
+                        self.wash_tableWidget.setItem(my_row, col, row_item)
+                        self.wash_tableWidget.setItem(my_row, 1, x)
+                        self.wash_tableWidget.setItem(my_row, 2, y)
+                        self.wash_tableWidget.setItem(my_row, 3, z)
+                        my_row += 1
+                        self.wash_tableWidget.setRowCount(my_row)
+                        print my_row
+                    else:
+                        time.sleep(0.3)
+                cursor.close()
+                conn.close()
             else:
                 self.start_wash_Button.setText('Start')
                 with open('extra.txt', 'r') as f:
@@ -326,43 +352,12 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     os.kill(P_pid, SIGINT)
         except KeyboardInterrupt, SystemExit:
             os.kill(P_pid, SIGTERM)
-        except OSError:
-            pass
-        except UnboundLocalError:
-            pass
-
-    def wash_run(self):
-        try:
-            sqlite3.enable_shared_cache(True)
-            conn=sqlite3.connect('attack_session.db')
-            cursor = conn.cursor()
-            my_row = 0
-            col = 0
-            self.wash_tableWidget.setColumnCount(4)
-            self.wash_tableWidget.setColumnWidth(1,200)
-            self.wash_tableWidget.setColumnWidth(2, 120)
-            self.wash_tableWidget.setColumnWidth(4,30)
-            self.wash_tableWidget.setColumnWidth(3,70)
-            cursor.execute('select bssid, essid, power, locked from reaver')
-            for row in cursor.fetchall():
-                if row != None:
-                    row_item = QtGui.QTableWidgetItem(row[0])
-                    x = QtGui.QTableWidgetItem(row[1])
-                    y = QtGui.QTableWidgetItem(row[2])
-                    z = QtGui.QTableWidgetItem(row[3])
-                    self.wash_tableWidget.setItem(my_row, col, row_item)
-                    self.wash_tableWidget.setItem(my_row, 1, x)
-                    self.wash_tableWidget.setItem(my_row, 2, y)
-                    self.wash_tableWidget.setItem(my_row, 3, z)
-                    my_row += 1
-                    self.wash_tableWidget.setRowCount(my_row)
-                else:
-                    time.sleep(0.3)
-            cursor.close()
-            conn.close()
         except OSError as e:
             print e.errno  # TODO errors here
 
+        except UnboundLocalError:
+            pass
+        
     def recs(self):
         ####################
         #  Method works    #
@@ -497,17 +492,16 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         try:
             if device:
                 cmd = ['wash', '-C', '-i', device]
-                wash_cmd = Popen(cmd, stdout=PIPE, stderr=PIPE)     #open(os.devnull, 'w')
+                wash_cmd = Popen(cmd, stdout=PIPE, stderr=PIPE)
                 w = str(wash_cmd.pid)
                 print w
                 with open('extra.txt', 'w') as fw:
                     fw.write(w)
                     fw.close()
                 while wash_cmd.poll() == None:
-                    sqlite3.enable_shared_cache(True)
+                    sqlite3.enable_shared_cache(True) ## Enable for cuncurent writing/ reading of DB
                     conn=sqlite3.connect('attack_session.db')
-                    # cur = conn.cursor()
-                    for line in iter(wash_cmd.stdout.readline, b''): # wash_cmd.communicate()[0].strip(): #
+                    for line in iter(wash_cmd.stdout.readline, b''):
                         if line.strip() == '' or line.startswith('---'): continue
                         if line.startswith('Wash') or line.startswith('Copyright') or line.startswith('BSSID'): continue
                         line = line.strip()
