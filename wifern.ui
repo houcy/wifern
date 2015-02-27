@@ -325,7 +325,7 @@
              <string>Wash</string>
             </property>
            </widget>
-           <widget class="QTableWidget" name="wash_tableWidget">
+           <widget class="QTableView" name="wash_tableView">
             <property name="geometry">
              <rect>
               <x>150</x>
@@ -357,26 +357,6 @@
             <property name="selectionBehavior">
              <enum>QAbstractItemView::SelectRows</enum>
             </property>
-            <column>
-             <property name="text">
-              <string>Bssid</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>Essid</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>Power</string>
-             </property>
-            </column>
-            <column>
-             <property name="text">
-              <string>Locked</string>
-             </property>
-            </column>
            </widget>
            <widget class="QPushButton" name="start_wash_Button">
             <property name="geometry">

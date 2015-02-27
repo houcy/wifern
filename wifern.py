@@ -10,8 +10,8 @@ import subprocess
 from subprocess import Popen, PIPE, call
 import multiprocessing
 import re
-from PyQt4 import QtCore, QtGui
-
+import PyQt4
+from PyQt4 import QtCore, QtGui, QtSql
 from signal import SIGINT, SIGTERM
 import commands
 import wifernGui
@@ -66,7 +66,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.showlcd()
         global stop
         stop = False
-
 
     def wireless_interface(self):
         #######################
@@ -154,10 +153,10 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                         wor_mac = word[-17:]
                     if wor_essid == int_iface:                    ## TODO  Anonymize the original interface
                         before_intface = wor_essid, wor_mac       ##       to avoid accidents
-                        print before_intface                      ## Delete after test
-                        '''ifconfig wlan0 down
-                            ifconfig wlan0 hw ether 00:22:33:44:55:66
-                        ifconfig wlan0 up'''
+                        print before_intface
+                        new_mac = self.randomMAC
+                        print new_mac                             ##       Delete after test
+                        call(['ifconfig', before_intface[0], 'down']) # ifconfig wlan0 hw ether 00:22:33:44:55:66 ifconfig wlan0 up'
                     comma = str(commands.getoutput('airmon-ng start %s' %( int_iface)))
                     if 'monitor mode enabled' in comma:
                         reg = re.compile('mon\d', re.IGNORECASE)
@@ -185,7 +184,16 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                             print('Injection NOT working')          ## Add instuctions to fix or buy other card
                                                                     ## Disable(!!!!!) buttons
 
-    def injection_working(self, mon_iface_check):  ## Make this method a thread
+    def randomMAC():
+	    mac = [ random.randint(0x00, 0x7f),
+                random.randint(0x00, 0x7f),
+		        random.randint(0x00, 0x7f),
+		        random.randint(0x00, 0x7f),
+		        random.randint(0x00, 0xff),
+		        random.randint(0x00, 0xff) ]
+	    return ':'.join(map(lambda x: "%02x" % x, mac))
+
+    def injection_working(self, mon_iface_check):  #
         cmd = ['aireplay-ng', '-9', mon_iface_check]
         cmd_inj = Popen(cmd, stdout=PIPE)
         for line in iter(cmd_inj.stdout.readline, ''):
@@ -312,6 +320,13 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
     def wash_call(self):
         try:
+            wash_db = QtSql.QSqlDatabase('QSQLITE')
+            wash_db.addDatabase('attack_session.db')
+            query = QtSql.QSqlQuery()
+            query.exec_("select * from reaver")
+            wash_dbOk = wash_db.open()
+            wash_model = QtSql.QSqlQueryModel
+            self.wash_tableView.setModel(wash_model)
             mon = str(self.mon_iface)
             if self.start_wash_Button.text() == 'Start':
                 self.start_wash_Button.setText('Stop')
@@ -322,15 +337,16 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 cursor = conn.cursor()
                 my_row = 0
                 col = 0
-                self.wash_tableWidget.setColumnCount(4)
-                self.wash_tableWidget.setColumnWidth(1,200)
-                self.wash_tableWidget.setColumnWidth(2, 120)
-                self.wash_tableWidget.setColumnWidth(4,30)
-                self.wash_tableWidget.setColumnWidth(3,70)
+                wash_model.setHeaderData(0, QtCore.Qt.Horizontal, "BSSID")
+                wash_model.setHeaderData(1, QtCore.Qt.Horizontal, "ESSID")
+                wash_model.setHeaderData(2, QtCore.Qt.Horizontal, "Channel")
+                wash_model.setHeaderData(3, QtCore.Qt.Horizontal, "Power")
+                wash_model.setHeaderData(4, QtCore.Qt.Horizontal, "Locked")
+
                 cursor.execute('select bssid, essid, power, locked from reaver')
                 for row in cursor.fetchall():
                     if row != None:
-                        row_item = QtGui.QTableWidgetItem(row[0])
+                        row_item = QtGui.QTableView(row[0])
                         x = QtGui.QTableWidgetItem(row[1])
                         y = QtGui.QTableWidgetItem(row[2])
                         z = QtGui.QTableWidgetItem(row[3])
@@ -357,7 +373,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
         except UnboundLocalError:
             pass
-        
+
     def recs(self):
         ####################
         #  Method works    #
@@ -459,7 +475,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         ########################
         #  FIX ME              #
         ########################
-
         try:
             cmd = ['cat '+ self.wordlist_path]
 
@@ -521,6 +536,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     conn.close()
         except Exception as e:
             print e.message
+
 
 
 class CapFile:
