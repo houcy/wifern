@@ -51,7 +51,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.working_Dir = ''
         self.working_dir()
         self.recs()
-        self.connect(self.access_pointScan_Button, QtCore.SIGNAL("clicked()"), self.initscan)
+        self.connect(self.access_pointScan_Button, QtCore.SIGNAL("clicked()"), self.wifi_window)
         self.connect(self.dictionary_select_Button, QtCore.SIGNAL("clicked()"), self.opendict)
         self.connect(self.Get_Wordlist_Button, QtCore.SIGNAL("clicked()"), self.Sort_Wordlist)
         self.connect(self.start_wash_Button, QtCore.SIGNAL("clicked()"), self.wash_call)
@@ -68,7 +68,9 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
         stop = False
 
-
+    #####################################################
+    ###  INTERFACE, MONITOR MODE AND INJECTION CHECK ####
+    #####################################################
     def wireless_interface(self):
         #######################
         ##   Method Works   ###
@@ -120,6 +122,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     query.addBindValue(wor_essid)
                     query.addBindValue(wor_mac)
                     query.exec_()
+                    print 'Done'
                     if wor_essid == monit:
                         b_m_intface = wor_essid, wor_mac
 
@@ -131,22 +134,25 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         #########################
         ###  Method Works     ###
         #########################
-        conn=sqlite3.connect('attack_session.db')
-        cursor = conn.cursor()
+        query = QtSql.QSqlQuery(db)
+        query1 = QtSql.QSqlQuery(db)
         int_iface = str(self.adapters_comboBox.currentText())
         print int_iface
-        q = ("""select adapters.bssid from adapters where adapters.name = ?""")
-        u = ("""select monitors.name from monitors where monitors.bssid = ?""")
-        cursor.execute(q,(int_iface,));
-        for row in cursor.fetchone():
-            if row is not None:
-                Mon_bss = str(row)
-                try:
-                    cursor.execute(u, ((Mon_bss).upper(),));
-                    for arow in cursor.fetchone():
-                        if arow is not None:
-                            message = QtGui.QMessageBox.information(self, 'Select diferent adapter',int_iface + ' has already been put in monitor mode', QtGui.QMessageBox.Ok)
-                except TypeError:
+        query.prepare("select adapters.bssid from adapters where adapters.name = ?")
+        query.addBindValue(int_iface)
+        query.exec_()
+        query.next()
+        if query.isValid():
+            Mon_bss = str(query.value(0).toString())
+            print 'Mon_bss is: ' + str(Mon_bss)
+            try:
+                query1.prepare("select monitors.name from monitors where monitors.bssid = ?")
+                query1.addBindValue(((Mon_bss).upper()));
+                query1.exec_()
+                query1.next()
+                if query1.isValid():
+                    message = QtGui.QMessageBox.information(self, "Select diferent adapter",int_iface + " has already been put in monitor mode", QtGui.QMessageBox.Ok)
+                else:
                     comm = str(commands.getoutput("ifconfig -a | awk '/HWaddr/ {print $1 " " $NF}'"))
                     a = comm.splitlines()
                     for word in a:
@@ -154,9 +160,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                         wor_mac = word[-17:]
                     if wor_essid == int_iface:                    ## TODO  Anonymize the original interface
                         before_intface = wor_essid, wor_mac       ##       to avoid accidents
-                        print before_intface
-                        new_mac = self.randomMAC
-                        print new_mac                             ##       Delete after test
+                        print before_intface                                                     ##       Delete after test
                         call(['ifconfig', before_intface[0], 'down']) # ifconfig wlan0 hw ether 00:22:33:44:55:66 ifconfig wlan0 up'
                     comma = str(commands.getoutput('airmon-ng start %s' %( int_iface)))
                     if 'monitor mode enabled' in comma:
@@ -168,7 +172,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                                 mon_iface = x_int[(a + 1) % len(x_int)]
                             else:
                                 monitors.append(mon_iface)
-
                         if self.injection_working(mon_iface):          ## Check if injection is working
                             if mon_iface in monitors:
                                 for monit in monitors:
@@ -182,7 +185,12 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                                     self.Monitor_select_comboBox.addItem(monit)
                                     self.wlan1_monitor_button.setVisible(True)
                         else:
-                            print('Injection NOT working')          ## Add instuctions to fix or buy other card
+                            print('Injection NOT working')
+            except OSError as e:
+                print e.message
+            except QtSql.QSqlError as qt:
+                print qt.text()
+                                                            ## Add instuctions to fix or buy other card
                                                                     ## Disable(!!!!!) buttons
 
     def randomMAC():
@@ -255,11 +263,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         query.exec_("create table monitors (name varchar(7), bssid varchar(17))")
         query.exec_("create table recs (program_name varchar(20), available varchar(7))")
 
-    def initscan(self,):
-        cmd = str(commands.getoutput('airodump-ng --ignore-negative-one --manufacturer -a --output-format csv -w wifern-dump %s'%(self.mon_iface)))
-        # wait aprox 3 sec
-        targets, clients = self.get_victim_list(wifern-dump.csv)
-
     def get_victim_list(self, csv_filename):
         if not os.path.exists(csv_filename):
             return [], []
@@ -315,6 +318,10 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             return [], []
         return (targets, clients)
 
+    ####################################################
+    ###  PREQUISITE PROGRAMS CHECK               #######
+    ####################################################
+
     def program_list(self, program):
             proc = Popen(['which', program], stdout=PIPE, stderr=PIPE)
             txt = proc.communicate()
@@ -323,45 +330,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             if txt[0].strip() != '' and txt[1].strip() == '':
                 return True
             return not (txt[1].strip() == '' or txt[1].find('no %s in' % program) != -1)
-
-    def refresh(self):
-        self.wash_model.setQuery("select * from reaver")
-        self.wash_model.setHeaderData(0, QtCore.Qt.Horizontal, "BSSID")
-        self.wash_model.setHeaderData(1, QtCore.Qt.Horizontal, "ESSID")
-        self.wash_model.setHeaderData(2, QtCore.Qt.Horizontal, "Channel")
-        self.wash_model.setHeaderData(3, QtCore.Qt.Horizontal, "Power")
-        self.wash_model.setHeaderData(4, QtCore.Qt.Horizontal, "Locked")
-
-
-    def wash_call(self):
-        try:
-            mon = str(self.mon_iface)
-            if self.start_wash_Button.text() == 'Start':
-                self.start_wash_Button.setText('Stop')
-                t = multiprocessing.Process(target=self.WashThread, args=(mon,)).start()
-                #time.sleep(0.2)
-                self.wash_model = QtSql.QSqlQueryModel()
-                self.wash_model.setQuery("select * from reaver")
-                self.wash_model.setHeaderData(0, QtCore.Qt.Horizontal, "BSSID")
-                self.wash_model.setHeaderData(1, QtCore.Qt.Horizontal, "ESSID")
-                self.wash_model.setHeaderData(2, QtCore.Qt.Horizontal, "Channel")
-                self.wash_model.setHeaderData(3, QtCore.Qt.Horizontal, "Power")
-                self.wash_model.setHeaderData(4, QtCore.Qt.Horizontal, "Locked")
-                self.wash_tableView.setModel(self.wash_model)
-            else:
-                self.start_wash_Button.setText('Start')
-                with open('extra.txt', 'r') as f:
-                    P_pid = int(f.readline().strip())
-                    os.kill(P_pid, SIGINT)
-        except KeyboardInterrupt, SystemExit:
-            os.kill(P_pid, SIGTERM)
-        except OSError as e:
-            print e.errno  # TODO errors here
-
-        except UnboundLocalError:
-            pass
-
-
 
     def recs(self):
         ####################
@@ -450,12 +418,14 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         except OSError as e:
             print e.message
 
-
     def showlcd(self):
         time = QtCore.QTime.currentTime()
         text = time.toString('hh:mm')
         self.lcd_time_Number.display(text)
 
+    ####################################################
+    ###     WORDLIST PROCESS                      ######
+    ####################################################
     def Sort_Wordlist(self):
         try:
             get_wordlist_for_sorting = QtGui.QFileDialog.getOpenFileName(self, 'Select Dictionary', '',
@@ -501,13 +471,46 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             # p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
             # output = p2.communicate()[0]
 
+    ####################################################
+    ###    WASH TABLE START                       ######
+    ####################################################
+    def wash_call(self):
+        try:
+            mon = str(self.mon_iface)
+            if self.start_wash_Button.text() == 'Start':
+                self.start_wash_Button.setText('Stop')
+                t = multiprocessing.Process(target=self.WashThread, args=(mon,)).start()
+                #time.sleep(0.2)
+                self.wash_model = QtSql.QSqlQueryModel()
+                self.wash_model.setQuery("select * from reaver", db)
+                self.wash_model.setHeaderData(0, QtCore.Qt.Horizontal, "BSSID")
+                self.wash_model.setHeaderData(1, QtCore.Qt.Horizontal, "ESSID")
+                self.wash_model.setHeaderData(2, QtCore.Qt.Horizontal, "Channel")
+                self.wash_model.setHeaderData(3, QtCore.Qt.Horizontal, "Power")
+                self.wash_model.setHeaderData(4, QtCore.Qt.Horizontal, "Locked")
+                self.wash_tableView.setModel(self.wash_model)
+                self.wash_tableView.resizeColumnsToContents()
+                if self.wash_model.lastError().isValid():
+                    print self.wash_model.lastError()
+            else:
+                self.start_wash_Button.setText('Start')
+                with open('extra.txt', 'r') as f:
+                    P_pid = int(f.readline().strip())
+                    os.kill(P_pid, SIGINT)
+        except KeyboardInterrupt, SystemExit:
+            os.kill(P_pid, SIGTERM)
+        except OSError as e:
+            print e.errno  # TODO errors here
+
+        except UnboundLocalError:
+            pass
+
     def WashThread(self, device):
         try:
             if device:
                 cmd = ['wash', '-C', '-i', device]
                 wash_cmd = Popen(cmd, stdout=PIPE, stderr=PIPE)
                 w = str(wash_cmd.pid)
-                print w
                 with open('extra.txt', 'w') as fw:
                     fw.write(w)
                     fw.close()
@@ -538,6 +541,58 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         except Exception as e:
             print e.message
 
+    ####################################################
+    ###     WIFI TABLE START                     #######
+    ####################################################
+    def wifi_window(self):
+        try:
+            mon = str(self.mon_iface)
+            if self.access_pointScan_Button.text() == "Scan for Access Points":
+                self.access_pointScan_Button.setText('Stop Scan')
+                wifi = multiprocessing.Process(target=self.initscan, args=(mon,)).start()
+                self.wifi_model = QtSql.QSqlQueryModel()
+                self.wifi_model.setQuery("select * from victim", db)
+                self.wifi_model.setHeaderData(0, QtCore.Qt.Horizontal, "BSSID")
+                self.wifi_model.setHeaderData(1, QtCore.Qt.Horizontal, "ESSID")
+                self.wifi_model.setHeaderData(2, QtCore.Qt.Horizontal, "Channel")
+                self.wifi_model.setHeaderData(3, QtCore.Qt.Horizontal, "Encryption")
+                self.wifi_model.setHeaderData(4, QtCore.Qt.Horizontal, "Cipher")
+                self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Authentication")
+                self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Power")
+                self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "WPS")
+                self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Key")
+                self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Make/ Model")
+                self.accessPointTable.setModel(self.wifi_model)
+                if self.wifi_model.lastError().isValid():
+                    print self.wifi_model.lastError()
+        except OSError as e:
+            print e.message
+
+
+
+    def initscan(self,iface):
+
+        try:
+            if iface:
+                cmd = ['airodump-ng', '--ignore-negative-one', '-a', iface]
+                wifi_cmd = Popen(cmd, stdout=PIPE)
+                wi = str(wash_cmd.pid)
+                with open('extra1.txt', 'w') as fw:
+                    fw.write(wi)
+                    fw.close()
+                while wifi_cmd.poll() == None:
+                    # query = QtSql.QSqlQuery(db)
+                    for line in iter(wash_cmd.stdout.readline, b''):
+                        if line.startswith('CH') or line.strip() == "" or line.startswith('BSSID'): continue
+                        line = line.strip()
+                        Split = line.split()
+                        if Split[7] == 'OPN': continue
+                        print line
+                        b = str(Split[0])
+
+                # targets, clients = self.get_victim_list(wifern-dump.csv)
+        except:
+            pass
 
 
 class CapFile:
