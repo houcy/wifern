@@ -15,8 +15,6 @@ from PyQt4 import QtCore, QtGui, QtSql
 from signal import SIGINT, SIGTERM
 import commands
 import wifernGui
-import interfaceGui
-import sqlite3
 
 
 """
@@ -36,6 +34,9 @@ mon_iface = ''
 adapters = []
 monitors = []
 WVList = []
+db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
+db.setDatabaseName("attack_session.db")
+query = QtSql.QSqlQuery(db)
 
 
 
@@ -64,16 +65,16 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.start_wash_Button.setEnabled(False)
         self.Monitor_select_comboBox.setEnabled(False)
         self.showlcd()
-        global stop
+
         stop = False
+
 
     def wireless_interface(self):
         #######################
         ##   Method Works   ###
         #######################
-        conn=sqlite3.connect('attack_session.db')
-        cursor = conn.cursor()
         global monitors, adapters
+        query = QtSql.QSqlQuery()
         # need to check if iwconfig exists (it should )
         cmd = str(commands.getoutput('iwconfig'))
         if 'Mode:Managed' in cmd:
@@ -96,9 +97,11 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 for word in a:
                     wor_essid = word[:-17]
                     wor_mac = word[-17:]
-                    q = """insert into adapters(name, bssid, status) values(?,?,?)"""
-                    cursor.execute(q,(wor_essid, wor_mac, 'before'))
-                    conn.commit()
+                    query.prepare("insert into adapters (name, bssid, status) values(?,?,?)")
+                    query.addBindValue(wor_essid)
+                    query.addBindValue(wor_mac)
+                    query.addBindValue('before')
+                    query.exec_()
                     if wor_essid == int_iface:
                         before_intface = wor_essid, wor_mac
         else:
@@ -113,17 +116,15 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     wor_essid = word[:-47]
                     wor_mac = word[-47:-30]
                     wor_mac = wor_mac.replace('-', ':')
-                    q = """insert into monitors(name, bssid) values(?,?)"""
-                    cursor.execute(q,(wor_essid, wor_mac))
-                    conn.commit()
+                    query.prepare("insert into monitors (name, bssid) values (?,?)")
+                    query.addBindValue(wor_essid)
+                    query.addBindValue(wor_mac)
+                    query.exec_()
                     if wor_essid == monit:
                         b_m_intface = wor_essid, wor_mac
 
         else:
             return
-
-        cursor.close()
-        conn.close()
         print adapters, monitors          # remove after tests
 
     def monitor_mode_enable(self,):
@@ -231,23 +232,28 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
     def working_dir(self):
         from tempfile import mkdtemp
-
         self.working_Dir = mkdtemp(prefix='wifern')
         if not self.working_Dir.endswith(os.sep):
             self.working_Dir += os.sep
         os.chdir(self.working_Dir)
-        conn=sqlite3.connect('attack_session.db')
-        cursor = conn.cursor()
-        cursor.execute("""create table reaver(bssid varchar PRIMARY KEY NOT NULL, \
-        essid varchar, channel varchar, power varchar, locked varchar)""")
-        cursor.execute("""create table victim(bssid varchar PRIMARY KEY NOT NULL, essid varchar, \
-        power varchar, data varchar, channel int, encryption varchar,  maker_model varchar, wps bool)""")
-        cursor.execute("""create table adapters(name varchar, bssid varchar, status varchar)""")
-        cursor.execute("""create table monitors(name varchar, bssid varchar)""")
-        cursor.execute("""create table recs(program_name varchar, available bool)""")
-        conn.commit()
-        cursor.close()
-        conn.close()
+        if not db.open():
+            QtGui.QMessageBox.critical(None, QtGui.qApp.tr("Cannot open database"),
+                QtGui.qApp.tr("Unable to establish a database connection.\n"
+                              "This example needs SQLite support. Please read "
+                              "the Qt SQL driver documentation for information "
+                              "how to build it.\n\n"
+                              "Click Cancel to exit."),
+                QtGui.QMessageBox.Cancel)
+            return False
+        query = QtSql.QSqlQuery()
+        query.exec_("create table reaver(bssid varchar(17) PRIMARY KEY NOT NULL, essid varchar(20), "
+                    "channel int, power int, locked varchar(3))")
+        query.exec_("create table victim(bssid varchar(17) PRIMARY KEY NOT NULL, essid varchar(20), "
+                    "power int, data varchar(20), channel int, encryption varchar(7), "
+                    "maker_model varchar(40), wps varchar(3))")
+        query.exec_("create table adapters (name varchar(8), bssid varchar(17), status varchar(7))")
+        query.exec_("create table monitors (name varchar(7), bssid varchar(17))")
+        query.exec_("create table recs (program_name varchar(20), available varchar(7))")
 
     def initscan(self,):
         cmd = str(commands.getoutput('airodump-ng --ignore-negative-one --manufacturer -a --output-format csv -w wifern-dump %s'%(self.mon_iface)))
@@ -318,49 +324,30 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 return True
             return not (txt[1].strip() == '' or txt[1].find('no %s in' % program) != -1)
 
+    def refresh(self):
+        self.wash_model.setQuery("select * from reaver")
+        self.wash_model.setHeaderData(0, QtCore.Qt.Horizontal, "BSSID")
+        self.wash_model.setHeaderData(1, QtCore.Qt.Horizontal, "ESSID")
+        self.wash_model.setHeaderData(2, QtCore.Qt.Horizontal, "Channel")
+        self.wash_model.setHeaderData(3, QtCore.Qt.Horizontal, "Power")
+        self.wash_model.setHeaderData(4, QtCore.Qt.Horizontal, "Locked")
+
+
     def wash_call(self):
         try:
-            wash_db = QtSql.QSqlDatabase('QSQLITE')
-            wash_db.addDatabase('attack_session.db')
-            query = QtSql.QSqlQuery()
-            query.exec_("select * from reaver")
-            wash_dbOk = wash_db.open()
-            wash_model = QtSql.QSqlQueryModel
-            self.wash_tableView.setModel(wash_model)
             mon = str(self.mon_iface)
             if self.start_wash_Button.text() == 'Start':
                 self.start_wash_Button.setText('Stop')
                 t = multiprocessing.Process(target=self.WashThread, args=(mon,)).start()
-                time.sleep(0.6)
-                sqlite3.enable_shared_cache(True)
-                conn=sqlite3.connect('attack_session.db')
-                cursor = conn.cursor()
-                my_row = 0
-                col = 0
-                wash_model.setHeaderData(0, QtCore.Qt.Horizontal, "BSSID")
-                wash_model.setHeaderData(1, QtCore.Qt.Horizontal, "ESSID")
-                wash_model.setHeaderData(2, QtCore.Qt.Horizontal, "Channel")
-                wash_model.setHeaderData(3, QtCore.Qt.Horizontal, "Power")
-                wash_model.setHeaderData(4, QtCore.Qt.Horizontal, "Locked")
-
-                cursor.execute('select bssid, essid, power, locked from reaver')
-                for row in cursor.fetchall():
-                    if row != None:
-                        row_item = QtGui.QTableView(row[0])
-                        x = QtGui.QTableWidgetItem(row[1])
-                        y = QtGui.QTableWidgetItem(row[2])
-                        z = QtGui.QTableWidgetItem(row[3])
-                        self.wash_tableWidget.setItem(my_row, col, row_item)
-                        self.wash_tableWidget.setItem(my_row, 1, x)
-                        self.wash_tableWidget.setItem(my_row, 2, y)
-                        self.wash_tableWidget.setItem(my_row, 3, z)
-                        my_row += 1
-                        self.wash_tableWidget.setRowCount(my_row)
-                        print my_row
-                    else:
-                        time.sleep(0.3)
-                cursor.close()
-                conn.close()
+                #time.sleep(0.2)
+                self.wash_model = QtSql.QSqlQueryModel()
+                self.wash_model.setQuery("select * from reaver")
+                self.wash_model.setHeaderData(0, QtCore.Qt.Horizontal, "BSSID")
+                self.wash_model.setHeaderData(1, QtCore.Qt.Horizontal, "ESSID")
+                self.wash_model.setHeaderData(2, QtCore.Qt.Horizontal, "Channel")
+                self.wash_model.setHeaderData(3, QtCore.Qt.Horizontal, "Power")
+                self.wash_model.setHeaderData(4, QtCore.Qt.Horizontal, "Locked")
+                self.wash_tableView.setModel(self.wash_model)
             else:
                 self.start_wash_Button.setText('Start')
                 with open('extra.txt', 'r') as f:
@@ -374,84 +361,95 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         except UnboundLocalError:
             pass
 
+
+
     def recs(self):
         ####################
         #  Method works    #
         ####################
-        conn=sqlite3.connect('attack_session.db')
-        cursor = conn.cursor()
-        row = 0
-        col = 0
-        self.my_tableWidget.setColumnCount(3)
-        self.my_tableWidget.setColumnWidth(1,70)
-        self.my_tableWidget.setColumnWidth(2,70)
-        self.my_tableWidget.setRowCount(17)
-        rec_progs = ['aircrack-ng', 'aireplay-ng', 'airodump-ng', 'airmon-ng', 'packetforge-ng',
-                'iw', 'iwconfig', 'reaver', 'wash', 'mdk3', 'pyrit', 'ifconfig', 'sqlite3']
-        for prog in rec_progs:
-            if self.program_list(prog):
-                q = """insert into recs(program_name, available) values(?,?)"""
-                cursor.execute(q,(prog, True))
-                x = QtGui.QTableWidgetItem()
-                x.setFlags(QtCore.Qt.ItemIsEnabled)
-                x.setCheckState(QtCore.Qt.Checked)
-                y = QtGui.QTableWidgetItem()
-                y.setFlags(QtCore.Qt.ItemIsEnabled)
-                y.setCheckState(QtCore.Qt.Checked)
-                row_item = QtGui.QTableWidgetItem(prog)
-                self.my_tableWidget.setItem(row, col, row_item)
-                self.my_tableWidget.setItem(row, 1, x)
-                self.my_tableWidget.setItem(row, 2, y)
-                row += 1
-            else:
-                q = """insert into recs(program_name, available) values(?,?)"""
-                cursor.execute(q,(prog, False))
-                x = QtGui.QTableWidgetItem()
-                x.setFlags(QtCore.Qt.ItemIsEnabled)
-                x.setCheckState(QtCore.Qt.Unchecked)
-                y = QtGui.QTableWidgetItem()
-                y.setFlags(QtCore.Qt.ItemIsEnabled)
-                y.setCheckState(QtCore.Qt.Checked)     # add column with link to install or apt command
-                row_item = QtGui.QTableWidgetItem(prog)
-                self.my_tableWidget.setItem(row, col, row_item)
-                self.my_tableWidget.setItem(row, 1, x)
-                self.my_tableWidget.setItem(row, 2, y)
-                row += 1
+        try:
+            row = 0
+            col = 0
+            query = QtSql.QSqlQuery()
+            self.my_tableWidget.setColumnCount(3)
+            self.my_tableWidget.setColumnWidth(1,70)
+            self.my_tableWidget.setColumnWidth(2,70)
+            self.my_tableWidget.setRowCount(17)
+            rec_progs = ['aircrack-ng', 'aireplay-ng', 'airodump-ng', 'airmon-ng', 'packetforge-ng',
+                    'iw', 'iwconfig', 'reaver', 'wash', 'mdk3', 'pyrit', 'ifconfig', 'sqlite3']
+            for prog in rec_progs:
+                if self.program_list(prog):
+                    query.prepare("insert into recs (program_name, available) values (?,?)")
+                    query.addBindValue(prog)
+                    query.addBindValue(True)
+                    query.exec_()
+                    x = QtGui.QTableWidgetItem()
+                    x.setFlags(QtCore.Qt.ItemIsEnabled)
+                    x.setCheckState(QtCore.Qt.Checked)
+                    y = QtGui.QTableWidgetItem()
+                    y.setFlags(QtCore.Qt.ItemIsEnabled)
+                    y.setCheckState(QtCore.Qt.Checked)
+                    row_item = QtGui.QTableWidgetItem(prog)
+                    self.my_tableWidget.setItem(row, col, row_item)
+                    self.my_tableWidget.setItem(row, 1, x)
+                    self.my_tableWidget.setItem(row, 2, y)
+                    row += 1
+                else:
+                    query.prepare("insert into recs (program_name, available) values (?,?)")
+                    query.addBindValue(prog)
+                    query.addBindValue(False)
+                    query.exec_()
+                    x = QtGui.QTableWidgetItem()
+                    x.setFlags(QtCore.Qt.ItemIsEnabled)
+                    x.setCheckState(QtCore.Qt.Unchecked)
+                    y = QtGui.QTableWidgetItem()
+                    y.setFlags(QtCore.Qt.ItemIsEnabled)
+                    y.setCheckState(QtCore.Qt.Checked)     # add column with link to install or apt command
+                    row_item = QtGui.QTableWidgetItem(prog)
+                    self.my_tableWidget.setItem(row, col, row_item)
+                    self.my_tableWidget.setItem(row, 1, x)
+                    self.my_tableWidget.setItem(row, 2, y)
+                    row += 1
 
-        not_rec_progs = ['bully', 'crunch', 'pw-inspector', 'oclhashcat', 'cudahashcat']
-        not_rec_list = []
-        for prog in not_rec_progs:
-            if self.program_list(prog):
-                q = """insert into recs(program_name, available) values(?,?)"""
-                cursor.execute(q,(prog, True))
-                x = QtGui.QTableWidgetItem()
-                x.setFlags(QtCore.Qt.ItemIsEnabled)
-                x.setCheckState(QtCore.Qt.Checked)
-                y = QtGui.QTableWidgetItem()
-                y.setFlags(QtCore.Qt.ItemIsEnabled)
-                y.setCheckState(QtCore.Qt.Unchecked)
-                row_item = QtGui.QTableWidgetItem(prog)
-                self.my_tableWidget.setItem(row, col, row_item)
-                self.my_tableWidget.setItem(row, 1, x)
-                self.my_tableWidget.setItem(row, 2, y)
-                row += 1
-            else:
-                q = """insert into recs(program_name, available) values(?,?)"""
-                cursor.execute(q,(prog, False))
-                x = QtGui.QTableWidgetItem()
-                x.setFlags(QtCore.Qt.ItemIsEnabled)
-                x.setCheckState(QtCore.Qt.Unchecked)
-                y = QtGui.QTableWidgetItem()
-                y.setFlags(QtCore.Qt.ItemIsEnabled)
-                y.setCheckState(QtCore.Qt.Unchecked)
-                row_item = QtGui.QTableWidgetItem(prog)
-                self.my_tableWidget.setItem(row, col, row_item)
-                self.my_tableWidget.setItem(row, 1, x)
-                self.my_tableWidget.setItem(row, 2, y)
-                row += 1
-        conn.commit()
-        cursor.close()
-        conn.close()
+            not_rec_progs = ['bully', 'crunch', 'pw-inspector', 'oclhashcat', 'cudahashcat']
+            not_rec_list = []
+            for prog in not_rec_progs:
+                if self.program_list(prog):
+                    query.prepare("insert into recs(program_name, available) values(?,?)")
+                    query.addBindValue(prog)
+                    query.addBindValue(True)
+                    query.exec_()
+                    x = QtGui.QTableWidgetItem()
+                    x.setFlags(QtCore.Qt.ItemIsEnabled)
+                    x.setCheckState(QtCore.Qt.Checked)
+                    y = QtGui.QTableWidgetItem()
+                    y.setFlags(QtCore.Qt.ItemIsEnabled)
+                    y.setCheckState(QtCore.Qt.Unchecked)
+                    row_item = QtGui.QTableWidgetItem(prog)
+                    self.my_tableWidget.setItem(row, col, row_item)
+                    self.my_tableWidget.setItem(row, 1, x)
+                    self.my_tableWidget.setItem(row, 2, y)
+                    row += 1
+                else:
+                    query.prepare("insert into recs(program_name, available) values (?,?)")
+                    query.addBindValue(prog)
+                    query.addBindValue(False)
+                    query.exec_()
+                    x = QtGui.QTableWidgetItem()
+                    x.setFlags(QtCore.Qt.ItemIsEnabled)
+                    x.setCheckState(QtCore.Qt.Unchecked)
+                    y = QtGui.QTableWidgetItem()
+                    y.setFlags(QtCore.Qt.ItemIsEnabled)
+                    y.setCheckState(QtCore.Qt.Unchecked)
+                    row_item = QtGui.QTableWidgetItem(prog)
+                    self.my_tableWidget.setItem(row, col, row_item)
+                    self.my_tableWidget.setItem(row, 1, x)
+                    self.my_tableWidget.setItem(row, 2, y)
+                    row += 1
+
+        except OSError as e:
+            print e.message
+
 
     def showlcd(self):
         time = QtCore.QTime.currentTime()
@@ -514,8 +512,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     fw.write(w)
                     fw.close()
                 while wash_cmd.poll() == None:
-                    sqlite3.enable_shared_cache(True) ## Enable for cuncurent writing/ reading of DB
-                    conn=sqlite3.connect('attack_session.db')
+                    query = QtSql.QSqlQuery(db)
                     for line in iter(wash_cmd.stdout.readline, b''):
                         if line.strip() == '' or line.startswith('---'): continue
                         if line.startswith('Wash') or line.startswith('Copyright') or line.startswith('BSSID'): continue
@@ -529,11 +526,15 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                         c = str(Split[1])
                         l = str(Split[4])
                         print b, e, c, p, l
-                        conn.execute('''insert into reaver(bssid, essid, channel, power, locked) values(?,?,?,?,?)''', (b, e, c, p, l))
+                        query.prepare("insert into reaver (bssid, essid, channel, power, locked) values(?,?,?,?,?)")
+                        query.addBindValue(b)
+                        query.addBindValue(e)
+                        query.addBindValue(c)
+                        query.addBindValue(p)
+                        query.addBindValue(l)
+                        query.exec_()
                         print 'Record inserted'
-                        conn.commit()
-                    # cur.close()
-                    conn.close()
+
         except Exception as e:
             print e.message
 
