@@ -9,8 +9,10 @@ import time
 import subprocess
 from subprocess import Popen, PIPE, call
 import multiprocessing
+import random
 import re
 import PyQt4
+from PyQt4.QtCore import QFileSystemWatcher
 from PyQt4 import QtCore, QtGui, QtSql
 from signal import SIGINT, SIGTERM
 import commands
@@ -90,6 +92,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             for i in text:
                 self.adapters_comboBox.addItem(i)
         if adapters:
+            self.adapters_comboBox.clear()
             for adap in adapters:
                 self.adapters_comboBox.addItem(adap)
                 self.wlan0_monitor_Button.setVisible(True)
@@ -112,6 +115,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             for monit in monitors:
                 self.monitors_comboBox.addItem(monit)
                 self.wlan1_monitor_button.setVisible(True)
+                self.Monitor_select_comboBox.addItem(monit)
                 comm = str(commands.getoutput("ifconfig " + monit + " | awk '/HWaddr/ {print $1 " " $NF}'"))
                 a = comm.splitlines()
                 for word in a:
@@ -130,21 +134,20 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             return
         print adapters, monitors          # remove after tests
 
-    def monitor_mode_enable(self,):
+    def monitor_mode_enable(self):
         #########################
         ###  Method Works     ###
         #########################
         query = QtSql.QSqlQuery(db)
         query1 = QtSql.QSqlQuery(db)
         int_iface = str(self.adapters_comboBox.currentText())
-        print int_iface
-        query.prepare("select adapters.bssid from adapters where adapters.name = ?")
+        query.prepare("select adapters.bssid from adapters where adapters.name = ? and adapters.status = ?")
         query.addBindValue(int_iface)
+        query.addBindValue('before')
         query.exec_()
         query.next()
         if query.isValid():
             Mon_bss = str(query.value(0).toString())
-            print 'Mon_bss is: ' + str(Mon_bss)
             try:
                 query1.prepare("select monitors.name from monitors where monitors.bssid = ?")
                 query1.addBindValue(((Mon_bss).upper()));
@@ -160,8 +163,12 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                         wor_mac = word[-17:]
                     if wor_essid == int_iface:                    ## TODO  Anonymize the original interface
                         before_intface = wor_essid, wor_mac       ##       to avoid accidents
-                        print before_intface                                                     ##       Delete after test
-                        call(['ifconfig', before_intface[0], 'down']) # ifconfig wlan0 hw ether 00:22:33:44:55:66 ifconfig wlan0 up'
+                        wor_mac_mon = self.stealth(str(wor_essid), str(wor_mac))
+                        query.prepare("insert into adapters(name, bssid, status) values(?,?,?)")
+                        query.addBindValue(wor_essid)
+                        query.addBindValue(wor_mac_mon)
+                        query.addBindValue('after')
+                        query.exec_()
                     comma = str(commands.getoutput('airmon-ng start %s' %( int_iface)))
                     if 'monitor mode enabled' in comma:
                         reg = re.compile('mon\d', re.IGNORECASE)
@@ -188,19 +195,30 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                             print('Injection NOT working')
             except OSError as e:
                 print e.message
-            except QtSql.QSqlError as qt:
-                print qt.text()
-                                                            ## Add instuctions to fix or buy other card
-                                                                    ## Disable(!!!!!) buttons
+            except QtSql.QSqlError as qt:       ## Add instuctions to fix or buy other card
+                print qt.text()                 ## Disable(!!!!!) buttons
 
-    def randomMAC():
-	    mac = [ random.randint(0x00, 0x7f),
+    def randomMAC(self):        # Produces a random mac address, can be used with both adapters and monitors
+	    mac = [ 0x00,
                 random.randint(0x00, 0x7f),
 		        random.randint(0x00, 0x7f),
-		        random.randint(0x00, 0x7f),
+                random.randint(0x00, 0x7f),
 		        random.randint(0x00, 0xff),
-		        random.randint(0x00, 0xff) ]
-	    return ':'.join(map(lambda x: "%02x" % x, mac))
+                random.randint(0x00, 0xff)]
+            return ':'.join(map(lambda x: "%02x" % x, mac))
+
+    def stealth(self, alpha, beta):
+        # Changes mac address of device(together with randomMac())
+        cmd_down = ['ifconfig', alpha, 'down']
+        call(cmd_down)
+        new_mac = str(self.randomMAC())
+        if new_mac == beta:
+            new_mac = str(self.randomMAC())
+        cmd_change = ['ifconfig', alpha, 'hw', 'ether', new_mac ]
+        call(cmd_change)
+        cmd_up = ['ifconfig', alpha, 'up']
+        call(cmd_up)
+        return str(new_mac)
 
     def injection_working(self, mon_iface_check):  #
         cmd = ['aireplay-ng', '-9', mon_iface_check]
@@ -264,6 +282,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         query.exec_("create table recs (program_name varchar(20), available varchar(7))")
 
     def get_victim_list(self, csv_filename):
+        ### credit for this method goes to the wifite dev team.
         if not os.path.exists(csv_filename):
             return [], []
         targets = []
@@ -489,7 +508,10 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 self.wash_model.setHeaderData(3, QtCore.Qt.Horizontal, "Power")
                 self.wash_model.setHeaderData(4, QtCore.Qt.Horizontal, "Locked")
                 self.wash_tableView.setModel(self.wash_model)
-                self.wash_tableView.resizeColumnsToContents()
+                self.file_W = QtCore.QFileSystemWatcher()
+                self.file_W.addPath('attack_session.db')
+                self.file_W.fileChanged.connect(self.wash_Refresh)
+                #self.wash_tableView.resizeColumnsToContents()
                 if self.wash_model.lastError().isValid():
                     print self.wash_model.lastError()
             else:
@@ -504,6 +526,14 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
         except UnboundLocalError:
             pass
+
+    def wash_Refresh(self):
+        self.wash_model.setQuery("select * from reaver", db)
+        self.wash_model.setHeaderData(0, QtCore.Qt.Horizontal, "BSSID")
+        self.wash_model.setHeaderData(1, QtCore.Qt.Horizontal, "ESSID")
+        self.wash_model.setHeaderData(2, QtCore.Qt.Horizontal, "Channel")
+        self.wash_model.setHeaderData(3, QtCore.Qt.Horizontal, "Power")
+        self.wash_model.setHeaderData(4, QtCore.Qt.Horizontal, "Locked")
 
     def WashThread(self, device):
         try:
@@ -567,8 +597,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     print self.wifi_model.lastError()
         except OSError as e:
             print e.message
-
-
 
     def initscan(self,iface):
 

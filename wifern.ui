@@ -274,7 +274,7 @@
              <x>370</x>
              <y>0</y>
              <width>631</width>
-             <height>271</height>
+             <height>321</height>
             </rect>
            </property>
            <property name="styleSheet">
@@ -299,16 +299,19 @@
            <widget class="QTableView" name="wash_tableView">
             <property name="geometry">
              <rect>
-              <x>190</x>
+              <x>60</x>
               <y>60</y>
-              <width>431</width>
-              <height>141</height>
+              <width>561</width>
+              <height>171</height>
              </rect>
             </property>
             <property name="font">
              <font>
               <pointsize>10</pointsize>
              </font>
+            </property>
+            <property name="autoFillBackground">
+             <bool>true</bool>
             </property>
             <property name="styleSheet">
              <string notr="true">color:rgb(0, 109, 0)</string>
@@ -328,12 +331,18 @@
             <property name="selectionBehavior">
              <enum>QAbstractItemView::SelectRows</enum>
             </property>
+            <property name="gridStyle">
+             <enum>Qt::NoPen</enum>
+            </property>
+            <property name="sortingEnabled">
+             <bool>true</bool>
+            </property>
            </widget>
            <widget class="QLabel" name="reaver_command_label">
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>230</y>
+              <y>268</y>
               <width>611</width>
               <height>31</height>
              </rect>
@@ -345,8 +354,8 @@
            <widget class="QPushButton" name="pushButton_6">
             <property name="geometry">
              <rect>
-              <x>10</x>
-              <y>202</y>
+              <x>70</x>
+              <y>240</y>
               <width>91</width>
               <height>31</height>
              </rect>
@@ -375,16 +384,16 @@
              <string notr="true">color:rgb(255, 0, 0)</string>
             </property>
            </widget>
-           <widget class="QWidget" name="">
+           <widget class="QWidget" name="layoutWidget">
             <property name="geometry">
              <rect>
-              <x>100</x>
-              <y>60</y>
-              <width>87</width>
-              <height>97</height>
+              <x>190</x>
+              <y>20</y>
+              <width>225</width>
+              <height>33</height>
              </rect>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout">
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
              <item>
               <widget class="QComboBox" name="Monitor_select_comboBox"/>
              </item>
@@ -410,11 +419,11 @@
              </item>
             </layout>
            </widget>
-           <widget class="QWidget" name="">
+           <widget class="QWidget" name="layoutWidget">
             <property name="geometry">
              <rect>
               <x>190</x>
-              <y>200</y>
+              <y>240</y>
               <width>429</width>
               <height>28</height>
              </rect>
