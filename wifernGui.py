@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wifern.ui'
 #
-# Created: Fri Feb 27 14:47:49 2015
+# Created: Sat Feb 28 18:17:42 2015
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -110,22 +110,27 @@ class Ui_mainwindow(object):
         self.groupBox_4.setStyleSheet(_fromUtf8(""))
         self.groupBox_4.setObjectName(_fromUtf8("groupBox_4"))
         self.label_3 = QtGui.QLabel(self.groupBox_4)
-        self.label_3.setGeometry(QtCore.QRect(60, 30, 131, 21))
+        self.label_3.setGeometry(QtCore.QRect(150, 30, 131, 21))
         self.label_3.setObjectName(_fromUtf8("label_3"))
         self.wash_tableView = QtGui.QTableView(self.groupBox_4)
-        self.wash_tableView.setGeometry(QtCore.QRect(60, 60, 561, 171))
+        self.wash_tableView.setGeometry(QtCore.QRect(150, 60, 471, 171))
         font = QtGui.QFont()
-        font.setPointSize(10)
+        font.setPointSize(11)
+        font.setBold(True)
+        font.setWeight(75)
         self.wash_tableView.setFont(font)
         self.wash_tableView.setAutoFillBackground(True)
         self.wash_tableView.setStyleSheet(_fromUtf8("color:rgb(0, 109, 0)"))
-        self.wash_tableView.setEditTriggers(QtGui.QAbstractItemView.AnyKeyPressed|QtGui.QAbstractItemView.SelectedClicked)
+        self.wash_tableView.setFrameShadow(QtGui.QFrame.Raised)
+        self.wash_tableView.setLineWidth(2)
+        self.wash_tableView.setEditTriggers(QtGui.QAbstractItemView.SelectedClicked)
         self.wash_tableView.setDragDropOverwriteMode(False)
         self.wash_tableView.setAlternatingRowColors(True)
         self.wash_tableView.setSelectionMode(QtGui.QAbstractItemView.SingleSelection)
         self.wash_tableView.setSelectionBehavior(QtGui.QAbstractItemView.SelectRows)
         self.wash_tableView.setGridStyle(QtCore.Qt.NoPen)
-        self.wash_tableView.setSortingEnabled(True)
+        self.wash_tableView.setSortingEnabled(False)
+        self.wash_tableView.setWordWrap(False)
         self.wash_tableView.setObjectName(_fromUtf8("wash_tableView"))
         self.reaver_command_label = QtGui.QLabel(self.groupBox_4)
         self.reaver_command_label.setGeometry(QtCore.QRect(0, 268, 611, 31))
@@ -143,7 +148,7 @@ class Ui_mainwindow(object):
         self.lcd_time_Number.setStyleSheet(_fromUtf8("color:rgb(255, 0, 0)"))
         self.lcd_time_Number.setObjectName(_fromUtf8("lcd_time_Number"))
         self.layoutWidget = QtGui.QWidget(self.groupBox_4)
-        self.layoutWidget.setGeometry(QtCore.QRect(190, 20, 225, 33))
+        self.layoutWidget.setGeometry(QtCore.QRect(280, 20, 225, 33))
         self.layoutWidget.setObjectName(_fromUtf8("layoutWidget"))
         self.horizontalLayout_2 = QtGui.QHBoxLayout(self.layoutWidget)
         self.horizontalLayout_2.setMargin(0)
