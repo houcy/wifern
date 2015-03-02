@@ -130,151 +130,22 @@
          <widget class="QGroupBox" name="groupBox_2">
           <property name="geometry">
            <rect>
-            <x>290</x>
+            <x>280</x>
             <y>0</y>
-            <width>1001</width>
+            <width>1011</width>
             <height>691</height>
            </rect>
           </property>
           <property name="title">
            <string>Tools </string>
           </property>
-          <widget class="QGroupBox" name="groupBox_3">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>20</y>
-             <width>361</width>
-             <height>161</height>
-            </rect>
-           </property>
-           <property name="title">
-            <string>Wordlist Tools</string>
-           </property>
-           <widget class="QPushButton" name="Get_Wordlist_Button">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>20</y>
-              <width>95</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Get Wordlist</string>
-            </property>
-           </widget>
-           <widget class="QLineEdit" name="sort_wordlist_lineEdit">
-            <property name="geometry">
-             <rect>
-              <x>100</x>
-              <y>20</y>
-              <width>261</width>
-              <height>31</height>
-             </rect>
-            </property>
-           </widget>
-           <widget class="QCheckBox" name="sort_checkBox">
-            <property name="geometry">
-             <rect>
-              <x>100</x>
-              <y>60</y>
-              <width>61</width>
-              <height>26</height>
-             </rect>
-            </property>
-            <property name="toolTip">
-             <string>Sort the wordlist</string>
-            </property>
-            <property name="text">
-             <string>Sort</string>
-            </property>
-           </widget>
-           <widget class="QCheckBox" name="unique_checkBox">
-            <property name="geometry">
-             <rect>
-              <x>170</x>
-              <y>60</y>
-              <width>81</width>
-              <height>26</height>
-             </rect>
-            </property>
-            <property name="toolTip">
-             <string>Unique the wordlist. Make sure only unique passwords are contained inside the list.</string>
-            </property>
-            <property name="text">
-             <string>Unique</string>
-            </property>
-           </widget>
-           <widget class="QCheckBox" name="pwinspector_checkBox">
-            <property name="geometry">
-             <rect>
-              <x>250</x>
-              <y>60</y>
-              <width>111</width>
-              <height>26</height>
-             </rect>
-            </property>
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save some extra time when attacking WPA systems(handshakes) by making sure that ONLY words of length 8 and greater are included.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string>Pw Inspector</string>
-            </property>
-           </widget>
-           <widget class="Line" name="line">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>80</y>
-              <width>361</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="Process_wordlist_Button">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>50</y>
-              <width>95</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Execute</string>
-            </property>
-           </widget>
-           <widget class="QLabel" name="label_2">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>90</y>
-              <width>361</width>
-              <height>61</height>
-             </rect>
-            </property>
-            <property name="toolTip">
-             <string/>
-            </property>
-            <property name="text">
-             <string>Please note that depending on the size of the wordlist these operations will take a long time to complete especially if they are combined </string>
-            </property>
-            <property name="wordWrap">
-             <bool>true</bool>
-            </property>
-           </widget>
-          </widget>
           <widget class="QGroupBox" name="groupBox_4">
            <property name="geometry">
             <rect>
-             <x>370</x>
+             <x>380</x>
              <y>0</y>
-             <width>631</width>
-             <height>321</height>
+             <width>621</width>
+             <height>301</height>
             </rect>
            </property>
            <property name="styleSheet">
@@ -352,27 +223,14 @@
            <widget class="QLabel" name="reaver_command_label">
             <property name="geometry">
              <rect>
-              <x>0</x>
-              <y>268</y>
+              <x>20</x>
+              <y>240</y>
               <width>611</width>
               <height>31</height>
              </rect>
             </property>
             <property name="text">
              <string>Reaver command:</string>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="pushButton_6">
-            <property name="geometry">
-             <rect>
-              <x>70</x>
-              <y>240</y>
-              <width>91</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Start Reaver</string>
             </property>
            </widget>
            <widget class="QLCDNumber" name="lcd_time_Number">
@@ -430,47 +288,71 @@
              </item>
             </layout>
            </widget>
+           <widget class="QProgressBar" name="progressBar">
+            <property name="geometry">
+             <rect>
+              <x>130</x>
+              <y>280</y>
+              <width>491</width>
+              <height>23</height>
+             </rect>
+            </property>
+            <property name="value">
+             <number>24</number>
+            </property>
+           </widget>
            <widget class="QWidget" name="layoutWidget">
             <property name="geometry">
              <rect>
-              <x>190</x>
-              <y>240</y>
-              <width>429</width>
-              <height>28</height>
+              <x>20</x>
+              <y>70</y>
+              <width>126</width>
+              <height>163</height>
              </rect>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout">
-             <item>
-              <widget class="QCheckBox" name="checkBox_4">
-               <property name="text">
-                <string>--auto</string>
-               </property>
-              </widget>
+            <layout class="QGridLayout" name="gridLayout_3">
+             <item row="0" column="0">
+              <layout class="QVBoxLayout" name="verticalLayout">
+               <item>
+                <widget class="QCheckBox" name="checkBox">
+                 <property name="styleSheet">
+                  <string notr="true">color:rgb(0, 109, 0)</string>
+                 </property>
+                 <property name="text">
+                  <string>--no-associate</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBox_2">
+                 <property name="text">
+                  <string>--ignore-locks</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBox_3">
+                 <property name="styleSheet">
+                  <string notr="true">color:rgb(0, 109, 0)</string>
+                 </property>
+                 <property name="text">
+                  <string>--dh-small</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QCheckBox" name="checkBox_4">
+                 <property name="text">
+                  <string>--auto</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
              </item>
-             <item>
-              <widget class="QCheckBox" name="checkBox_3">
-               <property name="styleSheet">
-                <string notr="true">color:rgb(0, 109, 0)</string>
-               </property>
+             <item row="1" column="0">
+              <widget class="QPushButton" name="pushButton_6">
                <property name="text">
-                <string>--dh-small</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="checkBox_2">
-               <property name="text">
-                <string>--ignore-locks</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QCheckBox" name="checkBox">
-               <property name="styleSheet">
-                <string notr="true">color:rgb(0, 109, 0)</string>
-               </property>
-               <property name="text">
-                <string>--no-associate</string>
+                <string>Start Reaver</string>
                </property>
               </widget>
              </item>
@@ -480,74 +362,169 @@
           <widget class="QGroupBox" name="Interface_groupBox">
            <property name="geometry">
             <rect>
-             <x>10</x>
-             <y>190</y>
-             <width>331</width>
-             <height>171</height>
+             <x>0</x>
+             <y>20</y>
+             <width>251</width>
+             <height>131</height>
             </rect>
            </property>
            <property name="title">
             <string>Available Interfaces</string>
            </property>
-           <widget class="QPushButton" name="wlan0_monitor_Button">
-            <property name="geometry">
-             <rect>
-              <x>150</x>
-              <y>70</y>
-              <width>121</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>&lt;- Monitor Mode</string>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="wlan1_monitor_button">
-            <property name="geometry">
-             <rect>
-              <x>150</x>
-              <y>110</y>
-              <width>121</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>&lt;- Use This</string>
-            </property>
-           </widget>
-           <widget class="QPushButton" name="list_interfaces_Button">
+           <widget class="QWidget" name="layoutWidget">
             <property name="geometry">
              <rect>
               <x>10</x>
               <y>20</y>
-              <width>241</width>
-              <height>31</height>
+              <width>224</width>
+              <height>109</height>
              </rect>
             </property>
-            <property name="text">
-             <string>List Wireless Interfaces</string>
-            </property>
+            <layout class="QGridLayout" name="gridLayout_2">
+             <item row="0" column="0">
+              <widget class="QPushButton" name="list_interfaces_Button">
+               <property name="text">
+                <string>List Wireless Interfaces</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <layout class="QGridLayout" name="gridLayout">
+               <item row="0" column="0">
+                <widget class="QComboBox" name="adapters_comboBox"/>
+               </item>
+               <item row="0" column="1">
+                <widget class="QPushButton" name="wlan0_monitor_Button">
+                 <property name="text">
+                  <string>&lt;- Monitor Mode</string>
+                 </property>
+                </widget>
+               </item>
+               <item row="1" column="0">
+                <widget class="QComboBox" name="monitors_comboBox"/>
+               </item>
+               <item row="1" column="1">
+                <widget class="QPushButton" name="wlan1_monitor_button">
+                 <property name="text">
+                  <string>&lt;- Use This</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
            </widget>
-           <widget class="QComboBox" name="adapters_comboBox">
+          </widget>
+          <widget class="QGroupBox" name="groupBox_3">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>150</y>
+             <width>381</width>
+             <height>171</height>
+            </rect>
+           </property>
+           <property name="title">
+            <string>Wordlist Tools</string>
+           </property>
+           <widget class="Line" name="line">
             <property name="geometry">
              <rect>
-              <x>10</x>
-              <y>70</y>
-              <width>131</width>
-              <height>31</height>
+              <x>0</x>
+              <y>80</y>
+              <width>361</width>
+              <height>20</height>
              </rect>
             </property>
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
            </widget>
-           <widget class="QComboBox" name="monitors_comboBox">
+           <widget class="QWidget" name="layoutWidget">
             <property name="geometry">
              <rect>
-              <x>10</x>
-              <y>110</y>
-              <width>131</width>
-              <height>31</height>
+              <x>0</x>
+              <y>20</y>
+              <width>371</width>
+              <height>137</height>
              </rect>
             </property>
+            <layout class="QGridLayout" name="gridLayout_4">
+             <item row="0" column="0">
+              <widget class="QPushButton" name="Get_Wordlist_Button">
+               <property name="text">
+                <string>Get Wordlist</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="1" colspan="3">
+              <widget class="QLineEdit" name="sort_wordlist_lineEdit"/>
+             </item>
+             <item row="1" column="0">
+              <widget class="QPushButton" name="Process_wordlist_Button">
+               <property name="text">
+                <string>Execute</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QCheckBox" name="sort_checkBox">
+               <property name="toolTip">
+                <string>Sort the wordlist</string>
+               </property>
+               <property name="text">
+                <string>Sort</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="2">
+              <widget class="QCheckBox" name="unique_checkBox">
+               <property name="toolTip">
+                <string>Unique the wordlist. Make sure only unique passwords are contained inside the list.</string>
+               </property>
+               <property name="text">
+                <string>Unique</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="3">
+              <widget class="QCheckBox" name="pwinspector_checkBox">
+               <property name="toolTip">
+                <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save some extra time when attacking WPA systems(handshakes) by making sure that ONLY words of length 8 and greater are included.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+               </property>
+               <property name="text">
+                <string>Pw Inspector</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0" colspan="4">
+              <widget class="QLabel" name="label_2">
+               <property name="toolTip">
+                <string/>
+               </property>
+               <property name="text">
+                <string>Please note that depending on the size of the wordlist these operations will take a long time to complete especially if they are combined </string>
+               </property>
+               <property name="wordWrap">
+                <bool>true</bool>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
+          </widget>
+          <widget class="Line" name="line_2">
+           <property name="geometry">
+            <rect>
+             <x>0</x>
+             <y>300</y>
+             <width>1031</width>
+             <height>20</height>
+            </rect>
+           </property>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
           </widget>
          </widget>
          <widget class="QLabel" name="label_5">

@@ -62,12 +62,13 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.connect(self.wlan0_monitor_Button, QtCore.SIGNAL('clicked()'), self.monitor_mode_enable)
         self.connect(self.wlan1_monitor_button, QtCore.SIGNAL('clicked()'), self.UseThis)
         self.connect(self.Monitor_select_comboBox, QtCore.SIGNAL('clicked()'), self.washMonitorList)
+        self.connect(self.wash_tableView, QtCore.SIGNAL('clicked(QModelIndex)'), self.reaverPrep)
         self.wlan0_monitor_Button.setVisible(False)
         self.wlan1_monitor_button.setVisible(False)
         self.start_wash_Button.setEnabled(False)
         self.Monitor_select_comboBox.setEnabled(False)
         self.showlcd()
-
+        self.Process_wordlist_Button.setEnabled(False)
         stop = False
 
     ####################################################
@@ -299,57 +300,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         message = QtGui.QMessageBox.information(self, 'Injection', "Injection on " + mon_iface_check + " is NOT working!", QtGui.QMessageBox.Ok)
         return False
 
-    def get_victim_list(self, csv_filename):
-        ### credit for this method goes to the wifite dev team.
-        if not os.path.exists(csv_filename):
-            return [], []
-        targets = []
-        clients = []
-        try:
-            victim_clients = False
-            with open(csv_filename, 'rb') as csvfile:
-                victimreader = csv.reader((line.replace('\0', '') for line in csvfile), delimiter=',')
-                for row in victimreader:
-                    if len(row) < 2:
-                        continue
-                    if not victim_clients:
-                        if len(row) < 10:
-                            continue
-                        if row[0].strip() == 'Station MAC':
-                            victim_clients = True
-                        if row[0].strip() == 'BSSID' or row[0].strip() == 'Station Mac':
-                            continue
-                        enc = row[5].strip()
-                        wps = False
-                        if enc.find('OPN'): continue
-                        if enc.find('WPA') == -1 and enc.find('WEP') == -1: continue
-                        if enc == "WPA2WPA":
-                            enc = "WPA2"
-                            wps = True
-                        power = int(row[8].strip())
-
-                        essid = row[13].strip()
-                        essidlen = int(row[12].strip())
-                        essid = essid[:essidlen]
-                        if power < 0: power += 100
-                        t = Victim(row[0].strip(), power, row[10].strip(), row[3].strip(), enc, essid)
-                        t.wps = wps
-                        model = self.get_manufacturer(bssid)
-                        targets.append(t)
-                    else:
-                        if len(row) < 6:
-                            continue
-                        bssid = re.sub(r'[^a-zA-Z0-9:]', '', row[0].strip())
-                        station = re.sub(r'[^a-zA-Z0-9:]', '', row[5].strip())
-                        power = row[3].strip()
-                        if station != 'notassociated':
-                            c = Client(bssid, station, power)
-                            clients.append(c)
-
-        except IOError as e:
-            print "I/O error({0}): {1}".format(e.errno, e.strerror)
-            return [], []
-        return (targets, clients)
 
     ####################################################
     ###  PREQUISITE PROGRAMS CHECK               #######
@@ -468,14 +418,19 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     ####################################################
     def Sort_Wordlist(self):
         try:
+            self.sort_wordlist_lineEdit.setText("")
             get_wordlist_for_sorting = QtGui.QFileDialog.getOpenFileName(self, 'Select Dictionary', '',
                                                     'Text files (*.txt);; List files (*.lst)')
             if get_wordlist_for_sorting:
+                self.Process_wordlist_Button.setEnabled(True)
                 filename = get_wordlist_for_sorting
                 self.sort_wordlist_lineEdit.setText(filename)
                 self.wordlist = os.path.basename(str(filename))
                 self.wordlist_path = str(filename)
                 self.sort_wordlist_lineEdit.setEnabled(False)
+            else:
+                self.sort_wordlist_lineEdit.setText("")
+                self.Process_wordlist_Button.setEnabled(False)
         except:
             pass
 
@@ -484,10 +439,11 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         #  FIX ME              #
         ########################
         try:
-            cmd = ['cat '+ self.wordlist_path]
+
+            # cat = Popen(['cat', self.wordlist_path], stdout=PIPE)
 
             if self.sort_checkBox.isChecked():
-                cmd.append(' | sort')
+                sort = Popen(['sort', self.wordlist_path], stdout=PIPE)
                 self.Process_wordlist_Button.setEnabled(True)
                                                    ## Test
             if self.unique_checkBox.isChecked():
@@ -498,12 +454,12 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             if self.pwinspector_checkBox.isChecked():
                 cmd.append(' | pw-inspector -m 8 -M 63')
                 self.Process_wordlist_Button.setEnabled(True)
-            cmd.append(' > WPAwordlist.txt')
-            foo = open('WPAwordlist.txt', 'w')
 
-            print cmd
-            sort = Popen(cmd, stdout=PIPE, stderr=open(os.devnull, 'w'))
-            sort.wait()
+            foo = open('WPAwordlist.txt', 'a')
+            for line in sort.communicate(0).strip():
+                foo.write(line)
+                print cmd
+
         except:
             pass
             # p1 = Popen(["dmesg"], stdout=PIPE)
@@ -591,9 +547,101 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         except Exception as e:
             print e.message
 
+    def reaverPrep(self, index):
+
+        if not index.isValid():
+            return
+        row = self.wash_tableView.selectedIndexes()
+        bssid = row[0].data(QtCore.Qt.DisplayRole).toString()
+        essid = row[1].data(QtCore.Qt.DisplayRole).toString()
+        channel = row[2].data(QtCore.Qt.DisplayRole).toString()
+        locked = row[4].data(QtCore.Qt.DisplayRole).toString()
+        print bssid, essid, channel, locked
+        t - multiprocessing.Process(target=reaverPrep, args=(bssid, essid, channel, locked,)).start()
+
+    def reaverPrep(self, b, s, c, l):
+        print 'Test'
     ####################################################
     ###     WIFI TABLE START                     #######
     ####################################################
+
+    # bssid varchar(17) PRIMARY KEY NOT NULL, essid varchar(20), power int, data varchar(20), channel int, encryption varchar(7)
+
+    def wifi_sort(self):
+        query = QtSql.QSqlQuery(db)
+        query.prepare("insert into victims()")
+        victims, clients = self.get_victim_list(wifern-dump.csv)
+        i = 0
+        if len(victims) < 1: self.wifi_sort()
+        while t < len(victims):
+            query.addBindValue(victims[i].bssid.lower())
+
+    def get_victim_list(self, csv_filename):
+        ### credit for this method goes to the wifite dev team.
+        if not os.path.exists(csv_filename): return [], []
+        victims = []
+        clients = []
+        try:
+            victim_clients = False
+            with open(csv_filename, 'rb') as csvfile:
+                victimreader = csv.reader((line.replace('\0', '') for line in csvfile), delimiter=',')
+                for row in victimreader:
+                    if len(row) < 2:
+                        continue
+                    if not victim_clients:
+                        if len(row) < 10:
+                            continue
+                        if row[0].strip() == 'Station MAC':
+                            victim_clients = True
+                        if row[0].strip() == 'BSSID' or row[0].strip() == 'Station Mac':
+                            continue
+                        enc = row[5].strip()
+                        wps = False
+                        if enc.find('OPN'): continue
+                        if enc.find('WPA') == -1 and enc.find('WEP') == -1: continue
+                        if enc == "WPA2WPA":
+                            enc = "WPA2"
+                            wps = True
+                        power = int(row[8].strip())
+
+                        essid = row[13].strip()
+                        essidlen = int(row[12].strip())
+                        essid = essid[:essidlen]
+                        if power < 0: power += 100
+                        t = Victim(row[0].strip(), power, row[10].strip(), row[3].strip(), enc, essid)
+                        t.wps = wps
+                        t.model = Victim.get_manufacturer(bssid)
+                        targets.append(t)
+                    else:
+                        if len(row) < 6:
+                            continue
+                        bssid = re.sub(r'[^a-zA-Z0-9:]', '', row[0].strip())
+                        station = re.sub(r'[^a-zA-Z0-9:]', '', row[5].strip())
+                        power = row[3].strip()
+                        if station != 'notassociated':
+                            c = Client(bssid, station, power)
+                            clients.append(c)
+
+        except IOError as e:
+            print "I/O error({0}): {1}".format(e.errno, e.strerror)
+            return [], []
+        return (victims, clients)
+
+    def wifirefresh(self):
+        self.wifi_model.setQuery("select * from victim", db)
+        self.wifi_model.setHeaderData(0, QtCore.Qt.Horizontal, "BSSID")
+        self.wifi_model.setHeaderData(1, QtCore.Qt.Horizontal, "ESSID")
+        self.wifi_model.setHeaderData(2, QtCore.Qt.Horizontal, "Channel")
+        self.wifi_model.setHeaderData(3, QtCore.Qt.Horizontal, "Encryption")
+        self.wifi_model.setHeaderData(4, QtCore.Qt.Horizontal, "Cipher")
+        self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Authentication")
+        self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Power")
+        self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "WPS")
+        self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Key")
+        self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Make/ Model")
+        self.accessPointTable.setModel(self.wifi_model)
+        self.accessPointTable.resizeColumnsToContents()
+
     def wifi_window(self):
         try:
             mon = str(self.mon_iface)
@@ -613,6 +661,10 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Key")
                 self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Make/ Model")
                 self.accessPointTable.setModel(self.wifi_model)
+                self.accessPointTable.resizeColumnsToContents()
+                self.file_Wifi = QtCore.QFileSystemWatcher()
+                self.file_Wifi.addPath('attack_session.db')
+                self.file_Wifi.fileChanged.connect(self.wifirefresh)
                 if self.wifi_model.lastError().isValid():
                     print self.wifi_model.lastError()
             else:
@@ -620,6 +672,8 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 with open('extra1.txt', 'r') as fw:
                     Pid = int(fw.readline().strip())
                     os.kill(Pid, SIGINT)
+        except AttributeError:
+            message = QtGui.QMessageBox.information(self, 'Monitor Interface', 'You Must select a monitor Interface', QtGui.QMessageBox.Ok)
         except OSError as e:
             print e.message
         except KeyboardInterrupt, SystemExit:
@@ -629,28 +683,12 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
         try:
             if iface:
-                cmd = ['airodump-ng', '--ignore-negative-one', '-a', iface]
+                cmd = ['airodump-ng', '--output-format', 'csv', '--ignore-negative-one', '-w','wifern-dump', iface]
                 wifi_cmd = Popen(cmd, stdout=PIPE)
                 wi = str(wifi_cmd.pid)
                 with open('extra1.txt', 'w') as fw:
                     fw.write(wi)
                     fw.close()
-                while wifi_cmd.poll() is None:
-                    # query = QtSql.QSqlQuery(db)
-                    for line in iter(wifi_cmd.stdout.readline, b''):
-                        if line.startswith('CH') or line.strip() == "" or line.startswith('BSSID'): continue
-                        line = line.strip()
-                        Split = line.split()
-                        b = str(Split[0])
-                        e = str(Split[10])
-                        c = int(Split[5])
-                        p = int(Split[1])
-                        enc = str(Split[7])
-                        print Split
-                        # print b, e, c, p, enc
-
-
-                # targets, clients = self.get_victim_list(wifern-dump.csv)
         except:
             pass
 
@@ -682,14 +720,13 @@ class CapFile:
 class Victim():
     '''Contains information about the Access Poimt we are about to attack'''
 
-    def __init__(self, bssid, power, data, channel, encryption, essid, wps):
+    def __init__(self, bssid, power, channel, encryption, model, essid, wps):
         self.bssid = bssid
         self.power = power
-        self.data = data
         self.channel = channel
         self.encryption = encryption
         self.essid = essid
-        self.model = self.get_manufacturer(bssid)
+        self.model = model
         self.wps = wps
         self.wps = False  # Default to non-WPS-enabled router.
         self.key = ''
