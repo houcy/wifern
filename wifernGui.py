@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wifern.ui'
 #
-# Created: Tue Mar  3 00:18:30 2015
+# Created: Tue Mar  3 06:52:35 2015
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -103,6 +103,7 @@ class Ui_mainwindow(object):
         self.wash_tableView.setObjectName(_fromUtf8("wash_tableView"))
         self.reaver_command_label = QtGui.QLabel(self.groupBox_4)
         self.reaver_command_label.setGeometry(QtCore.QRect(20, 240, 611, 31))
+        self.reaver_command_label.setText(_fromUtf8(""))
         self.reaver_command_label.setObjectName(_fromUtf8("reaver_command_label"))
         self.lcd_time_Number = QtGui.QLCDNumber(self.groupBox_4)
         self.lcd_time_Number.setGeometry(QtCore.QRect(510, 0, 111, 31))
@@ -339,7 +340,6 @@ class Ui_mainwindow(object):
         self.groupBox_2.setTitle(QtGui.QApplication.translate("mainwindow", "Tools ", None, QtGui.QApplication.UnicodeUTF8))
         self.groupBox_4.setTitle(QtGui.QApplication.translate("mainwindow", "Reaver", None, QtGui.QApplication.UnicodeUTF8))
         self.label_3.setText(QtGui.QApplication.translate("mainwindow", "Monitor Interface", None, QtGui.QApplication.UnicodeUTF8))
-        self.reaver_command_label.setText(QtGui.QApplication.translate("mainwindow", "Reaver command:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("mainwindow", "Wash", None, QtGui.QApplication.UnicodeUTF8))
         self.start_wash_Button.setText(QtGui.QApplication.translate("mainwindow", "Start", None, QtGui.QApplication.UnicodeUTF8))
         self.reaver_nonacks.setText(QtGui.QApplication.translate("mainwindow", "--no-nacks", None, QtGui.QApplication.UnicodeUTF8))

@@ -230,7 +230,7 @@
              </rect>
             </property>
             <property name="text">
-             <string>Reaver command:</string>
+             <string/>
             </property>
            </widget>
            <widget class="QLCDNumber" name="lcd_time_Number">

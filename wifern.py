@@ -112,7 +112,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         if not self.working_Dir.endswith(os.sep):
             self.working_Dir += os.sep
         os.chdir(self.working_Dir)
-        print self.working_Dir
         if not db.open():
             QtGui.QMessageBox.critical(None, QtGui.qApp.tr("Cannot open database"),
                 QtGui.qApp.tr("Unable to establish a database connection.\n"
@@ -558,6 +557,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             essid = row[1].data(QtCore.Qt.DisplayRole).toString()
             channel = row[2].data(QtCore.Qt.DisplayRole).toString()
             locked = row[4].data(QtCore.Qt.DisplayRole).toString()
+            self.reaver_command_label.setText('')
             if locked == "Yes":
                 self.reaver_ignorelocks.setChecked(True)
             else:
@@ -573,20 +573,23 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 locked = row[4].data(QtCore.Qt.DisplayRole).toString()
                 t = multiprocessing.Process(target=self.ReaverRun, args=(bssid, essid, channel, locked)).start()
                 with open('stream.out', 'w') as Not:
+                    Not.close()
                     self.reaver_Wacher = QtCore.QFileSystemWatcher()
                     self.reaver_Wacher.addPath('stream.out')
                     self.reaver_Wacher.fileChanged.connect(self.reaverLabel)
+
             else:
                 self.startReaver_Button.setText('Start Reaver')
                 with open('extra2.txt', 'r') as ff:
                     pid = int(ff.readline())
                     os.kill(pid, SIGINT)
+                self.reaver_command_label.setText('AAAAAAAA')
         except KeyboardInterrupt, SystemExit:
             os.kill(pid, SIGTERM)
 
     def ReaverRun(self, bssid, essid, channel, locked):
         print 'ID is: ', bssid, essid, channel, locked
-        cmd = ['reaver', '-b', bssid, '-c', channel, '-o', 'stream.out', '-e', essid, '-a', '-i', self.mon_iface]
+        cmd = ['reaver', '-b', bssid, '-c', channel, '-o', self.working_Dir + 'stream.out', '-e', essid, '-a', '-i', self.mon_iface]
         if self.reaver_dhsmall.isChecked():
             cmd.append('-S')
         if self.reaver_ignorelocks.isChecked():
@@ -596,7 +599,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             if self.reaver_nonacks.isChecked():
                 cmd.append('-N')
         print str(cmd)
-        run = Popen(cmd)
+        run = Popen(cmd, stdout=PIPE)
         revPid = str(run.pid)
         with open('extra2.txt', 'w') as ff:
             ff.write(str(revPid))
@@ -605,10 +608,12 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     def reaverLabel(self):
         try:
             with open('stream.out', 'r') as r:
-                pinlines = r.read().split('\n')
-                r.close()
+                pinlines = r.readlines() #.split('\n') TODO add features later logic, text color, etc
+                r.close()                   # for now this will do
                 for line in pinlines:
-                    print line
+                    if line.strip() == '': continue
+                    x = str(line)
+                    self.reaver_command_label.setText(x)
         except IOError:
             pass
 
