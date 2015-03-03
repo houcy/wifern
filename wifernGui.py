@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wifern.ui'
 #
-# Created: Mon Mar  2 19:05:02 2015
+# Created: Tue Mar  3 00:18:30 2015
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -132,23 +132,18 @@ class Ui_mainwindow(object):
         self.start_wash_Button = QtGui.QPushButton(self.layoutWidget)
         self.start_wash_Button.setObjectName(_fromUtf8("start_wash_Button"))
         self.horizontalLayout_2.addWidget(self.start_wash_Button)
-        self.wash_progressBar = QtGui.QProgressBar(self.groupBox_4)
-        self.wash_progressBar.setGeometry(QtCore.QRect(130, 280, 491, 23))
-        self.wash_progressBar.setProperty("value", 20)
-        self.wash_progressBar.setInvertedAppearance(False)
-        self.wash_progressBar.setObjectName(_fromUtf8("wash_progressBar"))
         self.layoutWidget1 = QtGui.QWidget(self.groupBox_4)
-        self.layoutWidget1.setGeometry(QtCore.QRect(20, 70, 126, 163))
+        self.layoutWidget1.setGeometry(QtCore.QRect(10, 60, 136, 163))
         self.layoutWidget1.setObjectName(_fromUtf8("layoutWidget1"))
         self.gridLayout_3 = QtGui.QGridLayout(self.layoutWidget1)
         self.gridLayout_3.setMargin(0)
         self.gridLayout_3.setObjectName(_fromUtf8("gridLayout_3"))
         self.verticalLayout = QtGui.QVBoxLayout()
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
-        self.reaver_noassociate = QtGui.QCheckBox(self.layoutWidget1)
-        self.reaver_noassociate.setStyleSheet(_fromUtf8("color:rgb(0, 109, 0)"))
-        self.reaver_noassociate.setObjectName(_fromUtf8("reaver_noassociate"))
-        self.verticalLayout.addWidget(self.reaver_noassociate)
+        self.reaver_nonacks = QtGui.QCheckBox(self.layoutWidget1)
+        self.reaver_nonacks.setStyleSheet(_fromUtf8("color:rgb(0, 109, 0)"))
+        self.reaver_nonacks.setObjectName(_fromUtf8("reaver_nonacks"))
+        self.verticalLayout.addWidget(self.reaver_nonacks)
         self.reaver_ignorelocks = QtGui.QCheckBox(self.layoutWidget1)
         self.reaver_ignorelocks.setObjectName(_fromUtf8("reaver_ignorelocks"))
         self.verticalLayout.addWidget(self.reaver_ignorelocks)
@@ -156,9 +151,9 @@ class Ui_mainwindow(object):
         self.reaver_dhsmall.setStyleSheet(_fromUtf8("color:rgb(0, 109, 0)"))
         self.reaver_dhsmall.setObjectName(_fromUtf8("reaver_dhsmall"))
         self.verticalLayout.addWidget(self.reaver_dhsmall)
-        self.reaver_auto = QtGui.QCheckBox(self.layoutWidget1)
-        self.reaver_auto.setObjectName(_fromUtf8("reaver_auto"))
-        self.verticalLayout.addWidget(self.reaver_auto)
+        self.reaver_eapterminate = QtGui.QCheckBox(self.layoutWidget1)
+        self.reaver_eapterminate.setObjectName(_fromUtf8("reaver_eapterminate"))
+        self.verticalLayout.addWidget(self.reaver_eapterminate)
         self.gridLayout_3.addLayout(self.verticalLayout, 0, 0, 1, 1)
         self.startReaver_Button = QtGui.QPushButton(self.layoutWidget1)
         self.startReaver_Button.setObjectName(_fromUtf8("startReaver_Button"))
@@ -347,10 +342,10 @@ class Ui_mainwindow(object):
         self.reaver_command_label.setText(QtGui.QApplication.translate("mainwindow", "Reaver command:", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("mainwindow", "Wash", None, QtGui.QApplication.UnicodeUTF8))
         self.start_wash_Button.setText(QtGui.QApplication.translate("mainwindow", "Start", None, QtGui.QApplication.UnicodeUTF8))
-        self.reaver_noassociate.setText(QtGui.QApplication.translate("mainwindow", "--no-associate", None, QtGui.QApplication.UnicodeUTF8))
+        self.reaver_nonacks.setText(QtGui.QApplication.translate("mainwindow", "--no-nacks", None, QtGui.QApplication.UnicodeUTF8))
         self.reaver_ignorelocks.setText(QtGui.QApplication.translate("mainwindow", "--ignore-locks", None, QtGui.QApplication.UnicodeUTF8))
         self.reaver_dhsmall.setText(QtGui.QApplication.translate("mainwindow", "--dh-small", None, QtGui.QApplication.UnicodeUTF8))
-        self.reaver_auto.setText(QtGui.QApplication.translate("mainwindow", "--auto", None, QtGui.QApplication.UnicodeUTF8))
+        self.reaver_eapterminate.setText(QtGui.QApplication.translate("mainwindow", "--eap-terminate", None, QtGui.QApplication.UnicodeUTF8))
         self.startReaver_Button.setText(QtGui.QApplication.translate("mainwindow", "Start Reaver", None, QtGui.QApplication.UnicodeUTF8))
         self.Interface_groupBox.setTitle(QtGui.QApplication.translate("mainwindow", "Available Interfaces", None, QtGui.QApplication.UnicodeUTF8))
         self.list_interfaces_Button.setText(QtGui.QApplication.translate("mainwindow", "List Wireless Interfaces", None, QtGui.QApplication.UnicodeUTF8))

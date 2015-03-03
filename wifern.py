@@ -477,7 +477,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             if self.start_wash_Button.text() == 'Start':
                 self.start_wash_Button.setText('Stop')
                 t = multiprocessing.Process(target=self.WashThread, args=(mon,)).start()
-                #time.sleep(0.2)
                 self.wash_model = QtSql.QSqlQueryModel()
                 self.wash_model.setQuery("select * from reaver", db)
                 self.wash_model.setHeaderData(0, QtCore.Qt.Horizontal, "BSSID")
@@ -572,23 +571,46 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 essid = row[1].data(QtCore.Qt.DisplayRole).toString()
                 channel = row[2].data(QtCore.Qt.DisplayRole).toString()
                 locked = row[4].data(QtCore.Qt.DisplayRole).toString()
-
-                t = multiprocessing.Process(target=self.ReaverRun, args=(bssid, essid, channel,)).start()
-                print 'REAVER'
+                t = multiprocessing.Process(target=self.ReaverRun, args=(bssid, essid, channel, locked)).start()
+                with open('stream.out', 'w') as Not:
+                    self.reaver_Wacher = QtCore.QFileSystemWatcher()
+                    self.reaver_Wacher.addPath('stream.out')
+                    self.reaver_Wacher.fileChanged.connect(self.reaverLabel)
             else:
                 self.startReaver_Button.setText('Start Reaver')
+                with open('extra2.txt', 'r') as ff:
+                    pid = int(ff.readline())
+                    os.kill(pid, SIGINT)
+        except KeyboardInterrupt, SystemExit:
+            os.kill(pid, SIGTERM)
 
-
-    def ReaverRun(self, bssid, essid, channel):
+    def ReaverRun(self, bssid, essid, channel, locked):
         print 'ID is: ', bssid, essid, channel, locked
-        cmd = ['reaver', '-b', bssid, '-c', channel, '-a', '-i', self.mon_iface]
+        cmd = ['reaver', '-b', bssid, '-c', channel, '-o', 'stream.out', '-e', essid, '-a', '-i', self.mon_iface]
         if self.reaver_dhsmall.isChecked():
             cmd.append('-S')
         if self.reaver_ignorelocks.isChecked():
             cmd.append('-L')
+        if self.reaver_eapterminate.isChecked():
+            cmd.append('-E')
+            if self.reaver_nonacks.isChecked():
+                cmd.append('-N')
         print str(cmd)
         run = Popen(cmd)
+        revPid = str(run.pid)
+        with open('extra2.txt', 'w') as ff:
+            ff.write(str(revPid))
+        # with open(os.path.expanduser('~/.wifern.txt', 'w'))
 
+    def reaverLabel(self):
+        try:
+            with open('stream.out', 'r') as r:
+                pinlines = r.read().split('\n')
+                r.close()
+                for line in pinlines:
+                    print line
+        except IOError:
+            pass
 
 
     ####################################################
