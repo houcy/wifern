@@ -63,13 +63,14 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.connect(self.wlan1_monitor_button, QtCore.SIGNAL('clicked()'), self.UseThis)
         self.connect(self.Monitor_select_comboBox, QtCore.SIGNAL('clicked()'), self.washMonitorList)
         self.connect(self.wash_tableView, QtCore.SIGNAL('clicked(QModelIndex)'), self.reaverPrep)
+        self.connect(self.startReaver_Button, QtCore.SIGNAL("clicked(bool)"), self.reaverPrep)
         self.wlan0_monitor_Button.setVisible(False)
         self.wlan1_monitor_button.setVisible(False)
         self.start_wash_Button.setEnabled(False)
         self.Monitor_select_comboBox.setEnabled(False)
         self.showlcd()
         self.Process_wordlist_Button.setEnabled(False)
-        stop = False
+        self.startReaver_Button.setEnabled(False)
 
     ####################################################
     ####  MAIN WINDOW WIDGETS AND DISPLAY         ######
@@ -549,18 +550,47 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
     def reaverPrep(self, index):
 
-        if not index.isValid():
-            return
-        row = self.wash_tableView.selectedIndexes()
-        bssid = row[0].data(QtCore.Qt.DisplayRole).toString()
-        essid = row[1].data(QtCore.Qt.DisplayRole).toString()
-        channel = row[2].data(QtCore.Qt.DisplayRole).toString()
-        locked = row[4].data(QtCore.Qt.DisplayRole).toString()
-        print bssid, essid, channel, locked
-        t - multiprocessing.Process(target=reaverPrep, args=(bssid, essid, channel, locked,)).start()
+        try:
+            if not index.isValid():
+                return
+            self.startReaver_Button.setEnabled(True)
+            row = self.wash_tableView.selectedIndexes()
+            bssid = row[0].data(QtCore.Qt.DisplayRole).toString()
+            essid = row[1].data(QtCore.Qt.DisplayRole).toString()
+            channel = row[2].data(QtCore.Qt.DisplayRole).toString()
+            locked = row[4].data(QtCore.Qt.DisplayRole).toString()
+            if locked == "Yes":
+                self.reaver_ignorelocks.setChecked(True)
+            else:
+                self.reaver_ignorelocks.setChecked(False)
+            print bssid, essid, channel, locked
+        except AttributeError:
+            if self.startReaver_Button.text() == 'Start Reaver':
+                self.startReaver_Button.setText('Stop Reaver')
+                row = self.wash_tableView.selectedIndexes()
+                bssid = row[0].data(QtCore.Qt.DisplayRole).toString()
+                essid = row[1].data(QtCore.Qt.DisplayRole).toString()
+                channel = row[2].data(QtCore.Qt.DisplayRole).toString()
+                locked = row[4].data(QtCore.Qt.DisplayRole).toString()
 
-    def reaverPrep(self, b, s, c, l):
-        print 'Test'
+                t = multiprocessing.Process(target=self.ReaverRun, args=(bssid, essid, channel,)).start()
+                print 'REAVER'
+            else:
+                self.startReaver_Button.setText('Start Reaver')
+
+
+    def ReaverRun(self, bssid, essid, channel):
+        print 'ID is: ', bssid, essid, channel, locked
+        cmd = ['reaver', '-b', bssid, '-c', channel, '-a', '-i', self.mon_iface]
+        if self.reaver_dhsmall.isChecked():
+            cmd.append('-S')
+        if self.reaver_ignorelocks.isChecked():
+            cmd.append('-L')
+        print str(cmd)
+        run = Popen(cmd)
+
+
+
     ####################################################
     ###     WIFI TABLE START                     #######
     ####################################################
