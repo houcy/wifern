@@ -14,6 +14,7 @@ import re
 import PyQt4
 from PyQt4.QtCore import QFileSystemWatcher
 from PyQt4 import QtCore, QtGui, QtSql
+from PyQt4.QtGui import QPixmap, QSplashScreen
 from signal import SIGINT, SIGTERM
 import commands
 import wifernGui
@@ -35,7 +36,7 @@ after_intface = ('', '')
 mon_iface = ''
 adapters = []
 monitors = []
-WVList = []
+ProgList = []
 db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
 db.setDatabaseName("attack_session.db")
 query = QtSql.QSqlQuery(db)
@@ -88,11 +89,12 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             self.wordlist_path = str(filename)                        #Delete after test
             self.dict_file_path.setEnabled(False)
 
-    def UseThis(self):
+    def UseThis(self):          # TODO check for reaver and wash then set buttons active
         if self.monitors_comboBox.currentText() != '':
             self.Monitor_select_comboBox.setEnabled(True)
             self.mon_iface = self.monitors_comboBox.currentText()
-            self.start_wash_Button.setEnabled(True)
+            if 'reaver' in ProgList and 'wash' in ProgList:
+                self.start_wash_Button.setEnabled(True)
 
     def washMonitorList(self):
         try:
@@ -139,7 +141,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         ##   Method Works   ###
         #######################
         global monitors, adapters
-        query = QtSql.QSqlQuery()
+        query = QtSql.QSqlQuery(db)
         # need to check if iwconfig exists (it should )
         cmd = str(commands.getoutput('iwconfig'))
         if 'Mode:Managed' in cmd:
@@ -187,7 +189,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     query.addBindValue(wor_essid)
                     query.addBindValue(wor_mac)
                     query.exec_()
-                    print 'Done'
                     if wor_essid == monit:
                         b_m_intface = wor_essid, wor_mac
 
@@ -200,23 +201,37 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         ###  Method Works     ###
         #########################
         query = QtSql.QSqlQuery(db)
-        query1 = QtSql.QSqlQuery(db)
         int_iface = str(self.adapters_comboBox.currentText())
         query.prepare("select adapters.bssid from adapters where adapters.name = ? and adapters.status = ?")
         query.addBindValue(int_iface)
         query.addBindValue("before")
         query.exec_()
         query.next()
-        print query.value(0).toString()
         try:
+            if len(adapters) == len(monitors):
+                message = QtGui.QMessageBox.information(self, "Select diferent adapter",int_iface + " Has already been put in monitor mode", QtGui.QMessageBox.Ok)
+                return
+
+            if len(monitors) > len(adapters):
+                response = QtGui.QMessageBox.information(self, 'Too many monitors', 'There are too many monitor interfaces up\n'
+                                                                                    'Would you like to reset them?', QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+                if response == QtGui.QMessageBox.Yes:
+                    for i in monitors:
+                        call(['airmon-ng', 'stop', i])
+                        mon_iface = ''
+                        for i in range(self.monitors_comboBox.count()):
+                            self.monitors_comboBox.removeItem(i)
+                        self.wireless_interface()
+                if response == QtGui.QMessageBox.No:
+                    return
             if query.isValid():
                 Mon_bss = str(query.value(0).toString())
                 try:
+                    query1 = QtSql.QSqlQuery()
                     query1.prepare("select monitors.name from monitors where monitors.bssid = ?")
                     query1.addBindValue(Mon_bss.upper());
                     query1.exec_()
                     query.next()
-                    print Mon_bss.upper()
                     if query1.isValid():
                         message = QtGui.QMessageBox.information(self, "Select diferent adapter",int_iface + " has already been put in monitor mode", QtGui.QMessageBox.Ok)
                     else:
@@ -259,12 +274,10 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                                 print('Injection NOT working')
                 except OSError as e:
                     print e.message
-                except QSqlError as qt:       ## Add instuctions to fix or buy other card
+                except QtSql.QSqlError as qt:       ## Add instuctions to fix or buy other card
                     print qt.text()                 ## Disable(!!!!!) buttons
-            else:
-                query.next()
-                print 'No soup for you'
-        except QSqlError as qt:
+
+        except QtSql.QSqlError as qt:
             print qt.text()
 
     def randomMAC(self):        # Produces a random mac address, can be used with both adapters and monitors
@@ -342,6 +355,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     'iw', 'iwconfig', 'reaver', 'wash', 'mdk3', 'pyrit', 'ifconfig', 'sqlite3']
             for prog in rec_progs:
                 if self.program_list(prog):
+                    ProgList.append(prog)
                     query.prepare("insert into recs (program_name, available) values (?,?)")
                     query.addBindValue(prog)
                     query.addBindValue(True)
@@ -378,6 +392,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             not_rec_list = []
             for prog in not_rec_progs:
                 if self.program_list(prog):
+                    ProgList.append(prog)
                     query.prepare("insert into recs(program_name, available) values(?,?)")
                     query.addBindValue(prog)
                     query.addBindValue(True)
@@ -586,9 +601,10 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 self.reaver_command_label.setText('AAAAAAAA')
         except KeyboardInterrupt, SystemExit:
             os.kill(pid, SIGTERM)
+        except OSError:
+            pass
 
     def ReaverRun(self, bssid, essid, channel, locked):
-        print 'ID is: ', bssid, essid, channel, locked
         cmd = ['reaver', '-b', bssid, '-c', channel, '-o', self.working_Dir + 'stream.out', '-e', essid, '-a', '-i', self.mon_iface]
         if self.reaver_dhsmall.isChecked():
             cmd.append('-S')
@@ -608,21 +624,26 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     def reaverLabel(self):
         try:
             with open('stream.out', 'r') as r:
-                pinlines = r.readlines() #.split('\n') TODO add features later logic, text color, etc
-                r.close()                   # for now this will do
+                pinlines = r.readlines()            #.split('\n') TODO add features later logic, text color, etc
+                r.close()                           # for now this will do
                 for line in pinlines:
                     if line.strip() == '': continue
+                    if line.find('Session saved'): continue
+                    if line.find('WARNING'):
+                        self.reaver_command_label.setStyleSheet("color: rgb(255, 0, 0);")
+                    if line.find('Detected AP'):
+                        self.reaver_command_label.setStyleSheet("color: rgb(255, 0, 0);")
+                    if line.find('Trying pin'):
+                        self.reaver_command_label.setStyleSheet("color: rgb(54, 163, 80);")
                     x = str(line)
                     self.reaver_command_label.setText(x)
+
         except IOError:
             pass
-
 
     ####################################################
     ###     WIFI TABLE START                     #######
     ####################################################
-
-    # bssid varchar(17) PRIMARY KEY NOT NULL, essid varchar(20), power int, data varchar(20), channel int, encryption varchar(7)
 
     def wifi_sort(self):
         query = QtSql.QSqlQuery(db)
@@ -749,7 +770,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         except:
             pass
 
-
     def closeEvent(self, QCloseEvent):
         query = QtSql.QSqlQuery(db)
         query.prepare("select name from monitors")
@@ -828,12 +848,17 @@ class Client():
         self.power = power
         self.essid = essid
         self.encryption = encryption
+        self.probes = []
 
-    def vicscan(self, intface, bssid):
-        self.bssid = Victim.bssid
+
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
+    # splash_pix = QPixmap('Resources/wifern.png')
+    # splash = QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
+    # splash.setMask(splash_pix.mask())
+    # splash.show()
+    # app.processEvents()
     multiprocessing.freeze_support()
     form = wifern()
     form.show()

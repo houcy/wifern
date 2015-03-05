@@ -139,220 +139,13 @@
           <property name="title">
            <string>Tools </string>
           </property>
-          <widget class="QGroupBox" name="groupBox_4">
-           <property name="geometry">
-            <rect>
-             <x>380</x>
-             <y>0</y>
-             <width>621</width>
-             <height>301</height>
-            </rect>
-           </property>
-           <property name="styleSheet">
-            <string notr="true"/>
-           </property>
-           <property name="title">
-            <string>Reaver</string>
-           </property>
-           <widget class="QLabel" name="label_3">
-            <property name="geometry">
-             <rect>
-              <x>150</x>
-              <y>30</y>
-              <width>131</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string>Monitor Interface</string>
-            </property>
-           </widget>
-           <widget class="QTableView" name="wash_tableView">
-            <property name="geometry">
-             <rect>
-              <x>150</x>
-              <y>60</y>
-              <width>471</width>
-              <height>171</height>
-             </rect>
-            </property>
-            <property name="font">
-             <font>
-              <pointsize>11</pointsize>
-              <weight>75</weight>
-              <bold>true</bold>
-             </font>
-            </property>
-            <property name="autoFillBackground">
-             <bool>true</bool>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color:rgb(0, 109, 0)</string>
-            </property>
-            <property name="frameShadow">
-             <enum>QFrame::Raised</enum>
-            </property>
-            <property name="lineWidth">
-             <number>2</number>
-            </property>
-            <property name="editTriggers">
-             <set>QAbstractItemView::SelectedClicked</set>
-            </property>
-            <property name="dragDropOverwriteMode">
-             <bool>false</bool>
-            </property>
-            <property name="alternatingRowColors">
-             <bool>true</bool>
-            </property>
-            <property name="selectionMode">
-             <enum>QAbstractItemView::SingleSelection</enum>
-            </property>
-            <property name="selectionBehavior">
-             <enum>QAbstractItemView::SelectRows</enum>
-            </property>
-            <property name="gridStyle">
-             <enum>Qt::NoPen</enum>
-            </property>
-            <property name="sortingEnabled">
-             <bool>false</bool>
-            </property>
-            <property name="wordWrap">
-             <bool>false</bool>
-            </property>
-           </widget>
-           <widget class="QLabel" name="reaver_command_label">
-            <property name="geometry">
-             <rect>
-              <x>20</x>
-              <y>240</y>
-              <width>611</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-           <widget class="QLCDNumber" name="lcd_time_Number">
-            <property name="geometry">
-             <rect>
-              <x>510</x>
-              <y>0</y>
-              <width>111</width>
-              <height>31</height>
-             </rect>
-            </property>
-            <property name="font">
-             <font>
-              <weight>50</weight>
-              <italic>false</italic>
-              <bold>false</bold>
-             </font>
-            </property>
-            <property name="styleSheet">
-             <string notr="true">color:rgb(255, 0, 0)</string>
-            </property>
-           </widget>
-           <widget class="QWidget" name="layoutWidget">
-            <property name="geometry">
-             <rect>
-              <x>280</x>
-              <y>20</y>
-              <width>225</width>
-              <height>33</height>
-             </rect>
-            </property>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <item>
-              <widget class="QComboBox" name="Monitor_select_comboBox"/>
-             </item>
-             <item>
-              <widget class="QLabel" name="label_4">
-               <property name="font">
-                <font>
-                 <weight>75</weight>
-                 <bold>true</bold>
-                </font>
-               </property>
-               <property name="text">
-                <string>Wash</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="start_wash_Button">
-               <property name="text">
-                <string>Start</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-           <widget class="QWidget" name="layoutWidget">
-            <property name="geometry">
-             <rect>
-              <x>10</x>
-              <y>60</y>
-              <width>136</width>
-              <height>163</height>
-             </rect>
-            </property>
-            <layout class="QGridLayout" name="gridLayout_3">
-             <item row="0" column="0">
-              <layout class="QVBoxLayout" name="verticalLayout">
-               <item>
-                <widget class="QCheckBox" name="reaver_nonacks">
-                 <property name="styleSheet">
-                  <string notr="true">color:rgb(0, 109, 0)</string>
-                 </property>
-                 <property name="text">
-                  <string>--no-nacks</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="reaver_ignorelocks">
-                 <property name="text">
-                  <string>--ignore-locks</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="reaver_dhsmall">
-                 <property name="styleSheet">
-                  <string notr="true">color:rgb(0, 109, 0)</string>
-                 </property>
-                 <property name="text">
-                  <string>--dh-small</string>
-                 </property>
-                </widget>
-               </item>
-               <item>
-                <widget class="QCheckBox" name="reaver_eapterminate">
-                 <property name="text">
-                  <string>--eap-terminate</string>
-                 </property>
-                </widget>
-               </item>
-              </layout>
-             </item>
-             <item row="1" column="0">
-              <widget class="QPushButton" name="startReaver_Button">
-               <property name="text">
-                <string>Start Reaver</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
-          </widget>
           <widget class="QGroupBox" name="Interface_groupBox">
            <property name="geometry">
             <rect>
-             <x>0</x>
-             <y>20</y>
+             <x>10</x>
+             <y>30</y>
              <width>251</width>
-             <height>131</height>
+             <height>141</height>
             </rect>
            </property>
            <property name="title">
@@ -405,35 +198,22 @@
           <widget class="QGroupBox" name="groupBox_3">
            <property name="geometry">
             <rect>
-             <x>0</x>
-             <y>150</y>
-             <width>381</width>
-             <height>171</height>
+             <x>270</x>
+             <y>0</y>
+             <width>471</width>
+             <height>201</height>
             </rect>
            </property>
            <property name="title">
             <string>Wordlist Tools</string>
            </property>
-           <widget class="Line" name="line">
-            <property name="geometry">
-             <rect>
-              <x>0</x>
-              <y>80</y>
-              <width>361</width>
-              <height>20</height>
-             </rect>
-            </property>
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-           </widget>
            <widget class="QWidget" name="layoutWidget">
             <property name="geometry">
              <rect>
               <x>0</x>
-              <y>20</y>
-              <width>371</width>
-              <height>137</height>
+              <y>30</y>
+              <width>461</width>
+              <height>151</height>
              </rect>
             </property>
             <layout class="QGridLayout" name="gridLayout_4">
@@ -500,17 +280,37 @@
             </layout>
            </widget>
           </widget>
-          <widget class="Line" name="line_2">
+          <widget class="Line" name="line">
            <property name="geometry">
             <rect>
              <x>0</x>
-             <y>300</y>
-             <width>1031</width>
-             <height>20</height>
+             <y>20</y>
+             <width>16</width>
+             <height>671</height>
             </rect>
            </property>
            <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+            <enum>Qt::Vertical</enum>
+           </property>
+          </widget>
+          <widget class="QLCDNumber" name="lcd_time_Number">
+           <property name="geometry">
+            <rect>
+             <x>900</x>
+             <y>0</y>
+             <width>111</width>
+             <height>31</height>
+            </rect>
+           </property>
+           <property name="font">
+            <font>
+             <weight>50</weight>
+             <italic>false</italic>
+             <bold>false</bold>
+            </font>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">color:rgb(255, 0, 0)</string>
            </property>
           </widget>
          </widget>
@@ -817,8 +617,218 @@
     </widget>
     <widget class="QWidget" name="tab">
      <attribute name="title">
-      <string>Page</string>
+      <string>Reaver and Bully</string>
      </attribute>
+     <widget class="QGroupBox" name="reaver_groupBox">
+      <property name="geometry">
+       <rect>
+        <x>10</x>
+        <y>0</y>
+        <width>621</width>
+        <height>371</height>
+       </rect>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"/>
+      </property>
+      <property name="title">
+       <string>Reaver</string>
+      </property>
+      <widget class="QLabel" name="label_3">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>20</y>
+         <width>131</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Monitor Interface</string>
+       </property>
+      </widget>
+      <widget class="QTableView" name="wash_tableView">
+       <property name="geometry">
+        <rect>
+         <x>20</x>
+         <y>50</y>
+         <width>491</width>
+         <height>171</height>
+        </rect>
+       </property>
+       <property name="font">
+        <font>
+         <pointsize>11</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
+        </font>
+       </property>
+       <property name="autoFillBackground">
+        <bool>true</bool>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color:rgb(0, 109, 0)</string>
+       </property>
+       <property name="frameShadow">
+        <enum>QFrame::Raised</enum>
+       </property>
+       <property name="lineWidth">
+        <number>2</number>
+       </property>
+       <property name="editTriggers">
+        <set>QAbstractItemView::SelectedClicked</set>
+       </property>
+       <property name="dragDropOverwriteMode">
+        <bool>false</bool>
+       </property>
+       <property name="alternatingRowColors">
+        <bool>true</bool>
+       </property>
+       <property name="selectionMode">
+        <enum>QAbstractItemView::SingleSelection</enum>
+       </property>
+       <property name="selectionBehavior">
+        <enum>QAbstractItemView::SelectRows</enum>
+       </property>
+       <property name="gridStyle">
+        <enum>Qt::NoPen</enum>
+       </property>
+       <property name="sortingEnabled">
+        <bool>false</bool>
+       </property>
+       <property name="wordWrap">
+        <bool>false</bool>
+       </property>
+      </widget>
+      <widget class="QWidget" name="layoutWidget_2">
+       <property name="geometry">
+        <rect>
+         <x>140</x>
+         <y>10</y>
+         <width>225</width>
+         <height>33</height>
+        </rect>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <item>
+         <widget class="QComboBox" name="Monitor_select_comboBox"/>
+        </item>
+        <item>
+         <widget class="QLabel" name="label_4">
+          <property name="font">
+           <font>
+            <weight>75</weight>
+            <bold>true</bold>
+           </font>
+          </property>
+          <property name="text">
+           <string>Wash</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="start_wash_Button">
+          <property name="text">
+           <string>Start</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="layoutWidget_3">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>240</y>
+         <width>601</width>
+         <height>93</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QCheckBox" name="reaver_eapterminate">
+            <property name="text">
+             <string>--eap-terminate</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="reaver_onAssoc">
+            <property name="text">
+             <string>--no-associate</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="reaver_dhsmall">
+            <property name="styleSheet">
+             <string notr="true">color:rgb(0, 109, 0)</string>
+            </property>
+            <property name="text">
+             <string>--dh-small</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="reaver_ignorelocks">
+            <property name="text">
+             <string>--ignore-locks</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="reaver_nonacks">
+            <property name="styleSheet">
+             <string notr="true">color:rgb(0, 109, 0)</string>
+            </property>
+            <property name="text">
+             <string>--no-nacks</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="startReaver_Button">
+          <property name="text">
+           <string>Start Reaver</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QLabel" name="reaver_command_label">
+       <property name="geometry">
+        <rect>
+         <x>0</x>
+         <y>230</y>
+         <width>631</width>
+         <height>41</height>
+        </rect>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">color: rgb(0, 0, 255);</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+      </widget>
+     </widget>
+     <widget class="QGroupBox" name="bully_groupBox">
+      <property name="geometry">
+       <rect>
+        <x>630</x>
+        <y>0</y>
+        <width>691</width>
+        <height>361</height>
+       </rect>
+      </property>
+      <property name="title">
+       <string>Bully</string>
+      </property>
+     </widget>
     </widget>
    </widget>
   </widget>
