@@ -612,8 +612,11 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             cmd.append('-L')
         if self.reaver_eapterminate.isChecked():
             cmd.append('-E')
-            if self.reaver_nonacks.isChecked():
-                cmd.append('-N')
+        if self.reaver_nonacks.isChecked():
+            cmd.append('-N')
+        if self.reaver_onAssoc.isChecked():
+            t = multiprocessing.Process(target=self.reaverAssoc, args=(bssid, essid, channel,)).start()
+            cmd.append('-A')
         print str(cmd)
         run = Popen(cmd, stdout=PIPE)
         revPid = str(run.pid)
@@ -640,6 +643,18 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
         except IOError:
             pass
+
+    def reaverAssoc(self, bssid, essid, channel):
+        cmd = ['aireplay-ng', '-1', '120', '-e', essid, '-a', bssid, '--ignore-negative-one', self.mon_iface]
+        assoc = Popen(cmd, stdin=PIPE)
+        while assoc.poll() is None:
+            print 'tracking...'         # FIX ME
+        else:
+            ac =['ps', '-C', 'reaver', '-f']
+            acc = Popen(ac, stdout=PIPE)
+            for line in acc.communicate()[0].strip('\n'):
+                if not line.find('-A'):
+                    assoc = Popen(cmd, stdin=PIPE)
 
     ####################################################
     ###     WIFI TABLE START                     #######

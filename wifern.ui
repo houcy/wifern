@@ -42,7 +42,7 @@
      <bool>false</bool>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <property name="iconSize">
      <size>
@@ -735,75 +735,11 @@
         </item>
        </layout>
       </widget>
-      <widget class="QWidget" name="layoutWidget_3">
-       <property name="geometry">
-        <rect>
-         <x>0</x>
-         <y>240</y>
-         <width>601</width>
-         <height>93</height>
-        </rect>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_3">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
-          <item>
-           <widget class="QCheckBox" name="reaver_eapterminate">
-            <property name="text">
-             <string>--eap-terminate</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="reaver_onAssoc">
-            <property name="text">
-             <string>--no-associate</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="reaver_dhsmall">
-            <property name="styleSheet">
-             <string notr="true">color:rgb(0, 109, 0)</string>
-            </property>
-            <property name="text">
-             <string>--dh-small</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="reaver_ignorelocks">
-            <property name="text">
-             <string>--ignore-locks</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QCheckBox" name="reaver_nonacks">
-            <property name="styleSheet">
-             <string notr="true">color:rgb(0, 109, 0)</string>
-            </property>
-            <property name="text">
-             <string>--no-nacks</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <widget class="QPushButton" name="startReaver_Button">
-          <property name="text">
-           <string>Start Reaver</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QLabel" name="reaver_command_label">
        <property name="geometry">
         <rect>
-         <x>0</x>
-         <y>230</y>
+         <x>-10</x>
+         <y>220</y>
          <width>631</width>
          <height>41</height>
         </rect>
@@ -816,7 +752,7 @@
        </property>
       </widget>
      </widget>
-     <widget class="QGroupBox" name="bully_groupBox">
+     <widget class="QGroupBox" name="groupBox_5">
       <property name="geometry">
        <rect>
         <x>630</x>
@@ -828,6 +764,70 @@
       <property name="title">
        <string>Bully</string>
       </property>
+     </widget>
+     <widget class="QWidget" name="layoutWidget_3">
+      <property name="geometry">
+       <rect>
+        <x>0</x>
+        <y>270</y>
+        <width>601</width>
+        <height>93</height>
+       </rect>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QCheckBox" name="reaver_eapterminate">
+           <property name="text">
+            <string>--eap-terminate</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="reaver_onAssoc">
+           <property name="text">
+            <string>--no-associate</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="reaver_dhsmall">
+           <property name="styleSheet">
+            <string notr="true">color:rgb(0, 109, 0)</string>
+           </property>
+           <property name="text">
+            <string>--dh-small</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="reaver_ignorelocks">
+           <property name="text">
+            <string>--ignore-locks</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="reaver_nonacks">
+           <property name="styleSheet">
+            <string notr="true">color:rgb(0, 109, 0)</string>
+           </property>
+           <property name="text">
+            <string>--no-nacks</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </item>
+       <item>
+        <widget class="QPushButton" name="startReaver_Button">
+         <property name="text">
+          <string>Start Reaver</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </widget>
    </widget>

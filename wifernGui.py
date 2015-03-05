@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wifern.ui'
 #
-# Created: Wed Mar  4 22:39:46 2015
+# Created: Wed Mar  4 23:28:37 2015
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -283,8 +283,16 @@ class Ui_mainwindow(object):
         self.start_wash_Button = QtGui.QPushButton(self.layoutWidget_2)
         self.start_wash_Button.setObjectName(_fromUtf8("start_wash_Button"))
         self.horizontalLayout_2.addWidget(self.start_wash_Button)
-        self.layoutWidget_3 = QtGui.QWidget(self.reaver_groupBox)
-        self.layoutWidget_3.setGeometry(QtCore.QRect(0, 240, 601, 93))
+        self.reaver_command_label = QtGui.QLabel(self.reaver_groupBox)
+        self.reaver_command_label.setGeometry(QtCore.QRect(-10, 220, 631, 41))
+        self.reaver_command_label.setStyleSheet(_fromUtf8("color: rgb(0, 0, 255);"))
+        self.reaver_command_label.setText(_fromUtf8(""))
+        self.reaver_command_label.setObjectName(_fromUtf8("reaver_command_label"))
+        self.groupBox_5 = QtGui.QGroupBox(self.tab)
+        self.groupBox_5.setGeometry(QtCore.QRect(630, 0, 691, 361))
+        self.groupBox_5.setObjectName(_fromUtf8("groupBox_5"))
+        self.layoutWidget_3 = QtGui.QWidget(self.tab)
+        self.layoutWidget_3.setGeometry(QtCore.QRect(0, 270, 601, 93))
         self.layoutWidget_3.setObjectName(_fromUtf8("layoutWidget_3"))
         self.verticalLayout_3 = QtGui.QVBoxLayout(self.layoutWidget_3)
         self.verticalLayout_3.setMargin(0)
@@ -312,14 +320,6 @@ class Ui_mainwindow(object):
         self.startReaver_Button = QtGui.QPushButton(self.layoutWidget_3)
         self.startReaver_Button.setObjectName(_fromUtf8("startReaver_Button"))
         self.verticalLayout_3.addWidget(self.startReaver_Button)
-        self.reaver_command_label = QtGui.QLabel(self.reaver_groupBox)
-        self.reaver_command_label.setGeometry(QtCore.QRect(0, 230, 631, 41))
-        self.reaver_command_label.setStyleSheet(_fromUtf8("color: rgb(0, 0, 255);"))
-        self.reaver_command_label.setText(_fromUtf8(""))
-        self.reaver_command_label.setObjectName(_fromUtf8("reaver_command_label"))
-        self.bully_groupBox = QtGui.QGroupBox(self.tab)
-        self.bully_groupBox.setGeometry(QtCore.QRect(630, 0, 691, 361))
-        self.bully_groupBox.setObjectName(_fromUtf8("bully_groupBox"))
         self.tabWidget.addTab(self.tab, _fromUtf8(""))
         mainwindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtGui.QStatusBar(mainwindow)
@@ -327,7 +327,7 @@ class Ui_mainwindow(object):
         mainwindow.setStatusBar(self.statusbar)
 
         self.retranslateUi(mainwindow)
-        self.tabWidget.setCurrentIndex(0)
+        self.tabWidget.setCurrentIndex(2)
         QtCore.QMetaObject.connectSlotsByName(mainwindow)
 
     def retranslateUi(self, mainwindow):
@@ -376,13 +376,13 @@ class Ui_mainwindow(object):
         self.label_3.setText(QtGui.QApplication.translate("mainwindow", "Monitor Interface", None, QtGui.QApplication.UnicodeUTF8))
         self.label_4.setText(QtGui.QApplication.translate("mainwindow", "Wash", None, QtGui.QApplication.UnicodeUTF8))
         self.start_wash_Button.setText(QtGui.QApplication.translate("mainwindow", "Start", None, QtGui.QApplication.UnicodeUTF8))
+        self.groupBox_5.setTitle(QtGui.QApplication.translate("mainwindow", "Bully", None, QtGui.QApplication.UnicodeUTF8))
         self.reaver_eapterminate.setText(QtGui.QApplication.translate("mainwindow", "--eap-terminate", None, QtGui.QApplication.UnicodeUTF8))
         self.reaver_onAssoc.setText(QtGui.QApplication.translate("mainwindow", "--no-associate", None, QtGui.QApplication.UnicodeUTF8))
         self.reaver_dhsmall.setText(QtGui.QApplication.translate("mainwindow", "--dh-small", None, QtGui.QApplication.UnicodeUTF8))
         self.reaver_ignorelocks.setText(QtGui.QApplication.translate("mainwindow", "--ignore-locks", None, QtGui.QApplication.UnicodeUTF8))
         self.reaver_nonacks.setText(QtGui.QApplication.translate("mainwindow", "--no-nacks", None, QtGui.QApplication.UnicodeUTF8))
         self.startReaver_Button.setText(QtGui.QApplication.translate("mainwindow", "Start Reaver", None, QtGui.QApplication.UnicodeUTF8))
-        self.bully_groupBox.setTitle(QtGui.QApplication.translate("mainwindow", "Bully", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("mainwindow", "Reaver and Bully", None, QtGui.QApplication.UnicodeUTF8))
 
 import wifern_rc
