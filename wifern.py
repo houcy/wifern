@@ -65,10 +65,12 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.connect(self.Monitor_select_comboBox, QtCore.SIGNAL('clicked()'), self.washMonitorList)
         self.connect(self.wash_tableView, QtCore.SIGNAL('clicked(QModelIndex)'), self.reaverPrep)
         self.connect(self.startReaver_Button, QtCore.SIGNAL("clicked(bool)"), self.reaverPrep)
+        self.connect(self.wordlist_save_button, QtCore.SIGNAL('clicked()'), self.saveWordlist)
         self.wlan0_monitor_Button.setVisible(False)
         self.wlan1_monitor_button.setVisible(False)
         self.start_wash_Button.setEnabled(False)
         self.Monitor_select_comboBox.setEnabled(False)
+        self.wordlist_save_button.setEnabled(False)
         self.showlcd()
         self.Process_wordlist_Button.setEnabled(False)
         self.startReaver_Button.setEnabled(False)
@@ -307,12 +309,13 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         cmd_inj = Popen(cmd, stdout=PIPE)
         for line in iter(cmd_inj.stdout.readline, ''):
             if 'Injection is working!' in line:
+                x = int(cmd_inj.pid)
+                os.kill(x, SIGINT)
                 message = QtGui.QMessageBox.information(self, 'Injection', 'Injection on ' + mon_iface_check + ' is working!', QtGui.QMessageBox.Ok)
                 return True
 
         message = QtGui.QMessageBox.information(self, 'Injection', "Injection on " + mon_iface_check + " is NOT working!", QtGui.QMessageBox.Ok)
         return False
-
 
     ####################################################
     ###  PREQUISITE PROGRAMS CHECK               #######
@@ -434,10 +437,10 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     def Sort_Wordlist(self):
         try:
             self.sort_wordlist_lineEdit.setText("")
-            get_wordlist_for_sorting = QtGui.QFileDialog.getOpenFileName(self, 'Select Dictionary', '',
+            get_wordlist_for_sorting = QtGui.QFileDialog.getOpenFileName(self, 'Select Dictionary', '/root/',
                                                     'Text files (*.txt);; List files (*.lst)')
             if get_wordlist_for_sorting:
-                self.Process_wordlist_Button.setEnabled(True)
+                self.wordlist_save_button.setEnabled(True)
                 filename = get_wordlist_for_sorting
                 self.sort_wordlist_lineEdit.setText(filename)
                 self.wordlist = os.path.basename(str(filename))
@@ -446,37 +449,51 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             else:
                 self.sort_wordlist_lineEdit.setText("")
                 self.Process_wordlist_Button.setEnabled(False)
+                self.wordlist = ''
+                self.wordlist_save_button.setEnabled(False)
+
         except:
             pass
+
+    def saveWordlist(self):
+        try:
+            if self.saveLineEdit.text() != '':
+                save_wordlist = QtGui.QFileDialog.getSaveFileName(self,'Save Wordlist', '/root/', 'Text Files (*.txt);;List Files (*.lst)')
+                if save_wordlist:
+                    self.savewordlist = save_wordlist
+                    self.saveLineEdit.setText(self.savewordlist)
+                    self.Process_wordlist_Button.setEnabled(True)
+                else:
+                    self.Process_wordlist_Button.setEnabled(False)
+            else:
+                save_wordlist = QtGui.QFileDialog.getSaveFileName(self,'Save Wordlist', '/root/', 'Text Files (*.txt);;List Files (*.lst)')
+        except AttributeError:
+            message = QtGui.QMessageBox.information(self, 'No Wordlist', 'You Must select a wordlist first', QtGui.QMessageBox.Ok)
 
     def process_wordlist(self):
         ########################
         #  FIX ME              #
         ########################
         try:
-
-            # cat = Popen(['cat', self.wordlist_path], stdout=PIPE)
-
-            if self.sort_checkBox.isChecked():
-                sort = Popen(['sort', self.wordlist_path], stdout=PIPE)
+            if self.saveLineEdit.text() != None:
+                self.wordlist_path == self.saveLineEdit.text()
+            if self.sort_checkBox.isChecked() and not self.pwinspector_checkBox.isChecked():
+                sort = Popen(['sort', '-u', self.wordlist_path, '-o', self.savewordlist], stdout=PIPE)
+                ## sorts and stores unique occurrences
                 self.Process_wordlist_Button.setEnabled(True)
-                                                   ## Test
-            if self.unique_checkBox.isChecked():
-                cmd.append(' | uniq')
-                self.Process_wordlist_Button.setEnabled(True)
-                ## cat words.txt | sort | uniq > dictionary.txt
+            elif self.sort_checkBox.isChecked() and self.pwinspector_checkBox.isChecked():
+                sort = Popen(['sort', '-u', self.wordlist_path], stdout=PIPE)
+                pwi = Popen(['pw-inspector', '-m', '8', '-M', '63', '-o', self.savewordlist], stdin=sort.stdout ,stdout=PIPE)
+                sort.stdout.close()
 
-            if self.pwinspector_checkBox.isChecked():
-                cmd.append(' | pw-inspector -m 8 -M 63')
-                self.Process_wordlist_Button.setEnabled(True)
+            elif self.pwinspector_checkBox.isChecked():
+                cmd = Popen(['pw-inspector', '-i', self.wordlist_path, '-m', '8', '-M', '63', '-o', self.savewordlist ])
 
-            foo = open('WPAwordlist.txt', 'a')
-            for line in sort.communicate(0).strip():
-                foo.write(line)
-                print cmd
+
+
 
         except:
-            pass
+            print 'Error'
             # p1 = Popen(["dmesg"], stdout=PIPE)
             # p2 = Popen(["grep", "hda"], stdin=p1.stdout, stdout=PIPE)
             # p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
@@ -648,7 +665,10 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         cmd = ['aireplay-ng', '-1', '120', '-e', essid, '-a', bssid, '--ignore-negative-one', self.mon_iface]
         assoc = Popen(cmd, stdin=PIPE)
         while assoc.poll() is None:
-            print 'tracking...'         # FIX ME
+            counter = 0
+            counter +=1
+            if counter % 100000:
+                  print 'tracking'          # FIX ME
         else:
             ac =['ps', '-C', 'reaver', '-f']
             acc = Popen(ac, stdout=PIPE)
@@ -662,9 +682,8 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
     def wifi_sort(self):
         query = QtSql.QSqlQuery(db)
-        query.prepare("insert into victims()")
-        victims, clients = self.get_victim_list(wifern-dump.csv)
-        i = 0
+        query.prepare("insert into victims")
+        victims, clients = self.get_victim_list('wifern-dump.csv')
         if len(victims) < 1: self.wifi_sort()
         while t < len(victims):
             query.addBindValue(victims[i].bssid.lower())
@@ -703,7 +722,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                         if power < 0: power += 100
                         t = Victim(row[0].strip(), power, row[10].strip(), row[3].strip(), enc, essid)
                         t.wps = wps
-                        t.model = Victim.get_manufacturer(bssid)
+                        t.model = Victim.get_manufacturer(row[0].strip())
                         targets.append(t)
                     else:
                         if len(row) < 6:
@@ -822,6 +841,7 @@ class Victim():
         self.wps = wps
         self.wps = False  # Default to non-WPS-enabled router.
         self.key = ''
+        self.hasHandshake = False
 
     def get_manufacturer(self, bssid):
         ##################
@@ -864,8 +884,6 @@ class Client():
         self.essid = essid
         self.encryption = encryption
         self.probes = []
-
-
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)

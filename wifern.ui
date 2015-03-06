@@ -42,7 +42,7 @@
      <bool>false</bool>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <property name="iconSize">
      <size>
@@ -89,9 +89,9 @@
           <property name="geometry">
            <rect>
             <x>0</x>
-            <y>120</y>
+            <y>110</y>
             <width>271</width>
-            <height>571</height>
+            <height>561</height>
            </rect>
           </property>
           <property name="font">
@@ -130,9 +130,9 @@
          <widget class="QGroupBox" name="groupBox_2">
           <property name="geometry">
            <rect>
-            <x>280</x>
+            <x>290</x>
             <y>0</y>
-            <width>1011</width>
+            <width>1001</width>
             <height>691</height>
            </rect>
           </property>
@@ -200,23 +200,23 @@
             <rect>
              <x>270</x>
              <y>0</y>
-             <width>471</width>
-             <height>201</height>
+             <width>531</width>
+             <height>261</height>
             </rect>
            </property>
            <property name="title">
             <string>Wordlist Tools</string>
            </property>
-           <widget class="QWidget" name="layoutWidget">
+           <widget class="QWidget" name="">
             <property name="geometry">
              <rect>
-              <x>0</x>
-              <y>30</y>
-              <width>461</width>
-              <height>151</height>
+              <x>1</x>
+              <y>31</y>
+              <width>501</width>
+              <height>214</height>
              </rect>
             </property>
-            <layout class="QGridLayout" name="gridLayout_4">
+            <layout class="QGridLayout" name="gridLayout_3">
              <item row="0" column="0">
               <widget class="QPushButton" name="Get_Wordlist_Button">
                <property name="text">
@@ -224,17 +224,27 @@
                </property>
               </widget>
              </item>
-             <item row="0" column="1" colspan="3">
+             <item row="0" column="1" colspan="2">
               <widget class="QLineEdit" name="sort_wordlist_lineEdit"/>
              </item>
              <item row="1" column="0">
+              <widget class="QPushButton" name="wordlist_save_button">
+               <property name="text">
+                <string>Save Wordlist as..</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="1" colspan="2">
+              <widget class="QLineEdit" name="saveLineEdit"/>
+             </item>
+             <item row="2" column="0">
               <widget class="QPushButton" name="Process_wordlist_Button">
                <property name="text">
                 <string>Execute</string>
                </property>
               </widget>
              </item>
-             <item row="1" column="1">
+             <item row="2" column="1">
               <widget class="QCheckBox" name="sort_checkBox">
                <property name="toolTip">
                 <string>Sort the wordlist</string>
@@ -244,17 +254,7 @@
                </property>
               </widget>
              </item>
-             <item row="1" column="2">
-              <widget class="QCheckBox" name="unique_checkBox">
-               <property name="toolTip">
-                <string>Unique the wordlist. Make sure only unique passwords are contained inside the list.</string>
-               </property>
-               <property name="text">
-                <string>Unique</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="3">
+             <item row="2" column="2">
               <widget class="QCheckBox" name="pwinspector_checkBox">
                <property name="toolTip">
                 <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Save some extra time when attacking WPA systems(handshakes) by making sure that ONLY words of length 8 and greater are included.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
@@ -264,13 +264,13 @@
                </property>
               </widget>
              </item>
-             <item row="2" column="0" colspan="4">
+             <item row="3" column="0" colspan="3">
               <widget class="QLabel" name="label_2">
                <property name="toolTip">
                 <string/>
                </property>
                <property name="text">
-                <string>Please note that depending on the size of the wordlist these operations will take a long time to complete especially if they are combined </string>
+                <string>Sort: Sorts and finds unique occurrences, Pw Inspector: Prepares wordlist for WPA(minimum length=8) attack(s). Please note that depending on the size of the wordlist these operations may take a long time to complete especially if they are combined </string>
                </property>
                <property name="wordWrap">
                 <bool>true</bool>
@@ -286,7 +286,7 @@
              <x>0</x>
              <y>20</y>
              <width>16</width>
-             <height>671</height>
+             <height>651</height>
             </rect>
            </property>
            <property name="orientation">
@@ -319,8 +319,8 @@
            <rect>
             <x>10</x>
             <y>20</y>
-            <width>271</width>
-            <height>101</height>
+            <width>281</width>
+            <height>91</height>
            </rect>
           </property>
           <property name="text">
@@ -751,6 +751,70 @@
         <string/>
        </property>
       </widget>
+      <widget class="QWidget" name="layoutWidget_3">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>280</y>
+         <width>601</width>
+         <height>81</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout">
+          <item>
+           <widget class="QCheckBox" name="reaver_eapterminate">
+            <property name="text">
+             <string>--eap-terminate</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="reaver_onAssoc">
+            <property name="text">
+             <string>--no-associate</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="reaver_dhsmall">
+            <property name="styleSheet">
+             <string notr="true">color:rgb(0, 109, 0)</string>
+            </property>
+            <property name="text">
+             <string>--dh-small</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="reaver_ignorelocks">
+            <property name="text">
+             <string>--ignore-locks</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QCheckBox" name="reaver_nonacks">
+            <property name="styleSheet">
+             <string notr="true">color:rgb(0, 109, 0)</string>
+            </property>
+            <property name="text">
+             <string>--no-nacks</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QPushButton" name="startReaver_Button">
+          <property name="text">
+           <string>Start Reaver</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
      </widget>
      <widget class="QGroupBox" name="groupBox_5">
       <property name="geometry">
@@ -764,70 +828,6 @@
       <property name="title">
        <string>Bully</string>
       </property>
-     </widget>
-     <widget class="QWidget" name="layoutWidget_3">
-      <property name="geometry">
-       <rect>
-        <x>0</x>
-        <y>270</y>
-        <width>601</width>
-        <height>93</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_3">
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="QCheckBox" name="reaver_eapterminate">
-           <property name="text">
-            <string>--eap-terminate</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="reaver_onAssoc">
-           <property name="text">
-            <string>--no-associate</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="reaver_dhsmall">
-           <property name="styleSheet">
-            <string notr="true">color:rgb(0, 109, 0)</string>
-           </property>
-           <property name="text">
-            <string>--dh-small</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="reaver_ignorelocks">
-           <property name="text">
-            <string>--ignore-locks</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QCheckBox" name="reaver_nonacks">
-           <property name="styleSheet">
-            <string notr="true">color:rgb(0, 109, 0)</string>
-           </property>
-           <property name="text">
-            <string>--no-nacks</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <widget class="QPushButton" name="startReaver_Button">
-         <property name="text">
-          <string>Start Reaver</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
      </widget>
     </widget>
    </widget>
