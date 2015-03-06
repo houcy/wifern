@@ -747,10 +747,10 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.wifi_model.setHeaderData(3, QtCore.Qt.Horizontal, "Encryption")
         self.wifi_model.setHeaderData(4, QtCore.Qt.Horizontal, "Cipher")
         self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Authentication")
-        self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Power")
-        self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "WPS")
-        self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Key")
-        self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Make/ Model")
+        self.wifi_model.setHeaderData(6, QtCore.Qt.Horizontal, "Power")
+        self.wifi_model.setHeaderData(7, QtCore.Qt.Horizontal, "WPS")
+        self.wifi_model.setHeaderData(8, QtCore.Qt.Horizontal, "Key")
+        self.wifi_model.setHeaderData(9, QtCore.Qt.Horizontal, "Make/ Model")
         self.accessPointTable.setModel(self.wifi_model)
         self.accessPointTable.resizeColumnsToContents()
 
@@ -768,10 +768,10 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 self.wifi_model.setHeaderData(3, QtCore.Qt.Horizontal, "Encryption")
                 self.wifi_model.setHeaderData(4, QtCore.Qt.Horizontal, "Cipher")
                 self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Authentication")
-                self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Power")
-                self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "WPS")
-                self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Key")
-                self.wifi_model.setHeaderData(5, QtCore.Qt.Horizontal, "Make/ Model")
+                self.wifi_model.setHeaderData(6, QtCore.Qt.Horizontal, "Power")
+                self.wifi_model.setHeaderData(7, QtCore.Qt.Horizontal, "WPS")
+                self.wifi_model.setHeaderData(8, QtCore.Qt.Horizontal, "Key")
+                self.wifi_model.setHeaderData(9, QtCore.Qt.Horizontal, "Make/ Model")
                 self.accessPointTable.setModel(self.wifi_model)
                 self.accessPointTable.resizeColumnsToContents()
                 self.file_Wifi = QtCore.QFileSystemWatcher()
@@ -829,7 +829,7 @@ class CapFile:
 
 
 class Victim():
-    '''Contains information about the Access Poimt we are about to attack'''
+    '''Contains information about the Access Point we are about to attack'''
 
     def __init__(self, bssid, power, channel, encryption, model, essid, wps):
         self.bssid = bssid
@@ -871,7 +871,7 @@ class Victim():
                 partial_mac = bssid[:8]
                 if lookup_mac == partial_mac:
                     self.model = ' '.join(oui_db[2:])
-                    return model    # need to athached to client before record is displayed
+                    return model    # need to attached to client before record is displayed
         except IOError as a:
             print "I/O error({0}): {1}".format(a.errno, a.strerror)
 
