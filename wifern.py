@@ -66,6 +66,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.connect(self.wash_tableView, QtCore.SIGNAL('clicked(QModelIndex)'), self.reaverPrep)
         self.connect(self.startReaver_Button, QtCore.SIGNAL("clicked(bool)"), self.reaverPrep)
         self.connect(self.wordlist_save_button, QtCore.SIGNAL('clicked()'), self.saveWordlist)
+        self.connect(self.mac_gen_Button, QtCore.SIGNAL('clicked()'), self.MacGen)
         self.wlan0_monitor_Button.setVisible(False)
         self.wlan1_monitor_button.setVisible(False)
         self.start_wash_Button.setEnabled(False)
@@ -457,7 +458,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
     def saveWordlist(self):
         try:
-            if self.saveLineEdit.text() != '':
+            if self.saveLineEdit.text() != None:
                 save_wordlist = QtGui.QFileDialog.getSaveFileName(self,'Save Wordlist', '/root/', 'Text Files (*.txt);;List Files (*.lst)')
                 if save_wordlist:
                     self.savewordlist = save_wordlist
@@ -471,9 +472,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             message = QtGui.QMessageBox.information(self, 'No Wordlist', 'You Must select a wordlist first', QtGui.QMessageBox.Ok)
 
     def process_wordlist(self):
-        ########################
-        #  FIX ME              #
-        ########################
         try:
             if self.saveLineEdit.text() != None:
                 self.wordlist_path == self.saveLineEdit.text()
@@ -488,10 +486,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
             elif self.pwinspector_checkBox.isChecked():
                 cmd = Popen(['pw-inspector', '-i', self.wordlist_path, '-m', '8', '-M', '63', '-o', self.savewordlist ])
-
-
-
-
         except:
             print 'Error'
             # p1 = Popen(["dmesg"], stdout=PIPE)
@@ -635,18 +629,19 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             t = multiprocessing.Process(target=self.reaverAssoc, args=(bssid, essid, channel,)).start()
             cmd.append('-A')
         print str(cmd)
-        run = Popen(cmd, stdout=PIPE)
+        run = Popen(cmd, stdout=open(os.devnull, 'w'), stderr=open(os.devnull, 'w'))
         revPid = str(run.pid)
         with open('extra2.txt', 'w') as ff:
             ff.write(str(revPid))
-        # with open(os.path.expanduser('~/.wifern.txt', 'w'))
+
 
     def reaverLabel(self):
         try:
             with open('stream.out', 'r') as r:
-                pinlines = r.readlines()            #.split('\n') TODO add features later logic, text color, etc
-                r.close()                           # for now this will do
-                for line in pinlines:
+                pline = r.read().split('\n') # TODO add features later logic, text color, etc
+                r.close()                          # for now this will do
+                for line in pline:
+                    print line
                     if line.strip() == '': continue
                     if line.find('Session saved'): continue
                     if line.find('WARNING'):
@@ -662,19 +657,23 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             pass
 
     def reaverAssoc(self, bssid, essid, channel):
-        cmd = ['aireplay-ng', '-1', '120', '-e', essid, '-a', bssid, '--ignore-negative-one', self.mon_iface]
-        assoc = Popen(cmd, stdin=PIPE)
-        while assoc.poll() is None:
-            counter = 0
-            counter +=1
-            if counter % 100000:
-                  print 'tracking'          # FIX ME
-        else:
-            ac =['ps', '-C', 'reaver', '-f']
-            acc = Popen(ac, stdout=PIPE)
-            for line in acc.communicate()[0].strip('\n'):
-                if not line.find('-A'):
+        cmd = ['aireplay-ng', '-1', '100', '-e', essid, '-a', bssid, '--ignore-negative-one', self.mon_iface]
+        assoc = Popen(cmd, stdout=PIPE)
+        while assoc.poll() is not None:
+            ac =['ps', '-C', 'reaver', '-f']# FIX ME
+            acc = Popen(ac, stdout=PIPE, stderr=PIPE)
+            for line in acc.communicate()[0].split('\n'):
+                if line.find('reaver'):
                     assoc = Popen(cmd, stdin=PIPE)
+                else:
+                   assoc.kill()
+        else:
+            ac =['ps', '-C', 'reaver', '-f']# FIX ME
+            acc = Popen(ac, stdout=PIPE)
+            for line in acc.communicate()[0].split('\n'):
+                if not line.find('reaver'):
+                    assoc.terminate()
+
 
     ####################################################
     ###     WIFI TABLE START                     #######
@@ -804,6 +803,20 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         except:
             pass
 
+    ####################################################
+    ##############  MAC GENERATOR   ####################
+    ####################################################
+    def MacGen(self):
+        with open(os.path.expanduser('~') + '/wifern.txt', 'wb') as mac:
+            for i in range(0, int(self.mac_gen_lineEdit.text())):
+                x = self.randomMAC()
+                print x
+                mac.write(x + '\n')
+
+    #####################################################
+    ###   Closing the Main Window                   #####
+    #####################################################
+
     def closeEvent(self, QCloseEvent):
         query = QtSql.QSqlQuery(db)
         query.prepare("select name from monitors")
@@ -812,12 +825,14 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             tempList = QtCore.QStringList()
             tempList.append(query.value(0).toString())
             for erase in tempList:
-                call(['airmon-ng', 'stop', erase])
+                call(['airmon-ng', 'stop', erase], stdout=open(os.devnull, 'w'), stderr=open(os.devnull, 'w'))
         else:
             if os.path.exists(self.working_Dir):
                 for f in os.listdir(self.working_Dir):
                     os.remove(self.working_Dir + f)
             os.rmdir(self.working_Dir)
+
+
 
 class CapFile:
     'Holds data about an access points .cap file, including AP ESSID & BSSID'
@@ -829,7 +844,7 @@ class CapFile:
 
 
 class Victim():
-    '''Contains information about the Access Point we are about to attack'''
+    '''Contains information about the Access Poimt we are about to attack'''
 
     def __init__(self, bssid, power, channel, encryption, model, essid, wps):
         self.bssid = bssid
@@ -871,7 +886,7 @@ class Victim():
                 partial_mac = bssid[:8]
                 if lookup_mac == partial_mac:
                     self.model = ' '.join(oui_db[2:])
-                    return model    # need to attached to client before record is displayed
+                    return model    # need to athached to client before record is displayed
         except IOError as a:
             print "I/O error({0}): {1}".format(a.errno, a.strerror)
 
