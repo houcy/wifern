@@ -722,7 +722,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                         t = Victim(row[0].strip(), power, row[10].strip(), row[3].strip(), enc, essid)
                         t.wps = wps
                         t.model = Victim.get_manufacturer(row[0].strip())
-                        targets.append(t)
+                        victims.append(t)
                     else:
                         if len(row) < 6:
                             continue
@@ -810,8 +810,47 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         with open(os.path.expanduser('~') + '/wifern.txt', 'wb') as mac:
             for i in range(0, int(self.mac_gen_lineEdit.text())):
                 x = self.randomMAC()
+                y = self.get_manufacturer(x)
                 print x
-                mac.write(x + '\n')
+                mac.write(x + ',' + y + '\n')
+
+
+    def get_manufacturer(self, bssid):
+        ##################
+        # Method works   #
+        ##################
+        oui_path0 = '/etc/aircrack-ng/airodump-ng-oui.txt'
+        oui_path1 = '/usr/local/etc/aircrack-ng/airodump-ng-oui.txt'
+        oui_path2 = '/usr/share/aircrack-ng/airodump-ng-oui.txt'
+        partial_mac = ''
+        model = 'Not Available'
+
+        try:
+            oui_path = ''
+            if os.path.exists(oui_path0):
+                oui_path = oui_path0
+            elif os.path.exists(oui_path1):
+                oui_path = oui_path1
+            elif os.path.exists(oui_path2):
+                oui_path = oui_path2
+            else:
+                model = 'Not Available'
+
+            with open(oui_path, 'r') as oui:
+                db = oui.readlines()
+            for line in db:
+                oui_db = line.split()
+                lookup_mac = oui_db[0].lower().replace('-', ':')
+                partial_mac = bssid[:8]
+                if lookup_mac == partial_mac:
+                    model = ' '.join(oui_db[2:])
+
+        except IOError as a:
+            print "I/O error({0}): {1}".format(a.errno, a.strerror)
+        except TypeError:
+             model = 'Not Available'
+        finally:
+            return model    # needs to be attached to client before record is displayed
 
     #####################################################
     ###   Closing the Main Window                   #####
@@ -831,6 +870,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 for f in os.listdir(self.working_Dir):
                     os.remove(self.working_Dir + f)
             os.rmdir(self.working_Dir)
+
 
 
 
