@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1305</width>
-    <height>773</height>
+    <height>784</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -29,7 +29,7 @@
       <x>-10</x>
       <y>0</y>
       <width>1431</width>
-      <height>741</height>
+      <height>761</height>
      </rect>
     </property>
     <property name="sizePolicy">
@@ -359,7 +359,7 @@
             <x>0</x>
             <y>20</y>
             <width>291</width>
-            <height>681</height>
+            <height>691</height>
            </rect>
           </property>
           <property name="title">
@@ -371,7 +371,7 @@
              <x>10</x>
              <y>90</y>
              <width>271</width>
-             <height>561</height>
+             <height>571</height>
             </rect>
            </property>
            <property name="sizePolicy">
@@ -433,6 +433,19 @@
            </property>
            <property name="wordWrap">
             <bool>true</bool>
+           </property>
+          </widget>
+          <widget class="QPushButton" name="Rec_Install_Button">
+           <property name="geometry">
+            <rect>
+             <x>50</x>
+             <y>660</y>
+             <width>180</width>
+             <height>31</height>
+            </rect>
+           </property>
+           <property name="text">
+            <string>Install Missing Programs</string>
            </property>
           </widget>
          </widget>
@@ -1003,7 +1016,7 @@
              <item>
               <widget class="QLineEdit" name="reaverPin_lineEdit">
                <property name="layoutDirection">
-                <enum>Qt::RightToLeft</enum>
+                <enum>Qt::LeftToRight</enum>
                </property>
                <property name="inputMask">
                 <string/>
@@ -1218,8 +1231,6 @@
        </item>
       </layout>
      </widget>
-     <zorder>layoutWidget</zorder>
-     <zorder>layoutWidget</zorder>
     </widget>
    </widget>
   </widget>

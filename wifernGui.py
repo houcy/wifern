@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'wifern.ui'
 #
-# Created: Wed Mar 11 00:53:57 2015
+# Created: Wed Mar 18 18:55:40 2015
 #      by: PyQt4 UI code generator 4.9.3
 #
 # WARNING! All changes made in this file will be lost!
@@ -17,7 +17,7 @@ except AttributeError:
 class Ui_mainwindow(object):
     def setupUi(self, mainwindow):
         mainwindow.setObjectName(_fromUtf8("mainwindow"))
-        mainwindow.resize(1305, 773)
+        mainwindow.resize(1305, 784)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -27,7 +27,7 @@ class Ui_mainwindow(object):
         self.centralwidget = QtGui.QWidget(mainwindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
         self.tabWidget = QtGui.QTabWidget(self.centralwidget)
-        self.tabWidget.setGeometry(QtCore.QRect(-10, 0, 1431, 741))
+        self.tabWidget.setGeometry(QtCore.QRect(-10, 0, 1431, 761))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -151,11 +151,11 @@ class Ui_mainwindow(object):
         self.label_11.setWordWrap(True)
         self.label_11.setObjectName(_fromUtf8("label_11"))
         self.groupBox_4 = QtGui.QGroupBox(self.groupBox)
-        self.groupBox_4.setGeometry(QtCore.QRect(0, 20, 291, 681))
+        self.groupBox_4.setGeometry(QtCore.QRect(0, 20, 291, 691))
         self.groupBox_4.setTitle(_fromUtf8(""))
         self.groupBox_4.setObjectName(_fromUtf8("groupBox_4"))
         self.my_tableWidget = QtGui.QTableWidget(self.groupBox_4)
-        self.my_tableWidget.setGeometry(QtCore.QRect(10, 90, 271, 561))
+        self.my_tableWidget.setGeometry(QtCore.QRect(10, 90, 271, 571))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -186,6 +186,9 @@ class Ui_mainwindow(object):
         self.label_5.setSizePolicy(sizePolicy)
         self.label_5.setWordWrap(True)
         self.label_5.setObjectName(_fromUtf8("label_5"))
+        self.Rec_Install_Button = QtGui.QPushButton(self.groupBox_4)
+        self.Rec_Install_Button.setGeometry(QtCore.QRect(50, 660, 180, 31))
+        self.Rec_Install_Button.setObjectName(_fromUtf8("Rec_Install_Button"))
         self.verticalLayout_2.addWidget(self.groupBox)
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(_fromUtf8(":/home_tab/Home-icon.png")), QtGui.QIcon.Normal, QtGui.QIcon.Off)
@@ -394,7 +397,7 @@ class Ui_mainwindow(object):
         self.label_6.setObjectName(_fromUtf8("label_6"))
         self.horizontalLayout.addWidget(self.label_6)
         self.reaverPin_lineEdit = QtGui.QLineEdit(self.layoutWidget3)
-        self.reaverPin_lineEdit.setLayoutDirection(QtCore.Qt.RightToLeft)
+        self.reaverPin_lineEdit.setLayoutDirection(QtCore.Qt.LeftToRight)
         self.reaverPin_lineEdit.setInputMask(_fromUtf8(""))
         self.reaverPin_lineEdit.setMaxLength(8)
         self.reaverPin_lineEdit.setObjectName(_fromUtf8("reaverPin_lineEdit"))
@@ -545,6 +548,7 @@ class Ui_mainwindow(object):
         item = self.my_tableWidget.horizontalHeaderItem(2)
         item.setText(QtGui.QApplication.translate("mainwindow", "Required", None, QtGui.QApplication.UnicodeUTF8))
         self.label_5.setText(QtGui.QApplication.translate("mainwindow", "This is a list of programs that are required for the application to run smothly and some programs that help you with diferent aspects of your network testing.", None, QtGui.QApplication.UnicodeUTF8))
+        self.Rec_Install_Button.setText(QtGui.QApplication.translate("mainwindow", "Install Missing Programs", None, QtGui.QApplication.UnicodeUTF8))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.home_tab), QtGui.QApplication.translate("mainwindow", "Home", None, QtGui.QApplication.UnicodeUTF8))
         self.access_pointScan_Button.setText(QtGui.QApplication.translate("mainwindow", "Scan for Access Points", None, QtGui.QApplication.UnicodeUTF8))
         self.EncryptionGroupBox.setTitle(QtGui.QApplication.translate("mainwindow", "Encryption", None, QtGui.QApplication.UnicodeUTF8))

@@ -37,6 +37,7 @@ mon_iface = ''
 adapters = []
 monitors = []
 ProgList = []
+not_rec_list = []
 db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
 db.setDatabaseName("attack_session.db")
 query = QtSql.QSqlQuery(db)
@@ -67,6 +68,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.connect(self.startReaver_Button, QtCore.SIGNAL("clicked(bool)"), self.reaverPrep)
         self.connect(self.wordlist_save_button, QtCore.SIGNAL('clicked()'), self.saveWordlist)
         self.connect(self.mac_gen_Button, QtCore.SIGNAL('clicked()'), self.MacGen)
+        self.connect(self.Rec_Install_Button, QtCore.SIGNAL('clicked()'), self.recInstall)
         self.wlan0_monitor_Button.setVisible(False)
         self.wlan1_monitor_button.setVisible(False)
         self.start_wash_Button.setEnabled(False)
@@ -91,6 +93,8 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             self.wordlist = os.path.basename(str(filename))
             self.wordlist_path = str(filename)                        #Delete after test
             self.dict_file_path.setEnabled(False)
+        else:
+            message = QtGui.QMessageBox.information(self, 'Select File', 'You must select a file', QtGui.QMessageBox.ok)
 
     def UseThis(self):          # TODO check for reaver and wash then set buttons active
         if self.monitors_comboBox.currentText() != '':
@@ -135,6 +139,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         query.exec_("create table adapters (name varchar(8), bssid varchar(17), status varchar(7))")
         query.exec_("create table monitors (name varchar(7), bssid varchar(17))")
         query.exec_("create table recs (program_name varchar(20), available varchar(7))")
+        query.exec_("create table clients(bssid varchar(17), station varchar(17) references reaver (bssid), power int(3))")
 
     #####################################################
     ###  INTERFACE, MONITOR MODE AND INJECTION CHECK ####
@@ -354,7 +359,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             self.my_tableWidget.setColumnCount(3)
             self.my_tableWidget.setColumnWidth(1,70)
             self.my_tableWidget.setColumnWidth(2,70)
-            self.my_tableWidget.setRowCount(17)
+            self.my_tableWidget.setRowCount(20)
             rec_progs = ['aircrack-ng', 'aireplay-ng', 'airodump-ng', 'airmon-ng', 'packetforge-ng',
                     'iw', 'iwconfig', 'reaver', 'wash', 'mdk3', 'pyrit', 'ifconfig', 'sqlite3']
             for prog in rec_progs:
@@ -376,6 +381,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     self.my_tableWidget.setItem(row, 2, y)
                     row += 1
                 else:
+                    not_rec_list.append(prog)
                     query.prepare("insert into recs (program_name, available) values (?,?)")
                     query.addBindValue(prog)
                     query.addBindValue(False)
@@ -385,15 +391,14 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     x.setCheckState(QtCore.Qt.Unchecked)
                     y = QtGui.QTableWidgetItem()
                     y.setFlags(QtCore.Qt.ItemIsEnabled)
-                    y.setCheckState(QtCore.Qt.Checked)     # add column with link to install or apt command
+                    y.setCheckState(QtCore.Qt.Checked)
                     row_item = QtGui.QTableWidgetItem(prog)
                     self.my_tableWidget.setItem(row, col, row_item)
                     self.my_tableWidget.setItem(row, 1, x)
                     self.my_tableWidget.setItem(row, 2, y)
                     row += 1
 
-            not_rec_progs = ['bully', 'crunch', 'pw-inspector', 'oclhashcat', 'cudahashcat']
-            not_rec_list = []
+            not_rec_progs = ['bully', 'crunch', 'pw-inspector', 'oclhashcat']
             for prog in not_rec_progs:
                 if self.program_list(prog):
                     ProgList.append(prog)
@@ -413,6 +418,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     self.my_tableWidget.setItem(row, 2, y)
                     row += 1
                 else:
+                    not_rec_list.append(prog)
                     query.prepare("insert into recs(program_name, available) values (?,?)")
                     query.addBindValue(prog)
                     query.addBindValue(False)
@@ -428,10 +434,21 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     self.my_tableWidget.setItem(row, 1, x)
                     self.my_tableWidget.setItem(row, 2, y)
                     row += 1
+            self.my_tableWidget.setRowCount(row)
+            if not_rec_list.__len__() == 0:
+                self.Rec_Install_Button.setEnabled(False)
 
         except OSError as e:
             print e.message
 
+    def recInstall(self):
+        cmd = ['apt-get',
+               'install'
+               '-y']
+        for program in not_rec_list:
+            cmd.append(program)
+        f = Popen(cmd, stdout=open(os.devnull, 'w'), stderr=open(os.devnull, 'w'))
+        self.recs()
     ####################################################
     ###     WORDLIST PROCESS                      ######
     ####################################################
@@ -498,29 +515,34 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     ####################################################
     def wash_call(self):
         try:
-            mon = str(self.mon_iface)
-            if self.start_wash_Button.text() == 'Start':
-                self.start_wash_Button.setText('Stop')
-                t = multiprocessing.Process(target=self.WashThread, args=(mon,)).start()
-                self.wash_model = QtSql.QSqlQueryModel()
-                self.wash_model.setQuery("select * from reaver", db)
-                self.wash_model.setHeaderData(0, QtCore.Qt.Horizontal, "BSSID")
-                self.wash_model.setHeaderData(1, QtCore.Qt.Horizontal, "ESSID")
-                self.wash_model.setHeaderData(2, QtCore.Qt.Horizontal, "Channel")
-                self.wash_model.setHeaderData(3, QtCore.Qt.Horizontal, "Power")
-                self.wash_model.setHeaderData(4, QtCore.Qt.Horizontal, "Locked")
-                self.wash_tableView.setModel(self.wash_model)
-                self.wash_tableView.resizeColumnsToContents()
-                self.file_W = QtCore.QFileSystemWatcher()
-                self.file_W.addPath('attack_session.db')
-                self.file_W.fileChanged.connect(self.wash_Refresh)
-                if self.wash_model.lastError().isValid():
-                    print self.wash_model.lastError()
+            if 'wash' in ProgList:
+                mon = str(self.mon_iface)
+                if self.start_wash_Button.text() == 'Start':
+                    self.start_wash_Button.setText('Stop')
+                    t = multiprocessing.Process(target=self.WashThread, args=(mon,)).start()
+                    self.wash_model = QtSql.QSqlQueryModel()
+                    self.wash_model.clear()
+
+                    self.wash_model.setQuery("select * from reaver", db)
+                    self.wash_model.setHeaderData(0, QtCore.Qt.Horizontal, "BSSID")
+                    self.wash_model.setHeaderData(1, QtCore.Qt.Horizontal, "ESSID")
+                    self.wash_model.setHeaderData(2, QtCore.Qt.Horizontal, "Channel")
+                    self.wash_model.setHeaderData(3, QtCore.Qt.Horizontal, "Power")
+                    self.wash_model.setHeaderData(4, QtCore.Qt.Horizontal, "Locked")
+                    self.wash_tableView.setModel(self.wash_model)
+                    self.wash_tableView.resizeColumnsToContents()
+                    self.file_W = QtCore.QFileSystemWatcher()
+                    self.file_W.addPath('attack_session.db')
+                    self.file_W.fileChanged.connect(self.wash_Refresh)
+                    if self.wash_model.lastError().isValid():
+                        print self.wash_model.lastError()
+                else:
+                    self.start_wash_Button.setText('Start')
+                    with open('extra.txt', 'r') as f:
+                        P_pid = int(f.readline().strip())
+                        os.kill(P_pid, SIGINT)
             else:
-                self.start_wash_Button.setText('Start')
-                with open('extra.txt', 'r') as f:
-                    P_pid = int(f.readline().strip())
-                    os.kill(P_pid, SIGINT)
+                message = QtGui.QMessageBox.critical(self, 'Wash not found', 'Can\'t continue, wash not found',QtGui.QMessageBox.ok)
         except KeyboardInterrupt, SystemExit:
             os.kill(P_pid, SIGTERM)
         except OSError as e:
@@ -616,24 +638,33 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             pass
 
     def ReaverRun(self, bssid, essid, channel, locked):
-        cmd = ['reaver', '-b', bssid, '-c', channel, '-o', self.working_Dir + 'stream.out', '-e', essid, '-a', '-i', self.mon_iface]
-        if self.reaver_dhsmall.isChecked():
-            cmd.append('-S')
-        if self.reaver_ignorelocks.isChecked():
-            cmd.append('-L')
-        if self.reaver_eapterminate.isChecked():
-            cmd.append('-E')
-        if self.reaver_nonacks.isChecked():
-            cmd.append('-N')
-        if self.reaver_onAssoc.isChecked():
-            t = multiprocessing.Process(target=self.reaverAssoc, args=(bssid, essid, channel,)).start()
-            cmd.append('-A')
-        print str(cmd)
-        run = Popen(cmd, stdout=open(os.devnull, 'w'), stderr=open(os.devnull, 'w'))
-        revPid = str(run.pid)
-        with open('extra2.txt', 'w') as ff:
-            ff.write(str(revPid))
-
+        try:
+            if 'reaver' in ProgList:
+                cmd = ['reaver', '-b', bssid, '-c', channel, '-o', self.working_Dir + 'stream.out', '-e', essid, '-a', '-i', self.mon_iface]
+                if self.reaver_dhsmall.isChecked():
+                    cmd.append('-S')
+                if self.reaver_ignorelocks.isChecked():
+                    cmd.append('-L')
+                if self.reaver_eapterminate.isChecked():
+                    cmd.append('-E')
+                if self.reaver_nonacks.isChecked():
+                    cmd.append('-N')
+                if self.reaver_onAssoc.isChecked():
+                    t = multiprocessing.Process(target=self.reaverAssoc, args=(bssid, essid, channel,)).start()
+                    cmd.append('-A')
+                if self.reaverPin_lineEdit.text() != "":
+                    cmd.append('-p')
+                    cmd.append(str(self.reaverPin_lineEdit.text()))
+                print str(cmd)
+                run = Popen(cmd, stdout=open(os.devnull, 'w'), stderr=open(os.devnull, 'w'))
+                revPid = str(run.pid)
+                with open('extra2.txt', 'w') as ff:
+                    ff.write(str(revPid))
+            else:
+                message = QtGui.QMessageBox.critical(self, 'Reaver not found','Can\'t run command, Reaver not found', QtGui.QMessageBox.ok)
+        except ValueError:
+            message = QtGui.QMessageBox.information(self, 'Pin Incorrect', 'Please enter a correct pin number', QtGui.QMessageBox.ok)
+            self.reaverPin_lineEdit.setText(" ")
 
     def reaverLabel(self):
         try:
@@ -641,7 +672,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 pline = r.read().split('\n') # TODO add features later logic, text color, etc
                 r.close()                          # for now this will do
                 for line in pline:
-                    print line
                     if line.strip() == '': continue
                     if line.find('Session saved'): continue
                     if line.find('WARNING'):
@@ -807,13 +837,16 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     ##############  MAC GENERATOR   ####################
     ####################################################
     def MacGen(self):
-        with open(os.path.expanduser('~') + '/wifern.txt', 'wb') as mac:
-            for i in range(0, int(self.mac_gen_lineEdit.text())):
-                x = self.randomMAC()
-                y = self.get_manufacturer(x)
-                print x
-                mac.write(x + ',' + y + '\n')
-
+        try:
+            with open(os.path.expanduser('~') + '/wifern.txt', 'wb') as mac:
+                for i in range(0, int(self.mac_gen_lineEdit.text())):
+                    x = self.randomMAC()
+                    y = self.get_manufacturer(x)
+                    print x
+                    mac.write(x + ',' + y + '\n')
+        except ValueError:
+            message = QtGui.QMessageBox.information(self, 'Wrong Value', 'Please enter a valid number',QtGui.QMessageBox.Ok)
+            self.mac_gen_lineEdit.setText(" ")
 
     def get_manufacturer(self, bssid):
         ##################
