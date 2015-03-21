@@ -69,6 +69,8 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.connect(self.wordlist_save_button, QtCore.SIGNAL('clicked()'), self.saveWordlist)
         self.connect(self.mac_gen_Button, QtCore.SIGNAL('clicked()'), self.MacGen)
         self.connect(self.Rec_Install_Button, QtCore.SIGNAL('clicked()'), self.recInstall)
+        self.connect(self.Pyrit_import_pw_Button, QtCore.SIGNAL('clicked()'), self.PyritWordlist)
+        self.connect(self.Pyrit_import_todb_Button, QtCore.SIGNAL('clicked()'), self.PyritToDB)
         self.wlan0_monitor_Button.setVisible(False)
         self.wlan1_monitor_button.setVisible(False)
         self.start_wash_Button.setEnabled(False)
@@ -77,6 +79,10 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.showlcd()
         self.Process_wordlist_Button.setEnabled(False)
         self.startReaver_Button.setEnabled(False)
+        self.Pyrit_import_todb_Button.setEnabled(False)
+        self.pyrit_attack_Hshake_progressBar.setVisible(False)
+        self.Pyrit_handshake_attackButton.setEnabled(False)
+
 
     ####################################################
     ####  MAIN WINDOW WIDGETS AND DISPLAY         ######
@@ -442,9 +448,9 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             print e.message
 
     def recInstall(self):
-        cmd = ['apt-get',
-               'install'
-               '-y']
+        cmd = ["apt-get",
+               "install"
+               "-y"]
         for program in not_rec_list:
             cmd.append(program)
         f = Popen(cmd, stdout=open(os.devnull, 'w'), stderr=open(os.devnull, 'w'))
@@ -712,7 +718,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     def wifi_sort(self):
         query = QtSql.QSqlQuery(db)
         query.prepare("insert into victims")
-        victims, clients = self.get_victim_list('wifern-dump.csv')
+        victims, clients = self.get_victim_list('wifern-dump-01.csv')
         if len(victims) < 1: self.wifi_sort()
         while t < len(victims):
             query.addBindValue(victims[i].bssid.lower())
@@ -751,12 +757,10 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                         if power < 0: power += 100
                         t = Victim(row[0].strip(), power, row[10].strip(), row[3].strip(), enc, essid)
                         t.wps = wps
-                        t.model = Victim.get_manufacturer(row[0].strip())
+                        t.model = self.get_manufacturer(row[0].strip())
                         victims.append(t)
                     else:
-                        if len(row) < 6:
-                            continue
-                        bssid = re.sub(r'[^a-zA-Z0-9:]', '', row[0].strip())
+                        bssid = re.sub(r'[^a-zA-Z0-9:]', '', row[0].strip()) # TODO fix to include probes
                         station = re.sub(r'[^a-zA-Z0-9:]', '', row[5].strip())
                         power = row[3].strip()
                         if station != 'notassociated':
@@ -824,8 +828,8 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
         try:
             if iface:
-                cmd = ['airodump-ng', '--output-format', 'csv', '--ignore-negative-one', '-w','wifern-dump', iface]
-                wifi_cmd = Popen(cmd, stdout=PIPE)
+                cmd = ['airodump-ng', '--output-format', 'csv', '--ignore-negative-one', '-a','-w','wifern-dump', iface]
+                wifi_cmd = Popen(cmd, stdout=open(os.devnull, 'w'),stderr=open(os.devnull, 'w'))
                 wi = str(wifi_cmd.pid)
                 with open('extra1.txt', 'w') as fw:
                     fw.write(wi)
@@ -886,6 +890,43 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             return model    # needs to be attached to client before record is displayed
 
     #####################################################
+    ######## Pyrit Wordlist & Handshake #################
+    #####################################################
+
+    def PyritWordlist(self):
+        try:
+            word = ''
+            pyritWord = QtGui.QFileDialog.getOpenFileName(self, 'Select Wordlist', '/root/',
+                                                          'Text files (*.txt);; List files (*.lst)')
+            if pyritWord:
+                self.Pyrit_import_todb_Button.setEnabled(True)
+                filename = pyritWord
+                self.pyrit_import_pw_lineEdit.setText(filename)
+
+            else:
+                self.pyrit_import_pw_lineEdit.setText("")
+                self.Pyrit_import_todb_Button.setEnabled(False)
+        except:
+            print 'Error'
+
+    def PyritToDB(self):
+        try:
+            if os.path.exists(self.pyrit_import_pw_lineEdit.text()):
+                file = str(self.pyrit_import_pw_lineEdit.text())
+                t = multiprocessing.Process(target=self.PyritAddToDB, args=(self, file,))
+            else:
+                message = QtGui.QMessageBox.information(self, 'No Wordlist', 'Please select a wordlist', QtGui.QMessageBox.ok)
+
+        except:
+            print 'Error'
+    def PyritAddToDB(self, filename):
+        try:
+            cmd = ['pyrit', '-i', filename, 'import_unique_passwords']
+            command = Popen(cmd, stdout=PIPE, stderr=open(os.devnull, 'w'))
+        except:
+            print 'Error me'
+
+    #####################################################
     ###   Closing the Main Window                   #####
     #####################################################
 
@@ -893,19 +934,18 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         query = QtSql.QSqlQuery(db)
         query.prepare("select name from monitors")
         query.exec_()
-        while query.next():
+        query.next()
+        while query.isValid():
             tempList = QtCore.QStringList()
             tempList.append(query.value(0).toString())
             for erase in tempList:
                 call(['airmon-ng', 'stop', erase], stdout=open(os.devnull, 'w'), stderr=open(os.devnull, 'w'))
+
         else:
             if os.path.exists(self.working_Dir):
                 for f in os.listdir(self.working_Dir):
                     os.remove(self.working_Dir + f)
             os.rmdir(self.working_Dir)
-
-
-
 
 class CapFile:
     'Holds data about an access points .cap file, including AP ESSID & BSSID'
@@ -930,38 +970,6 @@ class Victim():
         self.wps = False  # Default to non-WPS-enabled router.
         self.key = ''
         self.hasHandshake = False
-
-    def get_manufacturer(self, bssid):
-        ##################
-        # Method works   #
-        ##################
-        oui_path0 = '/etc/aircrack-ng/airodump-ng-oui.txt'
-        oui_path1 = '/usr/local/etc/aircrack-ng/airodump-ng-oui.txt'
-        oui_path2 = '/usr/share/aircrack-ng/airodump-ng-oui.txt'
-        partial_mac = ''
-
-        try:
-            oui_path = ''
-            if os.path.exists(oui_path0):
-                oui_path = oui_path0
-            elif os.path.exists(oui_path1):
-                oui_path = oui_path1
-            elif os.path.exists(oui_path2):
-                oui_path = oui_path2
-            else:
-                model = 'Not Available'
-
-            with open(oui_path, 'r') as oui:
-                db = oui.readlines()
-            for line in db:
-                oui_db = line.split()
-                lookup_mac = oui_db[0].lower().replace('-', ':')
-                partial_mac = bssid[:8]
-                if lookup_mac == partial_mac:
-                    self.model = ' '.join(oui_db[2:])
-                    return model    # need to athached to client before record is displayed
-        except IOError as a:
-            print "I/O error({0}): {1}".format(a.errno, a.strerror)
 
 class Client():
     'Contains information about the connected clients to the AP'
