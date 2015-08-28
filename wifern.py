@@ -23,7 +23,7 @@ import wifernGui
 """
     My first attempt at duplicating the fern-wifi-cracker and wifite programs
     with a Graphical Interface.
-    A tall order and a long rood ahead but if you don't start you're never gone learn
+    A tall order and a long road ahead but if you don't start you're never gone learn
 
 """
 
