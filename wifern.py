@@ -12,13 +12,13 @@ import multiprocessing
 import random
 import re
 import PyQt4
+import pid as pid
 from PyQt4.QtCore import QFileSystemWatcher
 from PyQt4 import QtCore, QtGui, QtSql
 from PyQt4.QtGui import QPixmap, QSplashScreen
 from signal import SIGINT, SIGTERM
-import commands
 import wifernGui
-
+import orphan
 
 """
     My first attempt at duplicating the fern-wifi-cracker and wifite programs
@@ -41,7 +41,6 @@ not_rec_list = []
 db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
 db.setDatabaseName("attack_session.db")
 query = QtSql.QSqlQuery(db)
-
 
 
 class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
@@ -83,7 +82,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.pyrit_attack_Hshake_progressBar.setVisible(False)
         self.Pyrit_handshake_attackButton.setEnabled(False)
 
-
     ####################################################
     ####  MAIN WINDOW WIDGETS AND DISPLAY         ######
     ####################################################
@@ -92,17 +90,17 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         # Method works  #
         ################
         dict_open = QtGui.QFileDialog.getOpenFileName(self, 'Select Dictionary', '',
-                                                'Text files (*.txt);; List files (*.lst)')
+                                                      'Text files (*.txt);; List files (*.lst)')
         if dict_open:
             filename = dict_open
             self.dict_file_path.setText(filename)
             self.wordlist = os.path.basename(str(filename))
-            self.wordlist_path = str(filename)                        #Delete after test
+            self.wordlist_path = str(filename)  # Delete after test
             self.dict_file_path.setEnabled(False)
         else:
             message = QtGui.QMessageBox.information(self, 'Select File', 'You must select a file', QtGui.QMessageBox.ok)
 
-    def UseThis(self):          # TODO check for reaver and wash then set buttons active
+    def UseThis(self):  # TODO check for reaver and wash then set buttons active
         if self.monitors_comboBox.currentText() != '':
             self.Monitor_select_comboBox.setEnabled(True)
             self.mon_iface = self.monitors_comboBox.currentText()
@@ -114,7 +112,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             for i in self.monitors:
                 self.Monitor_select_comboBox.addItem(i)
         except TypeError:
-            print 'No Interface'
+            print('No Interface')
 
     def showlcd(self):
         time = QtCore.QTime.currentTime()
@@ -129,12 +127,12 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         os.chdir(self.working_Dir)
         if not db.open():
             QtGui.QMessageBox.critical(None, QtGui.qApp.tr("Cannot open database"),
-                QtGui.qApp.tr("Unable to establish a database connection.\n"
-                              "This example needs SQLite support. Please read "
-                              "the Qt SQL driver documentation for information "
-                              "how to build it.\n\n"
-                              "Click Cancel to exit."),
-                QtGui.QMessageBox.Cancel)
+                                       QtGui.qApp.tr("Unable to establish a database connection.\n"
+                                                     "This example needs SQLite support. Please read "
+                                                     "the Qt SQL driver documentation for information "
+                                                     "how to build it.\n\n"
+                                                     "Click Cancel to exit."),
+                                       QtGui.QMessageBox.Cancel)
             return False
         query = QtSql.QSqlQuery()
         query.exec_("create table reaver(bssid varchar(17) PRIMARY KEY NOT NULL, essid varchar(20), "
@@ -143,9 +141,10 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     "power int, data varchar(20), channel int, encryption varchar(7), "
                     "maker_model varchar(40), wps varchar(3))")
         query.exec_("create table adapters (name varchar(8), bssid varchar(17), status varchar(7))")
-        query.exec_("create table monitors (name varchar(7), bssid varchar(17))")
+        query.exec_("create table monitors (name varchar(8), bssid varchar(17))")
         query.exec_("create table recs (program_name varchar(20), available varchar(7))")
-        query.exec_("create table clients(bssid varchar(17), station varchar(17) references reaver (bssid), power int(3))")
+        query.exec_(
+            "create table clients(bssid varchar(17), station varchar(17) references reaver (bssid), power int(3))")
 
     #####################################################
     ###  INTERFACE, MONITOR MODE AND INJECTION CHECK ####
@@ -156,28 +155,31 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         #######################
         global monitors, adapters
         query = QtSql.QSqlQuery(db)
-        # need to check if iwconfig exists (it should )
-        cmd = str(commands.getoutput('iwconfig'))
-        if 'Mode:Managed' in cmd:
-            regex = re.compile('wlan\d', re.IGNORECASE)
-            adapters = regex.findall(cmd)
-        if 'Mode:Monitor' in cmd:
-            regex = re.compile('mon\d', re.IGNORECASE)
-            monitors = regex.findall(cmd)
-        if not (('Mode:Managed') or ('Mode:Monitor')) in cmd:
-            text = ['No Interface']
-            for i in text:
-                self.adapters_comboBox.addItem(i)
+        cmd = Popen(['iwconfig'], stdout=PIPE, stderr=open(os.devnull, 'w'))
+        for line in cmd.communicate()[0].split("\n"):
+            if len(line) == 0 : continue
+            if ord(line[0])  != 32:
+                int_iface = line[:line.find(' ')]
+            if line.find('Mode:Monitor') != -1:
+                monitors.append(int_iface)
+            else:
+                adapters.apend(int_iface)
+            #if len(line) == 0 or line.startswith('Interface') or line.startswith('PHY'): continue
+
+        #if not (('Mode:Managed') or ('Mode:Monitor')) in cmd:
+            #text = ['No Interface']
+            #for i in text:
+                #self.adapters_comboBox.addItem(i)
         if adapters:
             self.adapters_comboBox.clear()
             for adap in adapters:
                 self.adapters_comboBox.addItem(adap)
                 self.wlan0_monitor_Button.setVisible(True)
                 # int_iface = str(self.adapters_comboBox.currentText())
-                comm = str(commands.getoutput("ifconfig " + adap + " | awk '/HWaddr/ {print $1 " " $NF}'"))
+                comm = str(commands.getoutput("ip -o link show dev " + adap + " | grep -Po 'ether \K[^ ]*'"))
                 a = comm.splitlines()
+                wor_essid = adap #word[:-17]
                 for word in a:
-                    wor_essid = word[:-17]
                     wor_mac = word[-17:]
                     query.prepare("insert into adapters (name, bssid, status) values(?,?,?)")
                     query.addBindValue(wor_essid)
@@ -193,7 +195,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 self.monitors_comboBox.addItem(monit)
                 self.wlan1_monitor_button.setVisible(True)
                 self.Monitor_select_comboBox.addItem(monit)
-                comm = str(commands.getoutput("ifconfig " + monit + " | awk '/HWaddr/ {print $1 " " $NF}'"))
+                comm = str(commands.getoutput("ip -o link show dev " + monit + " | grep -Po 'ether \K[^ ]*'"))
                 a = comm.splitlines()
                 for word in a:
                     wor_essid = word[:-47]
@@ -208,7 +210,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
 
         else:
             return
-        print adapters, monitors          # remove after tests
+        print (adapters), (monitors)  # remove after tests
 
     def monitor_mode_enable(self):
         #########################
@@ -223,12 +225,16 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         query.next()
         try:
             if len(adapters) == len(monitors):
-                message = QtGui.QMessageBox.information(self, "Select diferent adapter",int_iface + " Has already been put in monitor mode", QtGui.QMessageBox.Ok)
+                message = QtGui.QMessageBox.information(self, "Select diferent adapter",
+                                                        int_iface + " Has already been put in monitor mode",
+                                                        QtGui.QMessageBox.Ok)
                 return
 
             if len(monitors) > len(adapters):
-                response = QtGui.QMessageBox.information(self, 'Too many monitors', 'There are too many monitor interfaces up\n'
-                                                                                    'Would you like to reset them?', QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
+                response = QtGui.QMessageBox.information(self, 'Too many monitors',
+                                                         'There are too many monitor interfaces up\n'
+                                                         'Would you like to reset them?',
+                                                         QtGui.QMessageBox.Yes | QtGui.QMessageBox.No)
                 if response == QtGui.QMessageBox.Yes:
                     for i in monitors:
                         call(['airmon-ng', 'stop', i])
@@ -247,7 +253,9 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     query1.exec_()
                     query.next()
                     if query1.isValid():
-                        message = QtGui.QMessageBox.information(self, "Select diferent adapter",int_iface + " has already been put in monitor mode", QtGui.QMessageBox.Ok)
+                        message = QtGui.QMessageBox.information(self, "Select diferent adapter",
+                                                                int_iface + " has already been put in monitor mode",
+                                                                QtGui.QMessageBox.Ok)
                     else:
                         comm = str(commands.getoutput("ifconfig -a | awk '/HWaddr/ {print $1 " " $NF}'"))
                         a = comm.splitlines()
@@ -262,9 +270,9 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                             query.addBindValue(wor_mac_mon)
                             query.addBindValue('after')
                             query.exec_()
-                        comma = str(commands.getoutput('airmon-ng start %s' %( int_iface)))
-                        if 'monitor mode enabled' in comma:
-                            reg = re.compile('mon\d', re.IGNORECASE)
+                        comma = str(commands.getoutput('airmon-ng start %s' % (int_iface)))
+                        if 'monitor mode vif enabled' in comma:
+                            reg = re.compile('wlan\dmon', re.IGNORECASE)
                             x_int = reg.findall(comma)
                             for a, monitor in enumerate(x_int):
                                 mon_iface = monitor
@@ -272,7 +280,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                                     mon_iface = x_int[(a + 1) % len(x_int)]
                                 else:
                                     monitors.append(mon_iface)
-                            if self.injection_working(mon_iface):          ## Check if injection is working
+                            if self.injection_working(mon_iface):  ## Check if injection is working
                                 if mon_iface in monitors:
                                     for monit in monitors:
                                         self.monitors_comboBox.addItem(monit)
@@ -287,21 +295,18 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                             else:
                                 print('Injection NOT working')
                 except OSError as e:
-                    print e.message
-                except QtSql.QSqlError as qt:       ## Add instuctions to fix or buy other card
-                    print qt.text()                 ## Disable(!!!!!) buttons
+                    print (e.message)
+                except QtSql.QSqlError as qt:  ## Add instuctions to fix or buy other card
+                    print (qt.text())  ## Disable(!!!!!) buttons
 
         except QtSql.QSqlError as qt:
-            print qt.text()
+            print (qt.text())
 
-    def randomMAC(self):        # Produces a random mac address, can be used with both adapters and monitors
-	    mac = [ 0x00,
-                random.randint(0x00, 0x7f),
-		        random.randint(0x00, 0x7f),
-                random.randint(0x00, 0x7f),
-		        random.randint(0x00, 0xff),
-                random.randint(0x00, 0xff)]
-            return ':'.join(map(lambda x: "%02x" % x, mac))
+    def randomMAC(self):  # Produces a random mac address, can be used with both adapters and monitors
+        mac = [0x00, random.randint(0x00, 0x7f), random.randint(0x00, 0x7f), random.randint(0x00, 0x7f),
+               random.randint(0x00, 0xff), random.randint(0x00, 0xff)]
+
+        return ':'.join(map(lambda x: "%02x" % x, mac))
 
     def stealth(self, alpha, beta):
         # Changes mac address of device(together with randomMac())
@@ -310,7 +315,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         new_mac = str(self.randomMAC())
         if new_mac == beta:
             new_mac = str(self.randomMAC())
-        cmd_change = ['ifconfig', alpha, 'hw', 'ether', new_mac ]
+        cmd_change = ['ifconfig', alpha, 'hw', 'ether', new_mac]
         call(cmd_change)
         cmd_up = ['ifconfig', alpha, 'up']
         call(cmd_up)
@@ -323,10 +328,14 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             if 'Injection is working!' in line:
                 x = int(cmd_inj.pid)
                 os.kill(x, SIGINT)
-                message = QtGui.QMessageBox.information(self, 'Injection', 'Injection on ' + mon_iface_check + ' is working!', QtGui.QMessageBox.Ok)
+                message = QtGui.QMessageBox.information(self, 'Injection',
+                                                        'Injection on ' + mon_iface_check + ' is working!',
+                                                        QtGui.QMessageBox.Ok)
                 return True
 
-        message = QtGui.QMessageBox.information(self, 'Injection', "Injection on " + mon_iface_check + " is NOT working!", QtGui.QMessageBox.Ok)
+        message = QtGui.QMessageBox.information(self, 'Injection',
+                                                "Injection on " + mon_iface_check + " is NOT working!",
+                                                QtGui.QMessageBox.Ok)
         return False
 
     ####################################################
@@ -334,13 +343,13 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     ####################################################
 
     def program_list(self, program):
-            proc = Popen(['which', program], stdout=PIPE, stderr=PIPE)
-            txt = proc.communicate()
-            if txt[0].strip() == '' and txt[1].strip() == '':
-                return False
-            if txt[0].strip() != '' and txt[1].strip() == '':
-                return True
-            return not (txt[1].strip() == '' or txt[1].find('no %s in' % program) != -1)
+        proc = Popen(['which', program], stdout=PIPE, stderr=PIPE)
+        txt = proc.communicate()
+        if txt[0].strip() == '' and txt[1].strip() == '':
+            return False
+        if txt[0].strip() != '' and txt[1].strip() == '':
+            return True
+        return not (txt[1].strip() == '' or txt[1].find('no %s in' % program) != -1)
 
     def ocd(self, prog):
         query = QtSql.QSqlQuery(db)
@@ -363,11 +372,11 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             col = 0
             query = QtSql.QSqlQuery()
             self.my_tableWidget.setColumnCount(3)
-            self.my_tableWidget.setColumnWidth(1,70)
-            self.my_tableWidget.setColumnWidth(2,70)
+            self.my_tableWidget.setColumnWidth(1, 70)
+            self.my_tableWidget.setColumnWidth(2, 70)
             self.my_tableWidget.setRowCount(20)
             rec_progs = ['aircrack-ng', 'aireplay-ng', 'airodump-ng', 'airmon-ng', 'packetforge-ng',
-                    'iw', 'iwconfig', 'reaver', 'wash', 'mdk3', 'pyrit', 'ifconfig', 'sqlite3']
+                         'iw', 'iwconfig', 'reaver', 'wash', 'mdk3', 'pyrit', 'ifconfig', 'sqlite3']
             for prog in rec_progs:
                 if self.program_list(prog):
                     ProgList.append(prog)
@@ -445,7 +454,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 self.Rec_Install_Button.setEnabled(False)
 
         except OSError as e:
-            print e.message
+            print (e.message)
 
     def recInstall(self):
         cmd = ["apt-get",
@@ -455,6 +464,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
             cmd.append(program)
         f = Popen(cmd, stdout=open(os.devnull, 'w'), stderr=open(os.devnull, 'w'))
         self.recs()
+
     ####################################################
     ###     WORDLIST PROCESS                      ######
     ####################################################
@@ -462,7 +472,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         try:
             self.sort_wordlist_lineEdit.setText("")
             get_wordlist_for_sorting = QtGui.QFileDialog.getOpenFileName(self, 'Select Dictionary', '/root/',
-                                                    'Text files (*.txt);; List files (*.lst)')
+                                                                         'Text files (*.txt);; List files (*.lst)')
             if get_wordlist_for_sorting:
                 self.wordlist_save_button.setEnabled(True)
                 filename = get_wordlist_for_sorting
@@ -482,7 +492,8 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     def saveWordlist(self):
         try:
             if self.saveLineEdit.text() != None:
-                save_wordlist = QtGui.QFileDialog.getSaveFileName(self,'Save Wordlist', '/root/', 'Text Files (*.txt);;List Files (*.lst)')
+                save_wordlist = QtGui.QFileDialog.getSaveFileName(self, 'Save Wordlist', '/root/',
+                                                                  'Text Files (*.txt);;List Files (*.lst)')
                 if save_wordlist:
                     self.savewordlist = save_wordlist
                     self.saveLineEdit.setText(self.savewordlist)
@@ -490,9 +501,11 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 else:
                     self.Process_wordlist_Button.setEnabled(False)
             else:
-                save_wordlist = QtGui.QFileDialog.getSaveFileName(self,'Save Wordlist', '/root/', 'Text Files (*.txt);;List Files (*.lst)')
+                save_wordlist = QtGui.QFileDialog.getSaveFileName(self, 'Save Wordlist', '/root/',
+                                                                  'Text Files (*.txt);;List Files (*.lst)')
         except AttributeError:
-            message = QtGui.QMessageBox.information(self, 'No Wordlist', 'You Must select a wordlist first', QtGui.QMessageBox.Ok)
+            message = QtGui.QMessageBox.information(self, 'No Wordlist', 'You Must select a wordlist first',
+                                                    QtGui.QMessageBox.Ok)
 
     def process_wordlist(self):
         try:
@@ -504,13 +517,14 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 self.Process_wordlist_Button.setEnabled(True)
             elif self.sort_checkBox.isChecked() and self.pwinspector_checkBox.isChecked():
                 sort = Popen(['sort', '-u', self.wordlist_path], stdout=PIPE)
-                pwi = Popen(['pw-inspector', '-m', '8', '-M', '63', '-o', self.savewordlist], stdin=sort.stdout ,stdout=PIPE)
+                pwi = Popen(['pw-inspector', '-m', '8', '-M', '63', '-o', self.savewordlist], stdin=sort.stdout,
+                            stdout=PIPE)
                 sort.stdout.close()
 
             elif self.pwinspector_checkBox.isChecked():
-                cmd = Popen(['pw-inspector', '-i', self.wordlist_path, '-m', '8', '-M', '63', '-o', self.savewordlist ])
+                cmd = Popen(['pw-inspector', '-i', self.wordlist_path, '-m', '8', '-M', '63', '-o', self.savewordlist])
         except:
-            print 'Error'
+            print ('Error')
             # p1 = Popen(["dmesg"], stdout=PIPE)
             # p2 = Popen(["grep", "hda"], stdin=p1.stdout, stdout=PIPE)
             # p1.stdout.close()  # Allow p1 to receive a SIGPIPE if p2 exits.
@@ -541,18 +555,19 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     self.file_W.addPath('attack_session.db')
                     self.file_W.fileChanged.connect(self.wash_Refresh)
                     if self.wash_model.lastError().isValid():
-                        print self.wash_model.lastError()
+                        print (self.wash_model.lastError())
                 else:
                     self.start_wash_Button.setText('Start')
                     with open('extra.txt', 'r') as f:
                         P_pid = int(f.readline().strip())
                         os.kill(P_pid, SIGINT)
             else:
-                message = QtGui.QMessageBox.critical(self, 'Wash not found', 'Can\'t continue, wash not found',QtGui.QMessageBox.ok)
-        except KeyboardInterrupt, SystemExit:
+                message = QtGui.QMessageBox.critical(self, 'Wash not found', 'Can\'t continue, wash not found',
+                                                     QtGui.QMessageBox.ok)
+        except (KeyboardInterrupt, SystemExit):
             os.kill(P_pid, SIGTERM)
         except OSError as e:
-            print e.errno  # TODO errors here
+            print (e.errno)  # TODO errors here
 
         except UnboundLocalError:
             pass
@@ -598,7 +613,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                         query.exec_()
 
         except Exception as e:
-            print e.message
+            print (e.message)
 
     def reaverPrep(self, index):
 
@@ -616,7 +631,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 self.reaver_ignorelocks.setChecked(True)
             else:
                 self.reaver_ignorelocks.setChecked(False)
-            print bssid, essid, channel, locked
+            print (bssid, essid, channel, locked)
         except AttributeError:
             if self.startReaver_Button.text() == 'Start Reaver':
                 self.startReaver_Button.setText('Stop Reaver')
@@ -638,7 +653,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     pid = int(ff.readline())
                     os.kill(pid, SIGINT)
                 self.reaver_command_label.setText('AAAAAAAA')
-        except KeyboardInterrupt, SystemExit:
+        except (KeyboardInterrupt, SystemExit):
             os.kill(pid, SIGTERM)
         except OSError:
             pass
@@ -646,7 +661,8 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     def ReaverRun(self, bssid, essid, channel, locked):
         try:
             if 'reaver' in ProgList:
-                cmd = ['reaver', '-b', bssid, '-c', channel, '-o', self.working_Dir + 'stream.out', '-e', essid, '-a', '-i', self.mon_iface]
+                cmd = ['reaver', '-b', bssid, '-c', channel, '-o', self.working_Dir + 'stream.out', '-e', essid, '-a',
+                       '-i', self.mon_iface]
                 if self.reaver_dhsmall.isChecked():
                     cmd.append('-S')
                 if self.reaver_ignorelocks.isChecked():
@@ -661,22 +677,24 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 if self.reaverPin_lineEdit.text() != "":
                     cmd.append('-p')
                     cmd.append(str(self.reaverPin_lineEdit.text()))
-                print str(cmd)
+                print (str(cmd))
                 run = Popen(cmd, stdout=open(os.devnull, 'w'), stderr=open(os.devnull, 'w'))
                 revPid = str(run.pid)
                 with open('extra2.txt', 'w') as ff:
                     ff.write(str(revPid))
             else:
-                message = QtGui.QMessageBox.critical(self, 'Reaver not found','Can\'t run command, Reaver not found', QtGui.QMessageBox.ok)
+                message = QtGui.QMessageBox.critical(self, 'Reaver not found', 'Can\'t run command, Reaver not found',
+                                                     QtGui.QMessageBox.ok)
         except ValueError:
-            message = QtGui.QMessageBox.information(self, 'Pin Incorrect', 'Please enter a correct pin number', QtGui.QMessageBox.ok)
+            message = QtGui.QMessageBox.information(self, 'Pin Incorrect', 'Please enter a correct pin number',
+                                                    QtGui.QMessageBox.ok)
             self.reaverPin_lineEdit.setText(" ")
 
     def reaverLabel(self):
         try:
             with open('stream.out', 'r') as r:
-                pline = r.read().split('\n') # TODO add features later logic, text color, etc
-                r.close()                          # for now this will do
+                pline = r.read().split('\n')  # TODO add features later logic, text color, etc
+                r.close()  # for now this will do
                 for line in pline:
                     if line.strip() == '': continue
                     if line.find('Session saved'): continue
@@ -696,20 +714,19 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         cmd = ['aireplay-ng', '-1', '100', '-e', essid, '-a', bssid, '--ignore-negative-one', self.mon_iface]
         assoc = Popen(cmd, stdout=PIPE)
         while assoc.poll() is not None:
-            ac =['ps', '-C', 'reaver', '-f']# FIX ME
+            ac = ['ps', '-C', 'reaver', '-f']  # FIX ME
             acc = Popen(ac, stdout=PIPE, stderr=PIPE)
             for line in acc.communicate()[0].split('\n'):
                 if line.find('reaver'):
                     assoc = Popen(cmd, stdin=PIPE)
                 else:
-                   assoc.kill()
+                    assoc.kill()
         else:
-            ac =['ps', '-C', 'reaver', '-f']# FIX ME
+            ac = ['ps', '-C', 'reaver', '-f']  # FIX ME
             acc = Popen(ac, stdout=PIPE)
             for line in acc.communicate()[0].split('\n'):
                 if not line.find('reaver'):
                     assoc.terminate()
-
 
     ####################################################
     ###     WIFI TABLE START                     #######
@@ -760,7 +777,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                         t.model = self.get_manufacturer(row[0].strip())
                         victims.append(t)
                     else:
-                        bssid = re.sub(r'[^a-zA-Z0-9:]', '', row[0].strip()) # TODO fix to include probes
+                        bssid = re.sub(r'[^a-zA-Z0-9:]', '', row[0].strip())  # TODO fix to include probes
                         station = re.sub(r'[^a-zA-Z0-9:]', '', row[5].strip())
                         power = row[3].strip()
                         if station != 'notassociated':
@@ -768,7 +785,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                             clients.append(c)
 
         except IOError as e:
-            print "I/O error({0}): {1}".format(e.errno, e.strerror)
+            print ("I/O error({0}): {1}".format(e.errno, e.strerror))
             return [], []
         return (victims, clients)
 
@@ -811,25 +828,27 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 self.file_Wifi.addPath('attack_session.db')
                 self.file_Wifi.fileChanged.connect(self.wifirefresh)
                 if self.wifi_model.lastError().isValid():
-                    print self.wifi_model.lastError()
+                    print (self.wifi_model.lastError())
             else:
                 self.access_pointScan_Button.setText("Scan for Access Points")
                 with open('extra1.txt', 'r') as fw:
                     Pid = int(fw.readline().strip())
                     os.kill(Pid, SIGINT)
         except AttributeError:
-            message = QtGui.QMessageBox.information(self, 'Monitor Interface', 'You Must select a monitor Interface', QtGui.QMessageBox.Ok)
+            message = QtGui.QMessageBox.information(self, 'Monitor Interface', 'You Must select a monitor Interface',
+                                                    QtGui.QMessageBox.Ok)
         except OSError as e:
-            print e.message
-        except KeyboardInterrupt, SystemExit:
+            print (e.message)
+        except (KeyboardInterrupt, SystemExit):
             os.kill(Pid, SIGTERM)
 
-    def initscan(self,iface):
+    def initscan(self, iface):
 
         try:
             if iface:
-                cmd = ['airodump-ng', '--output-format', 'csv', '--ignore-negative-one', '-a','-w','wifern-dump', iface]
-                wifi_cmd = Popen(cmd, stdout=open(os.devnull, 'w'),stderr=open(os.devnull, 'w'))
+                cmd = ['airodump-ng', '--output-format', 'csv', '--ignore-negative-one', '-a', '-w', 'wifern-dump',
+                       iface]
+                wifi_cmd = Popen(cmd, stdout=open(os.devnull, 'w'), stderr=open(os.devnull, 'w'))
                 wi = str(wifi_cmd.pid)
                 with open('extra1.txt', 'w') as fw:
                     fw.write(wi)
@@ -846,10 +865,11 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 for i in range(0, int(self.mac_gen_lineEdit.text())):
                     x = self.randomMAC()
                     y = self.get_manufacturer(x)
-                    print x
+                    print (x)
                     mac.write(x + ',' + y + '\n')
         except ValueError:
-            message = QtGui.QMessageBox.information(self, 'Wrong Value', 'Please enter a valid number',QtGui.QMessageBox.Ok)
+            message = QtGui.QMessageBox.information(self, 'Wrong Value', 'Please enter a valid number',
+                                                    QtGui.QMessageBox.Ok)
             self.mac_gen_lineEdit.setText(" ")
 
     def get_manufacturer(self, bssid):
@@ -883,11 +903,11 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                     model = ' '.join(oui_db[2:])
 
         except IOError as a:
-            print "I/O error({0}): {1}".format(a.errno, a.strerror)
+            print ("I/O error({0}): {1}".format(a.errno, a.strerror))
         except TypeError:
-             model = 'Not Available'
+            model = 'Not Available'
         finally:
-            return model    # needs to be attached to client before record is displayed
+            return model  # needs to be attached to client before record is displayed
 
     #####################################################
     ######## Pyrit Wordlist & Handshake #################
@@ -907,7 +927,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 self.pyrit_import_pw_lineEdit.setText("")
                 self.Pyrit_import_todb_Button.setEnabled(False)
         except:
-            print 'Error'
+            print ('Error')
 
     def PyritToDB(self):
         try:
@@ -915,16 +935,18 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 file = str(self.pyrit_import_pw_lineEdit.text())
                 t = multiprocessing.Process(target=self.PyritAddToDB, args=(self, file,))
             else:
-                message = QtGui.QMessageBox.information(self, 'No Wordlist', 'Please select a wordlist', QtGui.QMessageBox.ok)
+                message = QtGui.QMessageBox.information(self, 'No Wordlist', 'Please select a wordlist',
+                                                        QtGui.QMessageBox.ok)
 
         except:
-            print 'Error'
+            print ('Error')
+
     def PyritAddToDB(self, filename):
         try:
             cmd = ['pyrit', '-i', filename, 'import_unique_passwords']
             command = Popen(cmd, stdout=PIPE, stderr=open(os.devnull, 'w'))
         except:
-            print 'Error me'
+            print ('Error me')
 
     #####################################################
     ###   Closing the Main Window                   #####
@@ -946,6 +968,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
                 for f in os.listdir(self.working_Dir):
                     os.remove(self.working_Dir + f)
             os.rmdir(self.working_Dir)
+
 
 class CapFile:
     'Holds data about an access points .cap file, including AP ESSID & BSSID'
@@ -971,8 +994,10 @@ class Victim():
         self.key = ''
         self.hasHandshake = False
 
+
 class Client():
     'Contains information about the connected clients to the AP'
+
     def __init__(self, bssid, station, power, essid, encryption):
         self.bssid = bssid
         self.station = station
@@ -980,6 +1005,7 @@ class Client():
         self.essid = essid
         self.encryption = encryption
         self.probes = []
+
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
@@ -992,6 +1018,3 @@ if __name__ == "__main__":
     form = wifern()
     form.show()
     sys.exit(app.exec_())
-
-
-

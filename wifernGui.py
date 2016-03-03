@@ -2,8 +2,7 @@
 
 # Form implementation generated from reading ui file 'wifern.ui'
 #
-# Created: Sat Mar 21 16:02:39 2015
-#      by: PyQt4 UI code generator 4.9.3
+# Created by: PyQt4 UI code generator 4.11.4
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -12,7 +11,19 @@ from PyQt4 import QtCore, QtGui
 try:
     _fromUtf8 = QtCore.QString.fromUtf8
 except AttributeError:
-    _fromUtf8 = lambda s: s
+    def _fromUtf8(s):
+        return s
+
+try:
+    _encoding = QtGui.QApplication.UnicodeUTF8
+
+
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig, _encoding)
+except AttributeError:
+    def _translate(context, text, disambig):
+        return QtGui.QApplication.translate(context, text, disambig)
+
 
 class Ui_mainwindow(object):
     def setupUi(self, mainwindow):
@@ -43,7 +54,6 @@ class Ui_mainwindow(object):
         self.verticalLayoutWidget.setGeometry(QtCore.QRect(10, 0, 1311, 721))
         self.verticalLayoutWidget.setObjectName(_fromUtf8("verticalLayoutWidget"))
         self.verticalLayout_2 = QtGui.QVBoxLayout(self.verticalLayoutWidget)
-        self.verticalLayout_2.setMargin(0)
         self.verticalLayout_2.setObjectName(_fromUtf8("verticalLayout_2"))
         self.groupBox = QtGui.QGroupBox(self.verticalLayoutWidget)
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Minimum, QtGui.QSizePolicy.Minimum)
@@ -52,7 +62,7 @@ class Ui_mainwindow(object):
         sizePolicy.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
         self.groupBox.setSizePolicy(sizePolicy)
         self.groupBox.setStyleSheet(_fromUtf8(""))
-        self.groupBox.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
+        self.groupBox.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
         self.groupBox.setObjectName(_fromUtf8("groupBox"))
         self.groupBox_2 = QtGui.QGroupBox(self.groupBox)
         self.groupBox_2.setGeometry(QtCore.QRect(290, 0, 971, 681))
@@ -64,7 +74,6 @@ class Ui_mainwindow(object):
         self.layoutWidget.setGeometry(QtCore.QRect(10, 20, 266, 147))
         self.layoutWidget.setObjectName(_fromUtf8("layoutWidget"))
         self.gridLayout_2 = QtGui.QGridLayout(self.layoutWidget)
-        self.gridLayout_2.setMargin(0)
         self.gridLayout_2.setObjectName(_fromUtf8("gridLayout_2"))
         self.list_interfaces_Button = QtGui.QPushButton(self.layoutWidget)
         self.list_interfaces_Button.setObjectName(_fromUtf8("list_interfaces_Button"))
@@ -95,7 +104,6 @@ class Ui_mainwindow(object):
         self.layoutWidget1.setGeometry(QtCore.QRect(1, 31, 501, 214))
         self.layoutWidget1.setObjectName(_fromUtf8("layoutWidget1"))
         self.gridLayout_3 = QtGui.QGridLayout(self.layoutWidget1)
-        self.gridLayout_3.setMargin(0)
         self.gridLayout_3.setObjectName(_fromUtf8("gridLayout_3"))
         self.Get_Wordlist_Button = QtGui.QPushButton(self.layoutWidget1)
         self.Get_Wordlist_Button.setObjectName(_fromUtf8("Get_Wordlist_Button"))
@@ -157,7 +165,6 @@ class Ui_mainwindow(object):
         self.layoutWidget2.setGeometry(QtCore.QRect(10, 20, 198, 144))
         self.layoutWidget2.setObjectName(_fromUtf8("layoutWidget2"))
         self.verticalLayout_7 = QtGui.QVBoxLayout(self.layoutWidget2)
-        self.verticalLayout_7.setMargin(0)
         self.verticalLayout_7.setObjectName(_fromUtf8("verticalLayout_7"))
         self.Pyrit_import_pw_Button = QtGui.QPushButton(self.layoutWidget2)
         self.Pyrit_import_pw_Button.setObjectName(_fromUtf8("Pyrit_import_pw_Button"))
@@ -305,7 +312,6 @@ class Ui_mainwindow(object):
         self.layoutWidget3.setGeometry(QtCore.QRect(800, 30, 222, 322))
         self.layoutWidget3.setObjectName(_fromUtf8("layoutWidget3"))
         self.verticalLayout_6 = QtGui.QVBoxLayout(self.layoutWidget3)
-        self.verticalLayout_6.setMargin(0)
         self.verticalLayout_6.setObjectName(_fromUtf8("verticalLayout_6"))
         self.radioButton_9 = QtGui.QRadioButton(self.layoutWidget3)
         self.radioButton_9.setObjectName(_fromUtf8("radioButton_9"))
@@ -338,7 +344,6 @@ class Ui_mainwindow(object):
         self.layoutWidget4.setGeometry(QtCore.QRect(12, 12, 765, 510))
         self.layoutWidget4.setObjectName(_fromUtf8("layoutWidget4"))
         self.verticalLayout_4 = QtGui.QVBoxLayout(self.layoutWidget4)
-        self.verticalLayout_4.setMargin(0)
         self.verticalLayout_4.setObjectName(_fromUtf8("verticalLayout_4"))
         self.verticalLayout = QtGui.QVBoxLayout()
         self.verticalLayout.setObjectName(_fromUtf8("verticalLayout"))
@@ -419,7 +424,7 @@ class Ui_mainwindow(object):
         font.setBold(True)
         font.setWeight(75)
         self.label_6.setFont(font)
-        self.label_6.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label_6.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
         self.label_6.setObjectName(_fromUtf8("label_6"))
         self.horizontalLayout.addWidget(self.label_6)
         self.reaverPin_lineEdit = QtGui.QLineEdit(self.layoutWidget4)
@@ -548,87 +553,102 @@ class Ui_mainwindow(object):
         QtCore.QMetaObject.connectSlotsByName(mainwindow)
 
     def retranslateUi(self, mainwindow):
-        mainwindow.setWindowTitle(QtGui.QApplication.translate("mainwindow", "Wifern", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox.setTitle(QtGui.QApplication.translate("mainwindow", "Program List", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox_2.setTitle(QtGui.QApplication.translate("mainwindow", "Tools ", None, QtGui.QApplication.UnicodeUTF8))
-        self.Interface_groupBox.setTitle(QtGui.QApplication.translate("mainwindow", "Available Interfaces", None, QtGui.QApplication.UnicodeUTF8))
-        self.list_interfaces_Button.setText(QtGui.QApplication.translate("mainwindow", "List Wireless Interfaces", None, QtGui.QApplication.UnicodeUTF8))
-        self.wlan1_monitor_button.setText(QtGui.QApplication.translate("mainwindow", "<- Use This", None, QtGui.QApplication.UnicodeUTF8))
-        self.wlan0_monitor_Button.setText(QtGui.QApplication.translate("mainwindow", "<- Monitor Mode", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox_3.setTitle(QtGui.QApplication.translate("mainwindow", "Wordlist Tools", None, QtGui.QApplication.UnicodeUTF8))
-        self.Get_Wordlist_Button.setText(QtGui.QApplication.translate("mainwindow", "Get Wordlist", None, QtGui.QApplication.UnicodeUTF8))
-        self.wordlist_save_button.setText(QtGui.QApplication.translate("mainwindow", "Save Wordlist as..", None, QtGui.QApplication.UnicodeUTF8))
-        self.Process_wordlist_Button.setText(QtGui.QApplication.translate("mainwindow", "Execute", None, QtGui.QApplication.UnicodeUTF8))
-        self.sort_checkBox.setToolTip(QtGui.QApplication.translate("mainwindow", "Sort the wordlist", None, QtGui.QApplication.UnicodeUTF8))
-        self.sort_checkBox.setText(QtGui.QApplication.translate("mainwindow", "Sort", None, QtGui.QApplication.UnicodeUTF8))
-        self.pwinspector_checkBox.setToolTip(QtGui.QApplication.translate("mainwindow", "<html><head/><body><p>Save some extra time when attacking WPA systems(handshakes) by making sure that ONLY words of length 8 and greater are included.</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.pwinspector_checkBox.setText(QtGui.QApplication.translate("mainwindow", "Pw Inspector", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_2.setText(QtGui.QApplication.translate("mainwindow", "Sort: Sorts and finds unique occurrences, Pw Inspector: Prepares wordlist for WPA(minimum length=8) attack(s). Please note that depending on the size of the wordlist these operations may take a long time to complete especially if they are combined ", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox_5.setTitle(QtGui.QApplication.translate("mainwindow", "MAC file", None, QtGui.QApplication.UnicodeUTF8))
-        self.mac_gen_Button.setText(QtGui.QApplication.translate("mainwindow", "Generate MAC(s)", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_11.setText(QtGui.QApplication.translate("mainwindow", "Generate MAC addresses for use with mdk3 and store in wifern.txt", None, QtGui.QApplication.UnicodeUTF8))
-        self.groupBox_6.setTitle(QtGui.QApplication.translate("mainwindow", "Pyrit", None, QtGui.QApplication.UnicodeUTF8))
-        self.Pyrit_import_pw_Button.setToolTip(QtGui.QApplication.translate("mainwindow", "<html><head/><body><p>Select a wordlist to be added to the pyrit database for later attacks. PMK(s) will be generated and stored in the pyrit folder</p></body></html>", None, QtGui.QApplication.UnicodeUTF8))
-        self.Pyrit_import_pw_Button.setText(QtGui.QApplication.translate("mainwindow", "Import Wordlist", None, QtGui.QApplication.UnicodeUTF8))
-        self.Pyrit_import_todb_Button.setToolTip(QtGui.QApplication.translate("mainwindow", "PMK(s) will be generated and added to the Database", None, QtGui.QApplication.UnicodeUTF8))
-        self.Pyrit_import_todb_Button.setText(QtGui.QApplication.translate("mainwindow", "Add Passwords to Pyrit DB", None, QtGui.QApplication.UnicodeUTF8))
-        self.Pyrit_handshake_getButton.setToolTip(QtGui.QApplication.translate("mainwindow", "If you have a handshake file enter it here", None, QtGui.QApplication.UnicodeUTF8))
-        self.Pyrit_handshake_getButton.setText(QtGui.QApplication.translate("mainwindow", "Get Handshake File", None, QtGui.QApplication.UnicodeUTF8))
-        self.Pyrit_handshake_attackButton.setToolTip(QtGui.QApplication.translate("mainwindow", "Attack the above entered handshake file with the ALREADY stored PMK(s). If there are no PMK(s) an error will occour", None, QtGui.QApplication.UnicodeUTF8))
-        self.Pyrit_handshake_attackButton.setText(QtGui.QApplication.translate("mainwindow", "Attack Handshake", None, QtGui.QApplication.UnicodeUTF8))
+        mainwindow.setWindowTitle(_translate("mainwindow", "Wifern", None))
+        self.groupBox.setTitle(_translate("mainwindow", "Program List", None))
+        self.groupBox_2.setTitle(_translate("mainwindow", "Tools ", None))
+        self.Interface_groupBox.setTitle(_translate("mainwindow", "Available Interfaces", None))
+        self.list_interfaces_Button.setText(_translate("mainwindow", "List Wireless Interfaces", None))
+        self.wlan1_monitor_button.setText(_translate("mainwindow", "<- Use This", None))
+        self.wlan0_monitor_Button.setText(_translate("mainwindow", "<- Monitor Mode", None))
+        self.groupBox_3.setTitle(_translate("mainwindow", "Wordlist Tools", None))
+        self.Get_Wordlist_Button.setText(_translate("mainwindow", "Get Wordlist", None))
+        self.wordlist_save_button.setText(_translate("mainwindow", "Save Wordlist as..", None))
+        self.Process_wordlist_Button.setText(_translate("mainwindow", "Execute", None))
+        self.sort_checkBox.setToolTip(_translate("mainwindow", "Sort the wordlist", None))
+        self.sort_checkBox.setText(_translate("mainwindow", "Sort", None))
+        self.pwinspector_checkBox.setToolTip(_translate("mainwindow",
+                                                        "<html><head/><body><p>Save some extra time when attacking WPA systems(handshakes) by making sure that ONLY words of length 8 and greater are included.</p></body></html>",
+                                                        None))
+        self.pwinspector_checkBox.setText(_translate("mainwindow", "Pw Inspector", None))
+        self.label_2.setText(_translate("mainwindow",
+                                        "Sort: Sorts and finds unique occurrences, Pw Inspector: Prepares wordlist for WPA(minimum length=8) attack(s). Please note that depending on the size of the wordlist these operations may take a long time to complete especially if they are combined ",
+                                        None))
+        self.groupBox_5.setTitle(_translate("mainwindow", "MAC file", None))
+        self.mac_gen_Button.setText(_translate("mainwindow", "Generate MAC(s)", None))
+        self.label_11.setText(
+            _translate("mainwindow", "Generate MAC addresses for use with mdk3 and store in wifern.txt", None))
+        self.groupBox_6.setTitle(_translate("mainwindow", "Pyrit", None))
+        self.Pyrit_import_pw_Button.setToolTip(_translate("mainwindow",
+                                                          "<html><head/><body><p>Select a wordlist to be added to the pyrit database for later attacks. PMK(s) will be generated and stored in the pyrit folder</p></body></html>",
+                                                          None))
+        self.Pyrit_import_pw_Button.setText(_translate("mainwindow", "Import Wordlist", None))
+        self.Pyrit_import_todb_Button.setToolTip(
+            _translate("mainwindow", "PMK(s) will be generated and added to the Database", None))
+        self.Pyrit_import_todb_Button.setText(_translate("mainwindow", "Add Passwords to Pyrit DB", None))
+        self.Pyrit_handshake_getButton.setToolTip(
+            _translate("mainwindow", "If you have a handshake file enter it here", None))
+        self.Pyrit_handshake_getButton.setText(_translate("mainwindow", "Get Handshake File", None))
+        self.Pyrit_handshake_attackButton.setToolTip(_translate("mainwindow",
+                                                                "Attack the above entered handshake file with the ALREADY stored PMK(s). If there are no PMK(s) an error will occour",
+                                                                None))
+        self.Pyrit_handshake_attackButton.setText(_translate("mainwindow", "Attack Handshake", None))
         item = self.my_tableWidget.horizontalHeaderItem(0)
-        item.setText(QtGui.QApplication.translate("mainwindow", "Program", None, QtGui.QApplication.UnicodeUTF8))
+        item.setText(_translate("mainwindow", "Program", None))
         item = self.my_tableWidget.horizontalHeaderItem(1)
-        item.setText(QtGui.QApplication.translate("mainwindow", "Available", None, QtGui.QApplication.UnicodeUTF8))
+        item.setText(_translate("mainwindow", "Available", None))
         item = self.my_tableWidget.horizontalHeaderItem(2)
-        item.setText(QtGui.QApplication.translate("mainwindow", "Required", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_5.setText(QtGui.QApplication.translate("mainwindow", "This is a list of programs that are required for the application to run smothly and some programs that help you with diferent aspects of your network testing.", None, QtGui.QApplication.UnicodeUTF8))
-        self.Rec_Install_Button.setText(QtGui.QApplication.translate("mainwindow", "Install Missing Programs", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.home_tab), QtGui.QApplication.translate("mainwindow", "Home", None, QtGui.QApplication.UnicodeUTF8))
-        self.access_pointScan_Button.setText(QtGui.QApplication.translate("mainwindow", "Scan for Access Points", None, QtGui.QApplication.UnicodeUTF8))
-        self.EncryptionGroupBox.setTitle(QtGui.QApplication.translate("mainwindow", "Encryption", None, QtGui.QApplication.UnicodeUTF8))
-        self.wep_radioButton.setText(QtGui.QApplication.translate("mainwindow", "WEP", None, QtGui.QApplication.UnicodeUTF8))
-        self.wpa_radioButton.setText(QtGui.QApplication.translate("mainwindow", "WPA", None, QtGui.QApplication.UnicodeUTF8))
-        self.wps_radioButton.setText(QtGui.QApplication.translate("mainwindow", "WPS", None, QtGui.QApplication.UnicodeUTF8))
-        self.dictionary_groupBox.setTitle(QtGui.QApplication.translate("mainwindow", "Dictionary", None, QtGui.QApplication.UnicodeUTF8))
-        self.dictionary_select_Button.setText(QtGui.QApplication.translate("mainwindow", "Dictionary Select", None, QtGui.QApplication.UnicodeUTF8))
-        self.Clients_Groupbox.setTitle(QtGui.QApplication.translate("mainwindow", "Clients", None, QtGui.QApplication.UnicodeUTF8))
-        self.toolbox_groupBox.setTitle(QtGui.QApplication.translate("mainwindow", "ToolBox", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton.setText(QtGui.QApplication.translate("mainwindow", "Aircrack-ng", None, QtGui.QApplication.UnicodeUTF8))
-        self.label.setText(QtGui.QApplication.translate("mainwindow", "Select the tool you wood like to use to attack the access point(s)", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_2.setText(QtGui.QApplication.translate("mainwindow", "Pyrit", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_3.setText(QtGui.QApplication.translate("mainwindow", "Reaver", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_4.setText(QtGui.QApplication.translate("mainwindow", "Mdk3", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_5.setText(QtGui.QApplication.translate("mainwindow", "Bully", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.wifi_tab), QtGui.QApplication.translate("mainwindow", "Wifi Attack", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButton_9.setText(QtGui.QApplication.translate("mainwindow", "Beacon Flood Mode", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButton_8.setText(QtGui.QApplication.translate("mainwindow", "Authentication DoS mode", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButton_6.setText(QtGui.QApplication.translate("mainwindow", "ESSID Bruteforce mode", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButton_5.setText(QtGui.QApplication.translate("mainwindow", "Deauthentication Mode", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButton_4.setText(QtGui.QApplication.translate("mainwindow", "Michael exploitation", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButton_7.setText(QtGui.QApplication.translate("mainwindow", "802.1X tests", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButton_3.setText(QtGui.QApplication.translate("mainwindow", "WIDS/WIPS/WDS Confusion", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButton.setText(QtGui.QApplication.translate("mainwindow", "MAC filter bruteforce mode", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButton_2.setText(QtGui.QApplication.translate("mainwindow", "WPA Downgrade test", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_3.setText(QtGui.QApplication.translate("mainwindow", "Monitor Interface", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_4.setText(QtGui.QApplication.translate("mainwindow", "Wash", None, QtGui.QApplication.UnicodeUTF8))
-        self.start_wash_Button.setText(QtGui.QApplication.translate("mainwindow", "Start", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_8.setText(QtGui.QApplication.translate("mainwindow", "Reaver", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_6.setText(QtGui.QApplication.translate("mainwindow", "Pin", None, QtGui.QApplication.UnicodeUTF8))
-        self.reaver_eapterminate.setText(QtGui.QApplication.translate("mainwindow", "--eap-terminate", None, QtGui.QApplication.UnicodeUTF8))
-        self.reaver_onAssoc.setText(QtGui.QApplication.translate("mainwindow", "--no-associate", None, QtGui.QApplication.UnicodeUTF8))
-        self.reaver_dhsmall.setText(QtGui.QApplication.translate("mainwindow", "-dh-small", None, QtGui.QApplication.UnicodeUTF8))
-        self.reaver_ignorelocks.setText(QtGui.QApplication.translate("mainwindow", "-ignore-locks", None, QtGui.QApplication.UnicodeUTF8))
-        self.reaver_nonacks.setText(QtGui.QApplication.translate("mainwindow", "-no-nacks", None, QtGui.QApplication.UnicodeUTF8))
-        self.startReaver_Button.setText(QtGui.QApplication.translate("mainwindow", "Start Reaver", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_9.setText(QtGui.QApplication.translate("mainwindow", "Bully", None, QtGui.QApplication.UnicodeUTF8))
-        self.label_7.setText(QtGui.QApplication.translate("mainwindow", "Pin", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_4.setText(QtGui.QApplication.translate("mainwindow", "--nocheck", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_3.setText(QtGui.QApplication.translate("mainwindow", "--lockignore", None, QtGui.QApplication.UnicodeUTF8))
-        self.radioButton1.setText(QtGui.QApplication.translate("mainwindow", "--bruteforce", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_2.setText(QtGui.QApplication.translate("mainwindow", "--sequential", None, QtGui.QApplication.UnicodeUTF8))
-        self.checkBox_5.setText(QtGui.QApplication.translate("mainwindow", "--eapfail", None, QtGui.QApplication.UnicodeUTF8))
-        self.pushButton_6.setText(QtGui.QApplication.translate("mainwindow", "Start Bully", None, QtGui.QApplication.UnicodeUTF8))
-        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), QtGui.QApplication.translate("mainwindow", "Reaver and Bully", None, QtGui.QApplication.UnicodeUTF8))
+        item.setText(_translate("mainwindow", "Required", None))
+        self.label_5.setText(_translate("mainwindow",
+                                        "This is a list of programs that are required for the application to run smothly and some programs that help you with diferent aspects of your network testing.",
+                                        None))
+        self.Rec_Install_Button.setText(_translate("mainwindow", "Install Missing Programs", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.home_tab), _translate("mainwindow", "Home", None))
+        self.access_pointScan_Button.setText(_translate("mainwindow", "Scan for Access Points", None))
+        self.EncryptionGroupBox.setTitle(_translate("mainwindow", "Encryption", None))
+        self.wep_radioButton.setText(_translate("mainwindow", "WEP", None))
+        self.wpa_radioButton.setText(_translate("mainwindow", "WPA", None))
+        self.wps_radioButton.setText(_translate("mainwindow", "WPS", None))
+        self.dictionary_groupBox.setTitle(_translate("mainwindow", "Dictionary", None))
+        self.dictionary_select_Button.setText(_translate("mainwindow", "Dictionary Select", None))
+        self.Clients_Groupbox.setTitle(_translate("mainwindow", "Clients", None))
+        self.toolbox_groupBox.setTitle(_translate("mainwindow", "ToolBox", None))
+        self.pushButton.setText(_translate("mainwindow", "Aircrack-ng", None))
+        self.label.setText(
+            _translate("mainwindow", "Select the tool you wood like to use to attack the access point(s)", None))
+        self.pushButton_2.setText(_translate("mainwindow", "Pyrit", None))
+        self.pushButton_3.setText(_translate("mainwindow", "Reaver", None))
+        self.pushButton_4.setText(_translate("mainwindow", "Mdk3", None))
+        self.pushButton_5.setText(_translate("mainwindow", "Bully", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.wifi_tab), _translate("mainwindow", "Wifi Attack", None))
+        self.radioButton_9.setText(_translate("mainwindow", "Beacon Flood Mode", None))
+        self.radioButton_8.setText(_translate("mainwindow", "Authentication DoS mode", None))
+        self.radioButton_6.setText(_translate("mainwindow", "ESSID Bruteforce mode", None))
+        self.radioButton_5.setText(_translate("mainwindow", "Deauthentication Mode", None))
+        self.radioButton_4.setText(_translate("mainwindow", "Michael exploitation", None))
+        self.radioButton_7.setText(_translate("mainwindow", "802.1X tests", None))
+        self.radioButton_3.setText(_translate("mainwindow", "WIDS/WIPS/WDS Confusion", None))
+        self.radioButton.setText(_translate("mainwindow", "MAC filter bruteforce mode", None))
+        self.radioButton_2.setText(_translate("mainwindow", "WPA Downgrade test", None))
+        self.label_3.setText(_translate("mainwindow", "Monitor Interface", None))
+        self.label_4.setText(_translate("mainwindow", "Wash", None))
+        self.start_wash_Button.setText(_translate("mainwindow", "Start", None))
+        self.label_8.setText(_translate("mainwindow", "Reaver", None))
+        self.label_6.setText(_translate("mainwindow", "Pin", None))
+        self.reaver_eapterminate.setText(_translate("mainwindow", "--eap-terminate", None))
+        self.reaver_onAssoc.setText(_translate("mainwindow", "--no-associate", None))
+        self.reaver_dhsmall.setText(_translate("mainwindow", "-dh-small", None))
+        self.reaver_ignorelocks.setText(_translate("mainwindow", "-ignore-locks", None))
+        self.reaver_nonacks.setText(_translate("mainwindow", "-no-nacks", None))
+        self.startReaver_Button.setText(_translate("mainwindow", "Start Reaver", None))
+        self.label_9.setText(_translate("mainwindow", "Bully", None))
+        self.label_7.setText(_translate("mainwindow", "Pin", None))
+        self.checkBox_4.setText(_translate("mainwindow", "--nocheck", None))
+        self.checkBox_3.setText(_translate("mainwindow", "--lockignore", None))
+        self.radioButton1.setText(_translate("mainwindow", "--bruteforce", None))
+        self.checkBox_2.setText(_translate("mainwindow", "--sequential", None))
+        self.checkBox_5.setText(_translate("mainwindow", "--eapfail", None))
+        self.pushButton_6.setText(_translate("mainwindow", "Start Bully", None))
+        self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("mainwindow", "Reaver and Bully", None))
+
 
 import wifern_rc

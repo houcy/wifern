@@ -4,8 +4,5 @@
   </qresource>
   <qresource prefix="wifi_tab">
     <file>WiFi.png</file>
-  </qresource>
-  <qresource prefix="Splash">
-    <file>wifern.png</file>
-  </qresource>
+  </qresource>  
 </RCC>
