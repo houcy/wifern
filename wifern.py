@@ -1,6 +1,7 @@
 #!/usr/bin/env python
-
+import commands
 import sys
+import sqlite3
 from sys import stdout
 import csv
 import os
@@ -12,12 +13,13 @@ import multiprocessing
 import random
 import re
 import PyQt4
-import pid as pid
-from PyQt4.QtCore import QFileSystemWatcher
 from PyQt4 import QtCore, QtGui, QtSql
+from PyQt4.QtSql import QSqlDatabase, QSqlQuery
+from PyQt4.QtCore import QFileSystemWatcher
 from PyQt4.QtGui import QPixmap, QSplashScreen
 from signal import SIGINT, SIGTERM
 import wifernGui
+import dbase
 import orphan
 
 """
@@ -38,10 +40,6 @@ adapters = []
 monitors = []
 ProgList = []
 not_rec_list = []
-db = QtSql.QSqlDatabase.addDatabase('QSQLITE')
-db.setDatabaseName("attack_session.db")
-query = QtSql.QSqlQuery(db)
-
 
 class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     'Main application class derived from WIfite and FERN-wifi-cracker thus wifern'
@@ -52,7 +50,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         if os.getuid() != 0:
             exit(1)
         self.working_Dir = ''
-        self.working_dir()
+        dbase.working_dir()
         self.recs()
         self.connect(self.access_pointScan_Button, QtCore.SIGNAL("clicked()"), self.wifi_window)
         self.connect(self.dictionary_select_Button, QtCore.SIGNAL("clicked()"), self.opendict)
@@ -81,6 +79,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         self.Pyrit_import_todb_Button.setEnabled(False)
         self.pyrit_attack_Hshake_progressBar.setVisible(False)
         self.Pyrit_handshake_attackButton.setEnabled(False)
+
 
     ####################################################
     ####  MAIN WINDOW WIDGETS AND DISPLAY         ######
@@ -118,33 +117,6 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
         time = QtCore.QTime.currentTime()
         text = time.toString('hh:mm')
         self.lcd_time_Number.display(text)
-
-    def working_dir(self):
-        from tempfile import mkdtemp
-        self.working_Dir = mkdtemp(prefix='wifern')
-        if not self.working_Dir.endswith(os.sep):
-            self.working_Dir += os.sep
-        os.chdir(self.working_Dir)
-        if not db.open():
-            QtGui.QMessageBox.critical(None, QtGui.qApp.tr("Cannot open database"),
-                                       QtGui.qApp.tr("Unable to establish a database connection.\n"
-                                                     "This example needs SQLite support. Please read "
-                                                     "the Qt SQL driver documentation for information "
-                                                     "how to build it.\n\n"
-                                                     "Click Cancel to exit."),
-                                       QtGui.QMessageBox.Cancel)
-            return False
-        query = QtSql.QSqlQuery()
-        query.exec_("create table reaver(bssid varchar(17) PRIMARY KEY NOT NULL, essid varchar(20), "
-                    "channel int, power int, locked varchar(3))")
-        query.exec_("create table victim(bssid varchar(17) PRIMARY KEY NOT NULL, essid varchar(20), "
-                    "power int, data varchar(20), channel int, encryption varchar(7), "
-                    "maker_model varchar(40), wps varchar(3))")
-        query.exec_("create table adapters (name varchar(8), bssid varchar(17), status varchar(7))")
-        query.exec_("create table monitors (name varchar(8), bssid varchar(17))")
-        query.exec_("create table recs (program_name varchar(20), available varchar(7))")
-        query.exec_(
-            "create table clients(bssid varchar(17), station varchar(17) references reaver (bssid), power int(3))")
 
     #####################################################
     ###  INTERFACE, MONITOR MODE AND INJECTION CHECK ####
@@ -952,22 +924,7 @@ class wifern(QtGui.QMainWindow, wifernGui.Ui_mainwindow):
     ###   Closing the Main Window                   #####
     #####################################################
 
-    def closeEvent(self, QCloseEvent):
-        query = QtSql.QSqlQuery(db)
-        query.prepare("select name from monitors")
-        query.exec_()
-        query.next()
-        while query.isValid():
-            tempList = QtCore.QStringList()
-            tempList.append(query.value(0).toString())
-            for erase in tempList:
-                call(['airmon-ng', 'stop', erase], stdout=open(os.devnull, 'w'), stderr=open(os.devnull, 'w'))
 
-        else:
-            if os.path.exists(self.working_Dir):
-                for f in os.listdir(self.working_Dir):
-                    os.remove(self.working_Dir + f)
-            os.rmdir(self.working_Dir)
 
 
 class CapFile:
@@ -1006,6 +963,9 @@ class Client():
         self.encryption = encryption
         self.probes = []
 
+    def closeEvent(self, QCloseEvent):
+        return dbase.close(self,QCloseEvent)
+
 
 if __name__ == "__main__":
     app = QtGui.QApplication(sys.argv)
@@ -1013,7 +973,7 @@ if __name__ == "__main__":
     # splash = QSplashScreen(splash_pix, QtCore.Qt.WindowStaysOnTopHint)
     # splash.setMask(splash_pix.mask())
     # splash.show()
-    # app.processEvents()
+    app.processEvents()
     multiprocessing.freeze_support()
     form = wifern()
     form.show()
