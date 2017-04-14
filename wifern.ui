@@ -16,6 +16,18 @@
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
+  <property name="minimumSize">
+   <size>
+    <width>1454</width>
+    <height>812</height>
+   </size>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>1454</width>
+    <height>812</height>
+   </size>
+  </property>
   <property name="windowTitle">
    <string>Wifern</string>
   </property>
@@ -37,6 +49,18 @@
       <horstretch>0</horstretch>
       <verstretch>0</verstretch>
      </sizepolicy>
+    </property>
+    <property name="minimumSize">
+     <size>
+      <width>1431</width>
+      <height>771</height>
+     </size>
+    </property>
+    <property name="maximumSize">
+     <size>
+      <width>1431</width>
+      <height>771</height>
+     </size>
     </property>
     <property name="autoFillBackground">
      <bool>false</bool>
@@ -79,6 +103,18 @@
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="minimumSize">
+          <size>
+           <width>1309</width>
+           <height>719</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>1309</width>
+           <height>719</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true"/>
          </property>
@@ -96,6 +132,18 @@
             <width>971</width>
             <height>681</height>
            </rect>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>971</width>
+            <height>681</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>971</width>
+            <height>681</height>
+           </size>
           </property>
           <property name="title">
            <string>Tools </string>
@@ -582,8 +630,8 @@
      <widget class="QTableView" name="accessPointTable">
       <property name="geometry">
        <rect>
-        <x>30</x>
-        <y>50</y>
+        <x>10</x>
+        <y>110</y>
         <width>1011</width>
         <height>611</height>
        </rect>
@@ -718,8 +766,8 @@
         <rect>
          <x>0</x>
          <y>20</y>
-         <width>201</width>
-         <height>111</height>
+         <width>231</width>
+         <height>131</height>
         </rect>
        </property>
       </widget>
@@ -727,8 +775,8 @@
      <widget class="QGroupBox" name="toolbox_groupBox">
       <property name="geometry">
        <rect>
-        <x>1060</x>
-        <y>430</y>
+        <x>1050</x>
+        <y>510</y>
         <width>241</width>
         <height>171</height>
        </rect>

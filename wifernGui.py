@@ -16,14 +16,11 @@ except AttributeError:
 
 try:
     _encoding = QtGui.QApplication.UnicodeUTF8
-
-
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig, _encoding)
 except AttributeError:
     def _translate(context, text, disambig):
         return QtGui.QApplication.translate(context, text, disambig)
-
 
 class Ui_mainwindow(object):
     def setupUi(self, mainwindow):
@@ -34,6 +31,8 @@ class Ui_mainwindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(mainwindow.sizePolicy().hasHeightForWidth())
         mainwindow.setSizePolicy(sizePolicy)
+        mainwindow.setMinimumSize(QtCore.QSize(1454, 812))
+        mainwindow.setMaximumSize(QtCore.QSize(1454, 812))
         mainwindow.setToolButtonStyle(QtCore.Qt.ToolButtonIconOnly)
         self.centralwidget = QtGui.QWidget(mainwindow)
         self.centralwidget.setObjectName(_fromUtf8("centralwidget"))
@@ -44,6 +43,8 @@ class Ui_mainwindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tabWidget.sizePolicy().hasHeightForWidth())
         self.tabWidget.setSizePolicy(sizePolicy)
+        self.tabWidget.setMinimumSize(QtCore.QSize(1431, 771))
+        self.tabWidget.setMaximumSize(QtCore.QSize(1431, 771))
         self.tabWidget.setAutoFillBackground(False)
         self.tabWidget.setIconSize(QtCore.QSize(30, 30))
         self.tabWidget.setDocumentMode(False)
@@ -61,11 +62,15 @@ class Ui_mainwindow(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.groupBox.sizePolicy().hasHeightForWidth())
         self.groupBox.setSizePolicy(sizePolicy)
+        self.groupBox.setMinimumSize(QtCore.QSize(1309, 719))
+        self.groupBox.setMaximumSize(QtCore.QSize(1309, 719))
         self.groupBox.setStyleSheet(_fromUtf8(""))
-        self.groupBox.setAlignment(QtCore.Qt.AlignLeading | QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        self.groupBox.setAlignment(QtCore.Qt.AlignLeading|QtCore.Qt.AlignLeft|QtCore.Qt.AlignTop)
         self.groupBox.setObjectName(_fromUtf8("groupBox"))
         self.groupBox_2 = QtGui.QGroupBox(self.groupBox)
         self.groupBox_2.setGeometry(QtCore.QRect(290, 0, 971, 681))
+        self.groupBox_2.setMinimumSize(QtCore.QSize(971, 681))
+        self.groupBox_2.setMaximumSize(QtCore.QSize(971, 681))
         self.groupBox_2.setObjectName(_fromUtf8("groupBox_2"))
         self.Interface_groupBox = QtGui.QGroupBox(self.groupBox_2)
         self.Interface_groupBox.setGeometry(QtCore.QRect(10, 20, 286, 187))
@@ -149,7 +154,7 @@ class Ui_mainwindow(object):
         self.groupBox_5.setGeometry(QtCore.QRect(30, 210, 251, 121))
         self.groupBox_5.setObjectName(_fromUtf8("groupBox_5"))
         self.mac_gen_lineEdit = QtGui.QLineEdit(self.groupBox_5)
-        self.mac_gen_lineEdit.setGeometry(QtCore.QRect(140, 80, 91, 31))
+        self.mac_gen_lineEdit.setGeometry(QtCore.QRect(140, 80, 101, 31))
         self.mac_gen_lineEdit.setObjectName(_fromUtf8("mac_gen_lineEdit"))
         self.mac_gen_Button = QtGui.QPushButton(self.groupBox_5)
         self.mac_gen_Button.setGeometry(QtCore.QRect(7, 80, 127, 31))
@@ -162,7 +167,7 @@ class Ui_mainwindow(object):
         self.groupBox_6.setGeometry(QtCore.QRect(310, 270, 511, 171))
         self.groupBox_6.setObjectName(_fromUtf8("groupBox_6"))
         self.layoutWidget2 = QtGui.QWidget(self.groupBox_6)
-        self.layoutWidget2.setGeometry(QtCore.QRect(10, 20, 198, 144))
+        self.layoutWidget2.setGeometry(QtCore.QRect(10, 20, 199, 144))
         self.layoutWidget2.setObjectName(_fromUtf8("layoutWidget2"))
         self.verticalLayout_7 = QtGui.QVBoxLayout(self.layoutWidget2)
         self.verticalLayout_7.setObjectName(_fromUtf8("verticalLayout_7"))
@@ -241,7 +246,7 @@ class Ui_mainwindow(object):
         self.access_pointScan_Button.setFont(font)
         self.access_pointScan_Button.setObjectName(_fromUtf8("access_pointScan_Button"))
         self.accessPointTable = QtGui.QTableView(self.wifi_tab)
-        self.accessPointTable.setGeometry(QtCore.QRect(30, 50, 1011, 611))
+        self.accessPointTable.setGeometry(QtCore.QRect(10, 110, 1011, 611))
         sizePolicy = QtGui.QSizePolicy(QtGui.QSizePolicy.Fixed, QtGui.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -279,10 +284,10 @@ class Ui_mainwindow(object):
         self.Clients_Groupbox.setGeometry(QtCore.QRect(1060, 270, 201, 141))
         self.Clients_Groupbox.setObjectName(_fromUtf8("Clients_Groupbox"))
         self.Client_columnView = QtGui.QColumnView(self.Clients_Groupbox)
-        self.Client_columnView.setGeometry(QtCore.QRect(0, 20, 201, 111))
+        self.Client_columnView.setGeometry(QtCore.QRect(0, 20, 231, 131))
         self.Client_columnView.setObjectName(_fromUtf8("Client_columnView"))
         self.toolbox_groupBox = QtGui.QGroupBox(self.wifi_tab)
-        self.toolbox_groupBox.setGeometry(QtCore.QRect(1060, 430, 241, 171))
+        self.toolbox_groupBox.setGeometry(QtCore.QRect(1050, 510, 241, 171))
         self.toolbox_groupBox.setObjectName(_fromUtf8("toolbox_groupBox"))
         self.pushButton = QtGui.QPushButton(self.toolbox_groupBox)
         self.pushButton.setGeometry(QtCore.QRect(10, 60, 95, 31))
@@ -309,7 +314,7 @@ class Ui_mainwindow(object):
         self.tab = QtGui.QWidget()
         self.tab.setObjectName(_fromUtf8("tab"))
         self.layoutWidget3 = QtGui.QWidget(self.tab)
-        self.layoutWidget3.setGeometry(QtCore.QRect(800, 30, 222, 322))
+        self.layoutWidget3.setGeometry(QtCore.QRect(800, 30, 223, 322))
         self.layoutWidget3.setObjectName(_fromUtf8("layoutWidget3"))
         self.verticalLayout_6 = QtGui.QVBoxLayout(self.layoutWidget3)
         self.verticalLayout_6.setObjectName(_fromUtf8("verticalLayout_6"))
@@ -424,7 +429,7 @@ class Ui_mainwindow(object):
         font.setBold(True)
         font.setWeight(75)
         self.label_6.setFont(font)
-        self.label_6.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignTrailing | QtCore.Qt.AlignVCenter)
+        self.label_6.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
         self.label_6.setObjectName(_fromUtf8("label_6"))
         self.horizontalLayout.addWidget(self.label_6)
         self.reaverPin_lineEdit = QtGui.QLineEdit(self.layoutWidget4)
@@ -566,31 +571,20 @@ class Ui_mainwindow(object):
         self.Process_wordlist_Button.setText(_translate("mainwindow", "Execute", None))
         self.sort_checkBox.setToolTip(_translate("mainwindow", "Sort the wordlist", None))
         self.sort_checkBox.setText(_translate("mainwindow", "Sort", None))
-        self.pwinspector_checkBox.setToolTip(_translate("mainwindow",
-                                                        "<html><head/><body><p>Save some extra time when attacking WPA systems(handshakes) by making sure that ONLY words of length 8 and greater are included.</p></body></html>",
-                                                        None))
+        self.pwinspector_checkBox.setToolTip(_translate("mainwindow", "<html><head/><body><p>Save some extra time when attacking WPA systems(handshakes) by making sure that ONLY words of length 8 and greater are included.</p></body></html>", None))
         self.pwinspector_checkBox.setText(_translate("mainwindow", "Pw Inspector", None))
-        self.label_2.setText(_translate("mainwindow",
-                                        "Sort: Sorts and finds unique occurrences, Pw Inspector: Prepares wordlist for WPA(minimum length=8) attack(s). Please note that depending on the size of the wordlist these operations may take a long time to complete especially if they are combined ",
-                                        None))
+        self.label_2.setText(_translate("mainwindow", "Sort: Sorts and finds unique occurrences, Pw Inspector: Prepares wordlist for WPA(minimum length=8) attack(s). Please note that depending on the size of the wordlist these operations may take a long time to complete especially if they are combined ", None))
         self.groupBox_5.setTitle(_translate("mainwindow", "MAC file", None))
         self.mac_gen_Button.setText(_translate("mainwindow", "Generate MAC(s)", None))
-        self.label_11.setText(
-            _translate("mainwindow", "Generate MAC addresses for use with mdk3 and store in wifern.txt", None))
+        self.label_11.setText(_translate("mainwindow", "Generate MAC addresses for use with mdk3 and store in wifern.txt", None))
         self.groupBox_6.setTitle(_translate("mainwindow", "Pyrit", None))
-        self.Pyrit_import_pw_Button.setToolTip(_translate("mainwindow",
-                                                          "<html><head/><body><p>Select a wordlist to be added to the pyrit database for later attacks. PMK(s) will be generated and stored in the pyrit folder</p></body></html>",
-                                                          None))
+        self.Pyrit_import_pw_Button.setToolTip(_translate("mainwindow", "<html><head/><body><p>Select a wordlist to be added to the pyrit database for later attacks. PMK(s) will be generated and stored in the pyrit folder</p></body></html>", None))
         self.Pyrit_import_pw_Button.setText(_translate("mainwindow", "Import Wordlist", None))
-        self.Pyrit_import_todb_Button.setToolTip(
-            _translate("mainwindow", "PMK(s) will be generated and added to the Database", None))
+        self.Pyrit_import_todb_Button.setToolTip(_translate("mainwindow", "PMK(s) will be generated and added to the Database", None))
         self.Pyrit_import_todb_Button.setText(_translate("mainwindow", "Add Passwords to Pyrit DB", None))
-        self.Pyrit_handshake_getButton.setToolTip(
-            _translate("mainwindow", "If you have a handshake file enter it here", None))
+        self.Pyrit_handshake_getButton.setToolTip(_translate("mainwindow", "If you have a handshake file enter it here", None))
         self.Pyrit_handshake_getButton.setText(_translate("mainwindow", "Get Handshake File", None))
-        self.Pyrit_handshake_attackButton.setToolTip(_translate("mainwindow",
-                                                                "Attack the above entered handshake file with the ALREADY stored PMK(s). If there are no PMK(s) an error will occour",
-                                                                None))
+        self.Pyrit_handshake_attackButton.setToolTip(_translate("mainwindow", "Attack the above entered handshake file with the ALREADY stored PMK(s). If there are no PMK(s) an error will occour", None))
         self.Pyrit_handshake_attackButton.setText(_translate("mainwindow", "Attack Handshake", None))
         item = self.my_tableWidget.horizontalHeaderItem(0)
         item.setText(_translate("mainwindow", "Program", None))
@@ -598,9 +592,7 @@ class Ui_mainwindow(object):
         item.setText(_translate("mainwindow", "Available", None))
         item = self.my_tableWidget.horizontalHeaderItem(2)
         item.setText(_translate("mainwindow", "Required", None))
-        self.label_5.setText(_translate("mainwindow",
-                                        "This is a list of programs that are required for the application to run smothly and some programs that help you with diferent aspects of your network testing.",
-                                        None))
+        self.label_5.setText(_translate("mainwindow", "This is a list of programs that are required for the application to run smothly and some programs that help you with diferent aspects of your network testing.", None))
         self.Rec_Install_Button.setText(_translate("mainwindow", "Install Missing Programs", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.home_tab), _translate("mainwindow", "Home", None))
         self.access_pointScan_Button.setText(_translate("mainwindow", "Scan for Access Points", None))
@@ -613,8 +605,7 @@ class Ui_mainwindow(object):
         self.Clients_Groupbox.setTitle(_translate("mainwindow", "Clients", None))
         self.toolbox_groupBox.setTitle(_translate("mainwindow", "ToolBox", None))
         self.pushButton.setText(_translate("mainwindow", "Aircrack-ng", None))
-        self.label.setText(
-            _translate("mainwindow", "Select the tool you wood like to use to attack the access point(s)", None))
+        self.label.setText(_translate("mainwindow", "Select the tool you wood like to use to attack the access point(s)", None))
         self.pushButton_2.setText(_translate("mainwindow", "Pyrit", None))
         self.pushButton_3.setText(_translate("mainwindow", "Reaver", None))
         self.pushButton_4.setText(_translate("mainwindow", "Mdk3", None))
@@ -650,5 +641,14 @@ class Ui_mainwindow(object):
         self.pushButton_6.setText(_translate("mainwindow", "Start Bully", None))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("mainwindow", "Reaver and Bully", None))
 
-
 import wifern_rc
+
+if __name__ == "__main__":
+    import sys
+    app = QtGui.QApplication(sys.argv)
+    mainwindow = QtGui.QMainWindow()
+    ui = Ui_mainwindow()
+    ui.setupUi(mainwindow)
+    mainwindow.show()
+    sys.exit(app.exec_())
+
